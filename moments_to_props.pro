@@ -52,11 +52,11 @@ pro moments_to_props $
   sz = size(moments)
 
   if sz[0] eq 1 then begin
-     props = replicate(empty_prop_struct(), sz[1])
+     props = replicate(empty_cloud_struct(), sz[1])
   endif
 
   if sz[0] eq 2 then begin
-     props = replicate(empty_prop_struct(), sz[1], sz[2])
+     props = replicate(empty_cloud_struct(), sz[1], sz[2])
   endif
 
   n_mom = n_elements(moments)

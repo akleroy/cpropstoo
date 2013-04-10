@@ -17,6 +17,7 @@ function empty_moment_struct
   nan = !values.f_nan
 
   empty_struct = { $
+                 peaknum: 0L, $
                  mom0: empty_prop_struct(unit="K*pix^3"), $
                  mom1_x: empty_prop_struct(unit="pix"), $
                  mom1_y: empty_prop_struct(unit="pix"), $

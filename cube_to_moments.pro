@@ -71,8 +71,8 @@ pro cube_to_moments $
      endif
 
      ind = where(assign eq cloudlist[i], ct)
-     if ct eq 0 then continue
-     
+     if ct eq 0 then continue    
+
      this_t = t[ind]
      this_x = x[ind]
      this_y = y[ind]
@@ -81,6 +81,8 @@ pro cube_to_moments $
      this_mom = $
         measure_moments(x=this_x, y=this_y, v=this_v, t=this_t $
                         , /extrap, extarg=0)
+
+     this_mom.peaknum = cloudlist[i]
 
      if n_elements(moments) eq 0 then begin
         moments = [this_mom]        
