@@ -262,9 +262,9 @@ function calc_props_from_moments $
 ; RADIUS
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  props.rad.val_meas = rmstorad*sqrt(props.majmom.val_meas^2 + props.minmom.val_meas^2)
-  props.rad.val_extrap = rmstorad*sqrt(props.majmom.val_extrap^2 + props.minmom.val_extrap^2)
-  props.rad.val = rmstorad*sqrt(props.majmom.val^2 + props.minmom.val^2)
+  props.rad.val_meas = rmstorad*sqrt(props.majmom.val_meas*props.minmom.val_meas)
+  props.rad.val_extrap = rmstorad*sqrt(props.majmom.val_extrap*props.minmom.val_extrap)
+  props.rad.val = rmstorad*sqrt(props.majmom.val*props.minmom.val)
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; VIRIAL MASS
