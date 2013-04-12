@@ -71,9 +71,9 @@ pro prep_cube $
 
      if n_elements(restfreq_hz) eq 0 then begin
 ;       PULL THE REST FERQUENCY FROM THE HEADER
-        restfreq_hz = sxpar(hd,'RESTFREQ')
-        restfreq_hz = restfreq_hz > sxpar(hd,'FREQ0')
-        restfreq_hz = restfreq_hz > sxpar(hd,'RESTFRQ')
+        restfreq_hz = sxpar(hdr,'RESTFREQ')
+        restfreq_hz = restfreq_hz > sxpar(hdr,'FREQ0')
+        restfreq_hz = restfreq_hz > sxpar(hdr,'RESTFRQ')
 
         sxdelpar, hdr, 'FREQ0'
         sxdelpar, hdr, 'RESTFREQ'
