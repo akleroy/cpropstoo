@@ -57,7 +57,7 @@ function calc_props_from_moments $
      endelse
   endif
   channum = findgen(n_elements(vaxis))
-  chanwidth_kms = abs(vaxis[1]-vaxis[0])/1E5
+  chanwidth_kms = abs(vaxis[1]-vaxis[0])
 
 ; CO-TO-H2 CONVERSION FACTOR
   if n_elements(xco) eq 0 then $
