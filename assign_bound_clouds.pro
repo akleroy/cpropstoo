@@ -12,7 +12,8 @@ pro assign_bound_clouds $
    , outfile=outfile $
    , assign=assign $
    , bound=bound $
-   , verbose=verbose  
+   , verbose=verbose  $
+   , index = index
 
  compile_opt idl2
 
@@ -102,13 +103,13 @@ pro assign_bound_clouds $
 ; should be done before hand...? 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
  
-  kernels = ind_to_xyv(kernel_ind, sz=cube_sz) 
+  ind_to_xyv, kernel_ind, sz=cube_sz, x=kernel_x, y=kernel_y, v=kernel_v
   xloc = rad*!values.f_nan
   yloc = xloc
   ;NOT SURE HOW THE VALUES AND KERNELS ARE INDEXED IN THE NEW STRUCTURE
   for i=0,(size(xloc))[1]-1 do begin
-    xloc[i,*] = kernels[0,i]
-    yloc[i,*] = kernels[1,i]
+    xloc[i,*] = kernel_x[i]
+    yloc[i,*] = kernel_y[i]
   endfor
    
  
@@ -151,7 +152,8 @@ pro assign_bound_clouds $
      ind = where(this_reg and regions NE 0 , num_ct)  
      ;lev = max(where(levels GT lowest_bound)) 
      lev = where(levels EQ lowest_bound)
-
+     
+     if keyword_set(verbose) then $
      print, num_ct, props[i,lev].moments.npix.val, props[i,lev-1 > 0].moments.npix.val, props[i,lev+1 < n_elements(levels)-1].moments.npix.val
   
     if num_ct GT 0 and num_ct EQ props[i,lev].moments.npix.val and total(bound[ind]) NE  num_ct then begin  
