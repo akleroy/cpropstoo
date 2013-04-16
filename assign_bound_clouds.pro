@@ -12,8 +12,7 @@ pro assign_bound_clouds $
    , outfile=outfile $
    , assign=assign $
    , bound=bound $
-   , verbose=verbose $
-   , levels = levels 
+   , verbose=verbose  
 
  compile_opt idl2
 
@@ -64,7 +63,7 @@ pro assign_bound_clouds $
 
   if n_elements(propfile) gt 0 then begin
     restore, propfile
-  endif
+ endif
 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 ; DEFINITIONS AND DEFAULTS
@@ -103,7 +102,7 @@ pro assign_bound_clouds $
 ; should be done before hand...? 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
  
-  kernels = modindex(kernel_ind, cube_sz) 
+  kernels = ind_to_xyv(kernel_ind, sz=cube_sz) 
   xloc = rad*!values.f_nan
   yloc = xloc
   ;NOT SURE HOW THE VALUES AND KERNELS ARE INDEXED IN THE NEW STRUCTURE
