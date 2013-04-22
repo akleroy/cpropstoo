@@ -116,7 +116,7 @@ pro cube_to_level_moments $
                       , verbose = verbose)     
   sz_merge = size(merger_matrix)
   ind = lindgen(sz_merge[1])
-  merger_matrix[ind,ind] = !values.f_nan
+  ;merger_matrix[ind,ind] = !values.f_nan
 
 ; ... invert to get a distance useful for the dendrogram
 ; calculation. Kernels are closer if they merge at a higher level.
@@ -138,13 +138,13 @@ pro cube_to_level_moments $
   kernel_ind = kernel_ind[leafnodes]
   old_merger_matrix= merger_matrix  
   n_kern = n_elements(kernel_ind)
-  for i = 0, n_kern-1 do begin
-     for j = 0, n_kern-1 do begin
-        if i eq j then $
-           continue
+  for i = 0, n_kern-1 do begin 
+     for j = 0, n_kern-1 do begin 
+        ;if i eq j then $
+        ;   continue 
         merger_matrix[i,j] = $
            old_merger_matrix[leafnodes[i], leafnodes[j]]
-     endfor
+           endfor 
   endfor
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
@@ -216,6 +216,6 @@ pro cube_to_level_moments $
 ; SAVE TO DISK
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-  save, file=outfile, moments, levels, kernel_ind, hdr
+  save, file=outfile, moments, levels, kernel_ind, hdr, old_merger_matrix
 
 end                             ; OF CUBE_TO_LEVEL_MOMENTS
