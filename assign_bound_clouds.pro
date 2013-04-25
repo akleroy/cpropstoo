@@ -94,7 +94,7 @@ pro assign_bound_clouds $
  
   G=4.29681E-3 ; pc M_sun^-1 (km/s)^2
 
-  is_bound = mvir/mass LT 2
+  is_bound = mvir/mass LT 2 AND mvir/mass GE 1
   next_assgn = 1
   
  
@@ -102,30 +102,34 @@ pro assign_bound_clouds $
 ; CALCULATE Q VALUE 
 ; should be done before hand...? 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
- 
-  ind_to_xyv, kernel_ind, sz=cube_sz, x=kernel_x, y=kernel_y, v=kernel_v
-  xloc = rad*!values.f_nan
-  yloc = xloc
+ ;WILL USE THE WEIGHTED CENTER POSITION INSTEAD
+ ; ind_to_xyv, kernel_ind, sz=cube_sz, x=kernel_x, y=kernel_y, v=kernel_v
+ ; xloc = rad*!values.f_nan
+ ; yloc = xloc
   ;NOT SURE HOW THE VALUES AND KERNELS ARE INDEXED IN THE NEW STRUCTURE
-  for i=0,(size(xloc))[1]-1 do begin
-    xloc[i,*] = kernel_x[i]
-    yloc[i,*] = kernel_y[i]
-  endfor
+ ; for i=0,(size(xloc))[1]-1 do begin
+ ;   xloc[i,*] = kernel_x[i]
+ ;   yloc[i,*] = kernel_y[i]
+ ; endfor
    
- 
- 
+ xloc = props.moments.mom1_x.val_meas
+ yloc = props.moments.mom1_y.val_meas
+
   make_axes, hdr, raxis=raxis, daxis=daxis
   readcol, 'freqcurves14feb2013.dat', v1,v2,v3,v4,v5 ;INPUT FILE.... OR HAVE Q VALUES ALREADY?
 
   ra = interpol(raxis, findgen(935), xloc)
   dec = interpol(daxis, findgen(601), yloc)
 
-  deproject, ra, dec, [173,23,raxis[467],daxis[300]], rgrid=rgrid,tgrid=tgrid,/vector
+;Dynamical center, inclination, and PA from pety et al. 
+
+  deproject, ra, dec, [173,21,raxis[461],daxis[303]], rgrid=rgrid,tgrid=tgrid,/vector
 
   Radius = rgrid*3600
   Density = (mass)/(!Pi*rad^2)  ; msun/pc^2
-  Kappa = interpol(v3,v1,Radius)/1000      
+  Kappa = interpol(v4,v1,Radius)/1000      
   Q = (sigv*Kappa)/(!Pi*G*Density)
+
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 ; FIND REGIONS 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
