@@ -102,19 +102,54 @@ function measure_moments $
   zeroind = where(abs(term1v - term2v) lt 1.d-10, num)
   if (num gt 0) then $
     mom2v[zeroind] = 0.0
+  
+; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
+; AREA, VELOCITY WIDTH, AND ELLIPSE FIT CALCULATIONS
+; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
+
+; ID POINTS ABOVE HALF MAXIMUM
+
+; (Note that there is a subtley here. We keep all points above half
+; max but one might want only connected points above half max. Right
+; now, I think the current way is more consistent with the overall
+; assignment definition.)
+
+; ... WORK OUT A SET OF UNIQUE TWO-D INDICES
+  twod_id = x + y*(max(x)+1)  
+  twod_ind = uniq(twod_id, sort(twod_id))
+  twod_x = x[twod_ind]
+  twod_y = y[twod_ind]
+  
+; ... WORK OUT INDICES WHERE INTENSITY > 0.5 MAX
+  halfmax_ind = where(t gt 0.5*props.maxval.val) 
+  halfmax_twod_ind = uniq(twod_id[halfmax_ind], sort(twod_id[halfmax_ind]))
+  halfmax_twod_x = x[halfmax_twod_ind]
+  halfmax_twod_y = y[halfmax_twod_ind]
 
 ; AREA 
+  area = n_elements(twod_ind)*1.0
+  area_halfmax = n_elements(halfmax_twod_ind)*1.0
 
 ; DELTAV
+  deltav = max(v) - min(v)
+  deltav_halfmax = max(v[halfmax_ind]) - min(v[halfmax_ind])
 
-; COVARIANCE
+; ELLIPSE FITS
 
+; ... AT HALF-MAX, UNWEIGHTED (TWOD ONLY)
+  ellfit, x=halfmax_twod_x, y=halfmax_twod_y $
+          , maj=half_ell_maj, min=half_ell_min, posang=half_ell_pa
+
+; ... TOTAL, UNWEIGHTED (TWOD ONLY)
+  ellfit, x=twod_x, y=twod_y $
+          , maj=ell_maj, min=ell_min, posang=ell_pa
+
+; ... TOTAL, WEIGHTED
+  ellfit, x=x, y=y, wt=t, posang=posang
+  
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 ; CALCULATE MOMENTS ALONG THE NATURAL MAJOR/MINOR AXIS
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
-
-; FIND THE MAJOR AND MINOR AXES VIA PCA
-  posang = pa_moment(x, y, t)
 
 ; CALCULATE THE ROTATED X AND Y
   xrot = x*cos(posang)+y*sin(posang)
@@ -143,6 +178,19 @@ function measure_moments $
 ; ASSIGN VALUES TO THE OUTPUT STRUCTURE
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 
+  props.area.val = area
+  props.area_halfmax.val = area_halfmax
+  props.deltav.val = deltav
+  props.deltav_halfmax.val = deltav_halfmax
+
+  props.ell_maj.val = ell_maj
+  props.ell_min.val = ell_min
+  props.ell_pa = ell_pa
+  props.ell_maj_halfmax.val = half_ell_maj
+  props.ell_min_halfmax.val = half_ell_min
+  props.ell_pa_halfmax.val = half_ell_pa
+
+  props.posang.val = posang     
   props.mom0.val_meas = mom0t[n_elements(mom0t)-1]
   props.mom1_x.val_meas = mom1x[n_elements(mom1x)-1]
   props.mom1_y.val_meas = mom1y[n_elements(mom1y)-1]
@@ -150,7 +198,7 @@ function measure_moments $
   props.mom2_x.val_meas = mom2x[n_elements(mom2x)-1]
   props.mom2_y.val_meas = mom2y[n_elements(mom2y)-1]
   props.mom2_v.val_meas = mom2v[n_elements(mom2v)-1]
-  props.posang.val = posang
+
   props.mom2_maj.val_meas = mom2xrot[n_elements(mom2xrot)-1]
   props.mom2_min.val_meas = mom2yrot[n_elements(mom2yrot)-1]
 
