@@ -94,7 +94,7 @@ pro assign_bound_clouds $
  
   G=4.29681E-3 ; pc M_sun^-1 (km/s)^2
 
-  is_bound = mvir/mass LT 2
+  is_bound = mvir/mass LT 2 ;AND mvir/mass GE 1
   next_assgn = 1
   
  
@@ -102,41 +102,48 @@ pro assign_bound_clouds $
 ; CALCULATE Q VALUE 
 ; should be done before hand...? 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
- 
-  ind_to_xyv, kernel_ind, sz=cube_sz, x=kernel_x, y=kernel_y, v=kernel_v
-  xloc = rad*!values.f_nan
-  yloc = xloc
+ ;WILL USE THE WEIGHTED CENTER POSITION INSTEAD
+ ; ind_to_xyv, kernel_ind, sz=cube_sz, x=kernel_x, y=kernel_y, v=kernel_v
+ ; xloc = rad*!values.f_nan
+ ; yloc = xloc
   ;NOT SURE HOW THE VALUES AND KERNELS ARE INDEXED IN THE NEW STRUCTURE
-  for i=0,(size(xloc))[1]-1 do begin
-    xloc[i,*] = kernel_x[i]
-    yloc[i,*] = kernel_y[i]
-  endfor
+ ; for i=0,(size(xloc))[1]-1 do begin
+ ;   xloc[i,*] = kernel_x[i]
+ ;   yloc[i,*] = kernel_y[i]
+ ; endfor
    
- 
- 
+ xloc = props.moments.mom1_x.val_meas
+ yloc = props.moments.mom1_y.val_meas
+
   make_axes, hdr, raxis=raxis, daxis=daxis
-  readcol, 'freqcurves14feb2013.dat', v1,v2,v3,v4,v5 ;INPUT FILE.... OR HAVE Q VALUES ALREADY?
+  readcol, 'freqcurves14feb2013.dat', v1,v2,v3,v4,v5 
+;INPUT FILE.... OR HAVE Q VALUES ALREADY?
 
   ra = interpol(raxis, findgen(935), xloc)
   dec = interpol(daxis, findgen(601), yloc)
 
-  deproject, ra, dec, [173,23,raxis[467],daxis[300]], rgrid=rgrid,tgrid=tgrid,/vector
+;Dynamical center, inclination, and PA from pety et al. 
+
+  deproject, ra, dec, [173,21,raxis[461],daxis[303]],$
+             rgrid=rgrid,tgrid=tgrid,/vector
 
   Radius = rgrid*3600
   Density = (mass)/(!Pi*rad^2)  ; msun/pc^2
-  Kappa = interpol(v3,v1,Radius)/1000      
+  Kappa = interpol(v4,v1,Radius)/1000      
   Q = (sigv*Kappa)/(!Pi*G*Density)
+
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 ; FIND REGIONS 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 
   ; LOOP OVER KERNELS
   for i = 0L, n_elements(kernel_ind)-1 do begin
-  counter, i, n_elements(kernel_ind)-1, 'KERNEL   ' 
+  if keyword_set(verbose) then $
+     counter, i, n_elements(kernel_ind)-1, 'KERNEL   ' 
   ;  CHECK IF THIS IS EVER BOUND
      if total(is_bound[i,*]) eq 0 OR total(q[i,*] LT 1) EQ 0 then $
         continue
-  
+
   ;  GET BOUNDEDNESS FOR THIS COLUMN
      this_bound = (reform(is_bound[i,*]))
      this_bound_ind = where(this_bound AND q[i,*] LT 1, bound_ct)
@@ -144,19 +151,23 @@ pro assign_bound_clouds $
      if bound_ct LT 1 then continue 
   
      lowest_bound = min(levels[this_bound_ind])
-  ;  GENERATE THE MASK FOR THIS CLOUD
+     lev = where(levels EQ lowest_bound)
+     
+     if next_assgn GT 1 then $
+     if props[i,lev].moments.mom1_x.val_meas EQ $
+        props[index[0,next_assgn-1],index[1,next_assgn-1]]$
+        .moments.mom1_x.val_meas $
+        then continue
+     
+;  GENERATE THE MASK FOR THIS CLOUD
      this_mask = cube gt lowest_bound
      regions = label_region(this_mask, /ulong)
      this_reg = regions eq regions[kernel_ind[i]]
    ;  COPY TO TOTAL MASK
      ind = where(this_reg and regions NE 0 , num_ct)  
-     ;lev = max(where(levels GT lowest_bound)) 
-     lev = where(levels EQ lowest_bound)
-     
-     if keyword_set(verbose) then $
-     print, num_ct, props[i,lev].moments.npix.val, props[i,lev-1 > 0].moments.npix.val, props[i,lev+1 < n_elements(levels)-1].moments.npix.val
   
-    if num_ct GT 0 and num_ct EQ props[i,lev].moments.npix.val and total(bound[ind]) NE  num_ct then begin  
+    if num_ct GT 0 and num_ct EQ props[i,lev].moments.npix.val $
+    and total(bound[ind]) NE  num_ct then begin  
        bound[ind] = 1B
        assign[ind] = next_assgn 
        index = [[index], [i, lev, num_ct]]
