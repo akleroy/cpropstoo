@@ -185,7 +185,7 @@ function measure_moments $
 
   props.ell_maj.val = ell_maj
   props.ell_min.val = ell_min
-  props.ell_pa = ell_pa
+  props.ell_pa.val = ell_pa
   props.ell_maj_halfmax.val = half_ell_maj
   props.ell_min_halfmax.val = half_ell_min
   props.ell_pa_halfmax.val = half_ell_pa

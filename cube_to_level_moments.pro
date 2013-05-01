@@ -144,7 +144,7 @@ pro cube_to_level_moments $
         ;   continue 
         merger_matrix[i,j] = $
            old_merger_matrix[leafnodes[i], leafnodes[j]]
-           endfor 
+     endfor 
   endfor
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
