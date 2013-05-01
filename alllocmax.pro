@@ -4,6 +4,7 @@ function alllocmax $
    , friends = friends $
    , specfriends = specfriends $
    , search_kern = search_kern $
+   , exact = exact $
    , verbose = verbose
 
 ;+
@@ -68,6 +69,7 @@ function alllocmax $
 
   endif else begin
 
+;    PROCESS A USER-SUPPLIED SEARCH KERNEL
      sz_search = size(search_kern)
 
      if (sz_search[1] mod 2 ne 1) or $
@@ -76,7 +78,7 @@ function alllocmax $
         return, !values.f_nan
      endif
      friends = ((sz_search[1] > sz_search[2]) - 1) / 2
- 
+     
      if sz_search[0] eq 3 then begin
         if (sz_search[3] mod 2 ne 1) then begin
            message, "Search kernel must have odd dimensions.", /info
@@ -87,64 +89,101 @@ function alllocmax $
 
   endelse
 
-; COPY CUBE
-  cube = cubein
-
-; INITIALIZE EVERYTHING TO BE A LOCAL MAX, WE WILL REJECT THEM OVER TIME
-  lmaxcube = bytarr(sz[1], sz[2], sz[3]) + 1B
-
-; SET NON-FINITE VALUES TO NEGATIVE INFINITY
-  badind = where(finite(cubein) eq 0, badct)
-  if (badct gt 0) then begin
-     cube[badind] = -!values.f_infinity
-     lmaxcube[badind] = 0B
-  endif
-
-; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
-; IDENTIFY LOCAL MAXIMA BY ROLLING THE CUBE ALONG EACH AXIS
-; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
+; DEFAULT QUANTIZATION
+  nquant = 100000L
 
 ;
 ; A local maximum is defined to be a point greater than all the other
 ; points around it within an N x N x M box, where N and M are defined
-; by the friends and specfriends keywords. Identify a set of local
-; maxima by rolling ("shift"ing) the cube along each axis comparing
-; these to the original cube.
+; by the friends and specfriends keywords. We find these points in one
+; of two ways. The quick way is to leverage IDL's native DILATE
+; routine. The downside of this is that this requires quantizing the
+; cube (although we do this at a very coarse level). The exact
+; alternative uses SHIFT to roll the cube along each axis. This can be
+; much slower for very large cubes.
 ;
 
-; INITIALIZE COUNTER FOR OUTPUT
-  total_rolls = (2*specfriends+1)*(2*friends+1)^2
-  roll_count = 0
+; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
+; FAST: QUANTIZE THE CUBE AND USE IDL'S IMAGE DILATION ROUTINE
+; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
+  
+; Identify a set of maxima by quantizing the cube, applying image
+; dilation, and then comparing the dilated cube to the original.
 
-; ROLL THE CUBE
-  if specfriends gt 0 then begin
-     for k = -specfriends, specfriends do begin
-        for j = -friends, friends do begin
-           for i = -friends, friends do begin
+  if keyword_set(exact) eq 0 then begin
 
-;             IF REQUESTED, GIVE THE USER A PROGRESS METER
-              roll_count += 1
-              if keyword_set(verbose) then begin
-                 counter, roll_count, total_rolls, "Cube shift "
-              endif
+;    RECAST THE CUBE AS UNSIGNED LONGS     
+     maxval = max(cubein,/nan, min=minval)
+     cube = ulong((cubein - minval)/(maxval - minval)*nquant)
+     
+;    MAY NOT BE NECESSARY... BUT AVOID NANS
+     bad_ind = where(finite(cube) eq 0, bad_ct)
+     if bad_ct gt 0 then $
+        cube[bad_ind] = 0
 
-;             DON'T COMPARE TO SELF
-              if i eq 0 and j eq 0 and k eq 0 then $
-                 continue
+;    APPLY DILATION OPERATOR
+     dilated_cube = $
+        dilate(cube, search_kern, /gray, /preserve)
+     
+     lmaxcube = cube eq dilated_cube and dilated_cube ne 0
 
-;             COMPARE ONLY IN AREA DEFINED BY SEARCH KERNEL
-              if search_kern[i+friends,j+friends,k+specfriends] eq 0B then $
-                 continue
-              
-;             CHECK IF ORIGINAL CUBE EXCEEDS THE SHIFTED CUBE
-              lmaxcube *= (cube gt shift(cube, i, j, k))
+  endif
 
+; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
+; EXACT: IDENTIFY LOCAL MAXIMA BY ROLLING THE CUBE ALONG EACH AXIS
+; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
+
+; Identify a set of local maxima by rolling ("shift"ing) the cube
+; along each axis comparing these to the original cube.
+
+  if keyword_set(exact) then begin
+
+;    COPY CUBE
+     cube = cubein
+     
+;    INITIALIZE EVERYTHING TO BE A LOCAL MAX, WE WILL REJECT THEM OVER TIME
+     lmaxcube = bytarr(sz[1], sz[2], sz[3]) + 1B
+
+;    SET NON-FINITE VALUES TO NEGATIVE INFINITY
+     badind = where(finite(cubein) eq 0, badct)
+     if (badct gt 0) then begin
+        cube[badind] = -!values.f_infinity
+        lmaxcube[badind] = 0B
+     endif
+
+;    INITIALIZE COUNTER FOR OUTPUT
+     total_rolls = (2*specfriends+1)*(2*friends+1)^2
+     roll_count = 0
+
+;    ROLL THE CUBE
+     if specfriends gt 0 then begin
+        for k = -specfriends, specfriends do begin
+           for j = -friends, friends do begin
+              for i = -friends, friends do begin
+
+;                IF REQUESTED, GIVE THE USER A PROGRESS METER
+                 roll_count += 1
+                 if keyword_set(verbose) then begin
+                    counter, roll_count, total_rolls, "Cube shift "
+                 endif
+
+;                DON'T COMPARE TO SELF
+                 if i eq 0 and j eq 0 and k eq 0 then $
+                    continue
+
+;                COMPARE ONLY IN AREA DEFINED BY SEARCH KERNEL
+                 if search_kern[i+friends,j+friends,k+specfriends] eq 0B then $
+                    continue
+                 
+;                CHECK IF ORIGINAL CUBE EXCEEDS THE SHIFTED CUBE
+                 lmaxcube *= (cube gt shift(cube, i, j, k))
+
+              endfor
            endfor
         endfor
-     endfor
-  endif else begin
-     for j = -friends, friends do begin
-        for i = -friends, friends do begin
+     endif else begin
+        for j = -friends, friends do begin
+           for i = -friends, friends do begin
 
 ;             IF REQUESTED, GIVE THE USER A PROGRESS METER
               roll_count += 1
@@ -164,10 +203,12 @@ function alllocmax $
               lmaxcube *= (cube gt shift(cube, i, j))
 
            endfor
-     endfor
-  endelse
+        endfor
+     endelse
+
+  endif
   
-; EXTRACT
+; EXTRACT INDICES OF LOCAL MAXIMA
   lmaxind = where(lmaxcube eq 1B, num)
   if (num eq 0) then begin
      message, 'No true local max found, defaulting to high point in data.', /con
