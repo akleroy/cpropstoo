@@ -127,6 +127,8 @@ pro assign_bound_clouds $
   deproject, ra, dec, [173,21,raxis[461],daxis[303]],$
              rgrid=rgrid,tgrid=tgrid,/vector
 
+stop
+
   Radius = rgrid*3600
   Density = (mass)/(!Pi*rad^2)  ; msun/pc^2
   Kappa = interpol(v4,v1,Radius)/1000      
