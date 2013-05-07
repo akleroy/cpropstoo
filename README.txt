@@ -92,11 +92,10 @@ Roughly in priority order
 
 * add a multiline decomposer
 
-* map levelprops to levelmoments in from dendro
+* put derivative decimation of kernels back in - a natural interaction
+  here
 
 * add monte carlo uncertainty to moment measurement 
-
-* put derivative decimation of kernels back in
 
 * put a curve-of-growth tester in
 

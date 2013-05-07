@@ -27,6 +27,10 @@ function calc_props_from_moments $
   ms = 1.98900d+33              ; solar mass CGS
   pc = 3.0857d18                ; parsec CGS
 
+; MATHEMATICAL CONSTANTS
+  sig_to_fwhm = 2.354
+  ell_to_sig_half = 1.69536
+
 ; DISTANCE
   if n_elements(dist) eq 0 then begin
      message, "Need a distance.", /info        
@@ -95,7 +99,7 @@ function calc_props_from_moments $
   
   beamfwhm_deg = sqrt(bmaj*bmin)
   beamfwhm_pix = beamfwhm_deg / degperpix
-  beamfwhm_pc = beamfwhm_deg*!dtor*dist
+  beamfwhm_pc = beamfwhm_deg*!dtor*dist  
 
   beam_pix = (beamfwhm_pix/2.0)^2*!pi/alog(2)
   beam_sr = (beamfwhm_deg*!dtor/2.0)^2*!pi/alog(2)
@@ -175,7 +179,7 @@ function calc_props_from_moments $
   props.vpos.val = props.vpos.val_meas
 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
-; SIZE / MOMENT 2
+; SIZE ::: MOMENT 2
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -184,7 +188,7 @@ function calc_props_from_moments $
 
 ; ... DECONVOLUTION
   props.moments.mom2_x.val = $
-     sqrt(props.moments.mom2_x.val_extrap^2 - (beamfwhm_pix/2.354)^2)
+     sqrt(props.moments.mom2_x.val_extrap^2 - (beamfwhm_pix/sig_to_fwhm)^2)
 
 ; ... CONVERSION TO PC
   props.xmom.val_meas = props.moments.mom2_x.val_meas*pcperpix
@@ -200,7 +204,7 @@ function calc_props_from_moments $
 
 ; ... DECONVOLUTION
   props.moments.mom2_y.val = $
-     sqrt(props.moments.mom2_y.val_extrap^2 - (beamfwhm_pix/2.354)^2)
+     sqrt(props.moments.mom2_y.val_extrap^2 - (beamfwhm_pix/sig_to_fwhm)^2)
 
 ; ... CONVERSION TO PC
   props.ymom.val_meas = props.moments.mom2_y.val_meas*pcperpix
@@ -214,33 +218,127 @@ function calc_props_from_moments $
 ; MAJOR AXIS SIZE
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-; ... DECONVOLUTION
-  props.moments.mom2_maj.val = $
-     sqrt(props.moments.mom2_maj.val_extrap^2 - (beamfwhm_pix/2.354)^2)
-
 ; ... CONVERSION TO PC
-  props.majmom.val_meas = props.moments.mom2_maj.val_meas*pcperpix
-  props.majmom.err_meas = props.moments.mom2_maj.val_meas*pcperpix
-  props.majmom.val_extrap = props.moments.mom2_maj.val_extrap*pcperpix
-  props.majmom.err_extrap = props.moments.mom2_maj.err_extrap*pcperpix
-  props.majmom.val = props.moments.mom2_maj.val*pcperpix
-  props.majmom.err = props.moments.mom2_maj.val*pcperpix
+  props.mom_maj.val_meas = props.moments.mom2_maj.val_meas*pcperpix
+  props.mom_maj.err_meas = props.moments.mom2_maj.val_meas*pcperpix
+  props.mom_maj.val_extrap = props.moments.mom2_maj.val_extrap*pcperpix
+  props.mom_maj.err_extrap = props.moments.mom2_maj.err_extrap*pcperpix
+  props.mom_maj.val = props.moments.mom2_maj.val*pcperpix
+  props.mom_maj.err = props.moments.mom2_maj.val*pcperpix
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; MINOR AXIS SIZE
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-; ... DECONVOLUTION
-  props.moments.mom2_min.val = $
-     sqrt(props.moments.mom2_min.val_extrap^2 - (beamfwhm_pix/2.354)^2)
+; ... CONVERSION TO PC
+  props.mom_min.val_meas = props.moments.mom2_min.val_meas*pcperpix
+  props.mom_min.err_meas = props.moments.mom2_min.val_meas*pcperpix
+  props.mom_min.val_extrap = props.moments.mom2_min.val_extrap*pcperpix
+  props.mom_min.err_extrap = props.moments.mom2_min.err_extrap*pcperpix
+  props.mom_min.val = props.moments.mom2_min.val*pcperpix
+  props.mom_min.err = props.moments.mom2_min.val*pcperpix
+  
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+; FULL DECONVOLUTION
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+; DO THE TWO-D DECONVOLUTION (FACTORS MATCH SIGMA TO FWHM)
+  deconvolve_gauss $
+     , meas_maj = props.mom_maj.val_extrap*sig_to_fwhm $
+     , meas_min = props.mom_min.val_extrap*sig_to_fwhm $
+     , meas_pa = props.moments.posang.val $
+     , beam_maj = bmaj*!dtor*dist $
+     , beam_min = bmin*!dtor*dist $
+     , beam_pa = bpa $
+     , src_maj = src_maj $
+     , src_min = src_min $
+     , src_pa = src_pa $
+     , worked = worked $
+     , point = point
+
+  if worked then begin
+     props.mom_maj.val = src_maj/sig_to_fwhm
+     props.mom_min.val = src_min/sig_to_fwhm
+     props.mom_posang.val = src_pa
+  endif else begin
+;     if point then begin
+        props.mom_unresolved = 1B
+;     endif
+  endelse
+
+; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
+; SIZE ::: ELLIPSE
+; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
+
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+; ELLIPSE FIT AT HALF MAX
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 ; ... CONVERSION TO PC
-  props.minmom.val_meas = props.moments.mom2_min.val_meas*pcperpix
-  props.minmom.err_meas = props.moments.mom2_min.val_meas*pcperpix
-  props.minmom.val_extrap = props.moments.mom2_min.val_extrap*pcperpix
-  props.minmom.err_extrap = props.moments.mom2_min.err_extrap*pcperpix
-  props.minmom.val = props.moments.mom2_min.val*pcperpix
-  props.minmom.err = props.moments.mom2_min.val*pcperpix
+ 
+; MAJOR
+  props.ell_hm_maj.val_meas = $
+     props.moments.ell_maj_halfmax.val*pcperpix*ell_to_sig_half
+
+; MINOR
+  props.ell_hm_min.val_meas = $
+     props.moments.ell_min_halfmax.val*pcperpix*ell_to_sig_half
+
+; DO THE TWO-D DECONVOLUTION (FACTORS MATCH SIGMA TO FWHM)
+  deconvolve_gauss $
+     , meas_maj = props.ell_hm_maj.val_meas*sig_to_fwhm $
+     , meas_min = props.ell_hm_min.val_meas*sig_to_fwhm $
+     , meas_pa = props.moments.ell_pa_halfmax.val $
+     , beam_maj = bmaj*!dtor*dist $
+     , beam_min = bmin*!dtor*dist $
+     , beam_pa = bpa $
+     , src_maj = src_maj $
+     , src_min = src_min $
+     , src_pa = src_pa $
+     , worked = worked $
+     , point = point
+
+  if worked then begin
+     props.ell_hm_maj.val = src_maj/sig_to_fwhm
+     props.ell_hm_min.val = src_min/sig_to_fwhm
+     props.ell_hm_posang.val = src_pa
+  endif else begin
+;     if point then begin
+        props.ell_hm_unresolved = 1B
+;     endif
+  endelse
+
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+; ELLIPSE FIT
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+; ... DECONVOLUTION
+
+; ... CONVERSION TO PC
+  
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+; AREA AT HALF MAX
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+; ... CONVERSION TO PC
+   props.area_hm_maj.val_meas = $
+     sqrt(props.moments.area_halfmax.val/!pi)*2.0*pcperpix/sig_to_fwhm
+
+; ... ONE-D DECONVOLUTION   
+   if props.area_hm_maj.val_meas gt beamfwhm_pix/sig_to_fwhm then begin
+      props.area_hm_maj.val = $
+         sqrt(props.area_hm_maj.val_meas^2 - (beamfwhm_pix/sig_to_fwhm)^2)
+   endif else begin
+      props.area_hm_unresolved = 1B
+   endelse
+      
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+; FULL AREA
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+; ... DECONVOLUTION
+
+; ... CONVERSION TO PC
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; V AXIS SIZE
@@ -262,17 +360,37 @@ function calc_props_from_moments $
 ; RADIUS
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  props.rad.val_meas = rmstorad*sqrt(props.majmom.val_meas*props.minmom.val_meas)
-  props.rad.val_extrap = rmstorad*sqrt(props.majmom.val_extrap*props.minmom.val_extrap)
-  props.rad.val = rmstorad*sqrt(props.majmom.val*props.minmom.val)
+; FROM MOMENTS
+  props.rad_mom.val_meas = $
+     rmstorad*sqrt(props.mom_maj.val_meas*props.mom_min.val_meas)
+  props.rad_mom.val_extrap = $
+     rmstorad*sqrt(props.mom_maj.val_extrap*props.mom_min.val_extrap)
+  props.rad_mom.val = $
+     rmstorad*sqrt(props.mom_maj.val*props.mom_min.val)
+
+; FROM ELLIPSE
+  props.rad_ell.val_meas = $
+     rmstorad*sqrt(props.ell_hm_maj.val_meas*props.ell_hm_min.val_meas)
+  props.rad_ell.val_extrap = $
+     rmstorad*sqrt(props.ell_hm_maj.val_extrap*props.ell_hm_min.val_extrap)
+  props.rad_ell.val = $
+     rmstorad*sqrt(props.ell_hm_maj.val*props.ell_hm_min.val)
+
+; FROM AREA
+  props.rad_area.val_meas = $
+     rmstorad*sqrt(props.area_hm_maj.val_meas*props.area_hm_maj.val_meas)
+  props.rad_area.val_extrap = $
+     rmstorad*sqrt(props.area_hm_maj.val_extrap*props.area_hm_maj.val_extrap)
+  props.rad_area.val = $
+     rmstorad*sqrt(props.area_hm_maj.val*props.area_hm_maj.val)
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; VIRIAL MASS
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  props.virmass.val_meas = vircoeff*props.rad.val_meas*props.vmom.val_meas^2
-  props.virmass.val_extrap = vircoeff*props.rad.val_extrap*props.vmom.val_extrap^2
-  props.virmass.val = vircoeff*props.rad.val*props.vmom.val^2
+  props.virmass.val_meas = vircoeff*props.rad_mom.val_meas*props.vmom.val_meas^2
+  props.virmass.val_extrap = vircoeff*props.rad_mom.val_extrap*props.vmom.val_extrap^2
+  props.virmass.val = vircoeff*props.rad_mom.val*props.vmom.val^2
 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 ; RETURN

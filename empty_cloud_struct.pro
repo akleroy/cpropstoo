@@ -47,11 +47,21 @@ function empty_cloud_struct
                  xmom: empty_prop_struct(unit="pc"), $
                  ymom: empty_prop_struct(unit="pc"), $
                  vmom: empty_prop_struct(unit="km/s"), $
-                 majmom: empty_prop_struct(unit="pc"), $
-                 minmom: empty_prop_struct(unit="pc"), $                 
+                 mom_maj: empty_prop_struct(unit="pc"), $
+                 mom_min: empty_prop_struct(unit="pc"), $                 
+                 mom_posang: empty_prop_struct(unit="deg"), $
+                 mom_unresolved: 0B, $
+                 ell_hm_maj: empty_prop_struct(unit="pc"), $
+                 ell_hm_min: empty_prop_struct(unit="pc"), $
+                 ell_hm_posang: empty_prop_struct(unit="deg"), $
+                 ell_hm_unresolved: 0B, $
+                 area_hm_maj: empty_prop_struct(unit="pc"), $
+                 area_hm_unresolved: 0B, $
                  area: empty_prop_struct(unit="pc^2"), $
                  deltav: empty_prop_struct(unit="km/s"), $
-                 rad: empty_prop_struct(unit="pc"), $
+                 rad_mom: empty_prop_struct(unit="pc"), $
+                 rad_ell: empty_prop_struct(unit="pc"), $
+                 rad_area: empty_prop_struct(unit="pc"), $
                  virmass: empty_prop_struct(unit="Msun") $
                  }
 
