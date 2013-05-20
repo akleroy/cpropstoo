@@ -82,7 +82,7 @@ pro assign_bound_clouds $
      , nmin=100)
   
   lum = props.lum.val_extrap
-  rad = props.rad.val
+  rad = props.rad_ell.val
   sigv = props.vmom.val
   mvir = props.virmass.val
   mass = props.mass.val
@@ -126,8 +126,6 @@ pro assign_bound_clouds $
 
   deproject, ra, dec, [173,21,raxis[461],daxis[303]],$
              rgrid=rgrid,tgrid=tgrid,/vector
-
-stop
 
   Radius = rgrid*3600
   Density = (mass)/(!Pi*rad^2)  ; msun/pc^2

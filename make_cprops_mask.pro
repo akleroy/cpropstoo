@@ -4,7 +4,7 @@ pro make_cprops_mask $
    , outmask = mask $
    , outfile=outfile $   
    , rmsfile = rmsfile $
-   , inrms = inrms $
+   , inrms = rms $
 ;  CONDITIONS FOR THE MASK
    , prior = prior $
    , hi_thresh = hi_thresh $
@@ -42,7 +42,7 @@ pro make_cprops_mask $
      endelse
   endif
 
-  if n_elements(rmsfile) eq 0 then begin
+  if n_elements(rmsfile) gt 0 then begin
      file_rms = file_search(rmsfile, count=file_ct)
      if file_ct eq 0 then begin
         message, "Noise not found.", /info

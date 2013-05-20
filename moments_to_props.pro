@@ -91,7 +91,7 @@ pro moments_to_props $
 
   if n_elements(outfile) gt 0 then begin
      if n_elements(levels) gt 0 then begin
-        save, file=outfile, props, levels, kernel_ind, hdr
+        save, file=outfile, props, levels, kernel_ind, hdr, old_merger_matrix
      endif else begin
         save, file=outfile, props
      endelse
