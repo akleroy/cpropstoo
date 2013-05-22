@@ -153,11 +153,7 @@ pro assign_bound_clouds $
      lowest_bound = min(levels[this_bound_ind])
      lev = where(levels EQ lowest_bound)
      
-     if next_assgn GT 1 then $
-     if props[i,lev].moments.mom1_x.val_meas EQ $
-        props[index[0,next_assgn-1],index[1,next_assgn-1]]$
-        .moments.mom1_x.val_meas $
-        then continue
+
      
 ;  GENERATE THE MASK FOR THIS CLOUD
      this_mask = cube gt lowest_bound
@@ -166,13 +162,13 @@ pro assign_bound_clouds $
    ;  COPY TO TOTAL MASK
      ind = where(this_reg and regions NE 0 , num_ct)  
   
-    if num_ct GT 0 and num_ct EQ props[i,lev].moments.npix.val $
-    and total(bound[ind]) NE  num_ct then begin  
+    if num_ct GT 0 and num_ct EQ props[i,lev].moments.npix.val then $
+     if total(bound[ind]) NE  num_ct then begin  
        bound[ind] = 1B
        assign[ind] = next_assgn 
        index = [[index], [i, lev, num_ct]]
        next_assgn += 1
-    endif  
+     endif  
   endfor
 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
