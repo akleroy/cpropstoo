@@ -5,6 +5,7 @@ function decimate_kernels $
    , delta = delta $
    , sigma = sigma $
    , snr = delta_is_snr $
+   , minval = minval $
    , merger = merger $
    , minpix = minpix $
    , minarea = minarea $
@@ -62,6 +63,10 @@ function decimate_kernels $
   if n_elements(sigma) eq 0 then $
      sigma = mad(cube)
 
+; MINIMUM ABSOLUTE INTENSITY VALUE FOR A MAXIMUM
+  if n_elements(minval) eq 0 then $
+     minval = 0.0
+
 ; MINIMUM NUMBER OF LEVELS IN THE CUBE
   if n_elements(nmin) eq 0 then $
      nmin = 100
@@ -91,10 +96,26 @@ function decimate_kernels $
      minvchan = 1
 
 ; INITIALIZE REJECTION COUNTING
+  value_rejects = 0
   delta_rejects = 0
   volume_rejects = 0
   area_rejects = 0
   vchan_rejects = 0
+
+; &$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$
+; REJECT ON ABSOLUTE VALUE OF PIXEL
+; &$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$
+
+  if finite(minval) then begin
+     good_value_ind = where(cube[kernels] ge minval, good_value_ct)
+     bad_value_ct = n_elements(kernels) - good_value_ct 
+     value_rejects = bad_value_ct
+     if bad_value_ct gt 0 then begin
+        kernels = kernels[good_value_ind]
+     endif
+  endif else begin
+     value_rejects = 0L
+  endelse
 
 ; &$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$
 ; PRECALCULATE THE MERGER MATRIX
@@ -198,6 +219,7 @@ function decimate_kernels $
 
 ; REPORT DECIMATION
   if keyword_set(verbose) then begin
+     message, 'Kernels rejected for value: '+string(value_rejects), /con
      message, 'Kernels rejected for contrast: '+string(delta_rejects), /con
      message, 'Kernels rejected for volume: '+string(volume_rejects), /con
      message, 'Kernels rejected for velocity width: '+string(vchan_rejects), /con

@@ -18,6 +18,9 @@ pro make_noise_cube $
 
 ; --- CHECK ON NORMALIZATION OF SPECTRAL AXIS
 ; --- CHECK ON HANDLING OF EDGES IN CASE OF "BOX"
+; --- ADD LABELS TO PLOTS!!!
+; --- NORMALIZE INFILE, INDATA TO MATCH OTHER PROGRAMS
+; --- ALLOW THE USER TO SPECIFY A Z RANGE?
 
 ;+
 ; NAME:
@@ -335,7 +338,7 @@ pro make_noise_cube $
      endfor
 
      if keyword_set(show) then begin
-        disp, noise_map, /sq
+        disp, noise_map, /sq, title="Noise Map"
         contour, noise_map, lev=median(noise_map)*[0.5,1.0,2.0], /overplot
      endif
 
@@ -444,7 +447,8 @@ pro make_noise_cube $
 
   if keyword_set(show) then begin
      makesym, 10
-     plot, chan, noise_spec, ps=8
+     plot, chan, noise_spec, ps=8 $
+           , xtitle="Channel", ytitle="Noise Spectrum"
   endif
 
 ; IF DESIRED, EXIT WITH ONLY THE ONE-D (SPECTRAL) NOISE MEASURED

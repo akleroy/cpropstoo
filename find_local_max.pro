@@ -13,7 +13,8 @@ pro find_local_max $
    , kernels = kernels $
    , delta = delta $
    , snr = delta_is_snr $
-   , sigma = sigma $                    
+   , sigma = sigma $     
+   , minval = minval $
    , nodecimate = nodecimate $
    , justdecimate = justdecimate $
    , idl_out = idl_out $
@@ -27,6 +28,7 @@ pro find_local_max $
 ; - proper island handling in the decimation
 ; - accepts files instead of data
 ; - default mask creation call? debateable
+; - noise assumed homogeneous?
 ;
 ;-
 
@@ -109,6 +111,10 @@ pro find_local_max $
      delta_is_snr = 1B
 
 ; MINIMUM VOLUME
+  if n_elements(minval) eq 0 then $
+     minval = 0
+
+; MINIMUM VOLUME
   if n_elements(minpix) eq 0 then $
      minpix = 4
 
@@ -177,6 +183,7 @@ pro find_local_max $
                          , delta = delta $
                          , snr = delta_is_snr $
                          , sigma = sigma $
+                         , minval = minval $
                          , minpix = minpix $
                          , minarea = minarea $
                          , minvchan = minvchan $

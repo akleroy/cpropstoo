@@ -6,7 +6,8 @@ function measure_moments $
    , extrap = do_extrap $
    , extarg = targett $
    , fluxlin = fluxlin $
-   , clip = do_clip $
+   , do_clip = do_clip $
+   , clipval = clipval $
    , edge = edge
 
 ;+
@@ -66,7 +67,12 @@ function measure_moments $
      
 ;    REMOVE THE CLIPPING VALUE FROM THE INTENSITY
      t = (t - clipval) > 0
+     props.clipped = 1B
+     props.clipval.val = clipval
 
+;    REMEASURE THE MIN AND MAX AFTER CLIPPING
+     props.minval.val = min(t)
+     props.maxval.val = max(t)
   endif
 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
@@ -119,33 +125,48 @@ function measure_moments $
   twod_ind = uniq(twod_id, sort(twod_id))
   twod_x = x[twod_ind]
   twod_y = y[twod_ind]
-  
-; ... WORK OUT INDICES WHERE INTENSITY > 0.5 MAX
-  halfmax_ind = where(t gt 0.5*props.maxval.val) 
-  halfmax_twod_ind = uniq(twod_id[halfmax_ind], sort(twod_id[halfmax_ind]))
-  halfmax_twod_x = x[halfmax_twod_ind]
-  halfmax_twod_y = y[halfmax_twod_ind]
 
 ; AREA 
   area = n_elements(twod_ind)*1.0
-  area_halfmax = n_elements(halfmax_twod_ind)*1.0
 
 ; DELTAV
   deltav = max(v) - min(v)
-  deltav_halfmax = max(v[halfmax_ind]) - min(v[halfmax_ind])
 
 ; ELLIPSE FITS
 
-; ... AT HALF-MAX, UNWEIGHTED (TWOD ONLY)
-  ellfit, x=halfmax_twod_x, y=halfmax_twod_y $
-          , maj=half_ell_maj, min=half_ell_min, posang=half_ell_pa
-
 ; ... TOTAL, UNWEIGHTED (TWOD ONLY)
-  ellfit, x=twod_x, y=twod_y $
-          , maj=ell_maj, min=ell_min, posang=ell_pa
-
+  if props.npix.val gt 1 then begin
+     ellfit, x=twod_x, y=twod_y $
+             , maj=ell_maj, min=ell_min, posang=ell_pa
+     
 ; ... TOTAL, WEIGHTED
-  ellfit, x=x, y=y, wt=t, posang=posang
+     ellfit, x=x, y=y, wt=t, posang=posang
+  endif else begin
+
+; ... NEED A FIDUCIAL POSITION ANGLE
+     posang = 0.0
+  endelse
+  
+; ... WORK OUT INDICES WHERE INTENSITY > 0.5 MAX
+  halfmax_ind = where(t gt 0.5*props.maxval.val, halfmax_ct) 
+  if halfmax_ct gt 0 then begin
+     halfmax_twod_ind = uniq(twod_id[halfmax_ind], sort(twod_id[halfmax_ind]))
+     halfmax_twod_x = x[halfmax_twod_ind]
+     halfmax_twod_y = y[halfmax_twod_ind]
+
+;    AREA
+     area_halfmax = n_elements(halfmax_twod_ind)*1.0 
+
+;    DELTAV
+     deltav_halfmax = max(v[halfmax_ind]) - min(v[halfmax_ind])
+
+; ELLIPSE FITS
+
+;    ... AT HALF-MAX, UNWEIGHTED (TWOD ONLY)
+     ellfit, x=halfmax_twod_x, y=halfmax_twod_y $
+             , maj=half_ell_maj, min=half_ell_min, posang=half_ell_pa
+
+  endif
   
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 ; CALCULATE MOMENTS ALONG THE NATURAL MAJOR/MINOR AXIS
@@ -179,16 +200,21 @@ function measure_moments $
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 
   props.area.val = area
-  props.area_halfmax.val = area_halfmax
   props.deltav.val = deltav
-  props.deltav_halfmax.val = deltav_halfmax
 
-  props.ell_maj.val = ell_maj
-  props.ell_min.val = ell_min
-  props.ell_pa.val = ell_pa
-  props.ell_maj_halfmax.val = half_ell_maj
-  props.ell_min_halfmax.val = half_ell_min
-  props.ell_pa_halfmax.val = half_ell_pa
+  if props.npix.val gt 1 then begin
+     props.ell_maj.val = ell_maj
+     props.ell_min.val = ell_min
+     props.ell_pa.val = ell_pa
+  endif
+
+  if halfmax_ct gt 0 then begin
+     props.area_halfmax.val = area_halfmax
+     props.deltav_halfmax.val = deltav_halfmax
+     props.ell_maj_halfmax.val = half_ell_maj
+     props.ell_min_halfmax.val = half_ell_min
+     props.ell_pa_halfmax.val = half_ell_pa     
+  endif
 
   props.posang.val = posang     
   props.mom0.val_meas = mom0t[n_elements(mom0t)-1]

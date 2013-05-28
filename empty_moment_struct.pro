@@ -42,6 +42,7 @@ function empty_moment_struct
                  npix: empty_prop_struct(unit=""), $
                  maxval: empty_prop_struct(unit="K"), $
                  minval: empty_prop_struct(unit="K"), $
+                 clipped: 0B, $
                  clipval: empty_prop_struct(unit="K"), $
                  noise: empty_prop_struct(unit="K") $
                  }

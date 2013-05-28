@@ -7,9 +7,10 @@ pro cube_to_level_moments $
    , mask=mask $
    , inmask=inmask $
    , outfile=outfile $
+   , clip=do_clip $
    , verbose=verbose
 
-;  CLIPPING
+;  CLIPPING --> REALLY SUBTRACT THE CONTOUR OR USE LOWEST VALUE OKAY?
 ;  OTHER?
 
   compile_opt idl2
@@ -138,13 +139,13 @@ pro cube_to_level_moments $
   kernel_ind = kernel_ind[leafnodes]
   old_merger_matrix= merger_matrix  
   n_kern = n_elements(kernel_ind)
-  for i = 0, n_kern-1 do begin 
-     for j = 0, n_kern-1 do begin 
-        ;if i eq j then $
-        ;   continue 
+  for i = 0, n_kern-1 do begin
+     for j = 0, n_kern-1 do begin
+                                ;if i eq j then $
+                                ;   continue     
         merger_matrix[i,j] = $
            old_merger_matrix[leafnodes[i], leafnodes[j]]
-     endfor 
+     endfor
   endfor
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
@@ -199,7 +200,7 @@ pro cube_to_level_moments $
 ;       ... ... WORK OUT PROPERTIES FOR THIS KERNEL       
         this_mom = $
            measure_moments(x=this_x, y=this_y, v=this_v, t=this_t $
-                           , /extrap, extarg=0)
+                           , /extrap, extarg=0, do_clip=do_clip)
         
 ;       ... ... FIND ALL KERNELS IN THIS REGION        
         this_kern = where(kern_regions eq kern_regions[j], ct_this_kern)
@@ -216,6 +217,6 @@ pro cube_to_level_moments $
 ; SAVE TO DISK
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-  save, file=outfile, moments, levels, kernel_ind, hdr, old_merger_matrix
+  save, file=outfile, moments, levels, kernel_ind, hdr, merger_matrix
 
 end                             ; OF CUBE_TO_LEVEL_MOMENTS
