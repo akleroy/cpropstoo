@@ -4,7 +4,7 @@ pro make_cprops_mask $
    , outmask = mask $
    , outfile=outfile $   
    , rmsfile = rmsfile $
-   , inrms = inrms $
+   , inrms = rms $
 ;  CONDITIONS FOR THE MASK
    , prior = prior $
    , hi_thresh = hi_thresh $

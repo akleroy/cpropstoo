@@ -82,7 +82,7 @@ pro assign_bound_clouds $
      , nmin=100)
   
   lum = props.lum.val_extrap
-  rad = props.rad.val
+  rad = props.rad_ell.val
   sigv = props.vmom.val
   mvir = props.virmass.val
   mass = props.mass.val
@@ -127,8 +127,6 @@ pro assign_bound_clouds $
   deproject, ra, dec, [173,21,raxis[461],daxis[303]],$
              rgrid=rgrid,tgrid=tgrid,/vector
 
-stop
-
   Radius = rgrid*3600
   Density = (mass)/(!Pi*rad^2)  ; msun/pc^2
   Kappa = interpol(v4,v1,Radius)/1000      
@@ -155,11 +153,7 @@ stop
      lowest_bound = min(levels[this_bound_ind])
      lev = where(levels EQ lowest_bound)
      
-     if next_assgn GT 1 then $
-     if props[i,lev].moments.mom1_x.val_meas EQ $
-        props[index[0,next_assgn-1],index[1,next_assgn-1]]$
-        .moments.mom1_x.val_meas $
-        then continue
+
      
 ;  GENERATE THE MASK FOR THIS CLOUD
      this_mask = cube gt lowest_bound
@@ -168,13 +162,13 @@ stop
    ;  COPY TO TOTAL MASK
      ind = where(this_reg and regions NE 0 , num_ct)  
   
-    if num_ct GT 0 and num_ct EQ props[i,lev].moments.npix.val $
-    and total(bound[ind]) NE  num_ct then begin  
+    if num_ct GT 0 and num_ct EQ props[i,lev].moments.npix.val then $
+     if total(bound[ind]) NE  num_ct then begin  
        bound[ind] = 1B
        assign[ind] = next_assgn 
        index = [[index], [i, lev, num_ct]]
        next_assgn += 1
-    endif  
+     endif  
   endfor
 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&

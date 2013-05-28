@@ -3,6 +3,7 @@ pro add_noise_to_cube $
    , cube = cube $
    , hdr = hdr $
    , out_file = out_file $
+   , out_cube = out_cube $
    , seed = seed $
    , gain = gain $
    , addnoise = addnoise $
@@ -93,8 +94,8 @@ pro add_noise_to_cube $
 
 
 sxaddpar, hdr, 'RSEED', seed, 'Random seed value'
-
-writefits, out_file, out_cube, hdr
+if n_elements(out_file) GT 0 then $
+   writefits, out_file, out_cube, hdr
 
 if keyword_set(noise_file) then $
    writefits, noise_file, noise_cube
