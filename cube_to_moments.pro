@@ -53,7 +53,7 @@ pro cube_to_moments $
   endif
 
 ; VECTORIZE (SPEEDS UP SPARSE CASE)
-  assign = assign[ind]
+  assign_vec = assign[ind]
   t = data[ind]
   ind_to_xyv, ind, x=x, y=y, v=v, sz=size(data)
 
@@ -70,7 +70,7 @@ pro cube_to_moments $
         counter, i+1, nclouds, "Moments for cloud "
      endif
 
-     ind = where(assign eq cloudlist[i], ct)
+     ind = where(assign_vec eq cloudlist[i], ct)
      if ct eq 0 then continue    
 
      this_t = t[ind]
