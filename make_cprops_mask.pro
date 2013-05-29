@@ -174,7 +174,7 @@ pro make_cprops_mask $
 
 ; GET RID OF REGIONS SMALLER THAN A USER-SPECIFIED SIZE
   if n_elements(min_pix) gt 0 then begin
-     reg = label_region(hi_mask)
+     reg = label_region(hi_mask,/ulong)
      ind = where(reg ne 0, ct)
      if ct gt 0 then begin
         reg = reg[ind]
