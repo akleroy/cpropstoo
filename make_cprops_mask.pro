@@ -174,12 +174,12 @@ pro make_cprops_mask $
 
 ; GET RID OF REGIONS SMALLER THAN A USER-SPECIFIED SIZE
   if n_elements(min_pix) gt 0 then begin
-     reg = label_region(hi_mask)
+     reg = label_region(hi_mask,/ulong)
      ind = where(reg ne 0, ct)
      if ct gt 0 then begin
         reg = reg[ind]
         max_reg = max(reg)
-        for i = 1, max_reg do begin
+        for i = 1L, max_reg do begin
            if keyword_set(verbose) then $
               counter, i, max_reg, "Checking region "
            if (total(reg eq i) lt min_pix) then $
