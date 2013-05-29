@@ -179,7 +179,7 @@ pro make_cprops_mask $
      if ct gt 0 then begin
         reg = reg[ind]
         max_reg = max(reg)
-        for i = 1, max_reg do begin
+        for i = 1L, max_reg do begin
            if keyword_set(verbose) then $
               counter, i, max_reg, "Checking region "
            if (total(reg eq i) lt min_pix) then $
