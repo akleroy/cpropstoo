@@ -30,12 +30,17 @@ pro assign_cprops $
   endif
 
   if n_elements(mask) eq 0 then begin
-     file_mask = file_search(inmask, count=file_ct)
-     if file_ct eq 0 then begin
-        message, "Mask not found.", /info
-        return
+     if n_elements(inmask) gt 0 then begin
+        file_mask = file_search(inmask, count=file_ct)
+        if file_ct eq 0 then begin
+           message, "Mask file not found.", /info
+           return
+        endif else begin
+           mask = readfits(file_mask, mask_hdr)
+        endelse
      endif else begin
-        mask = readfits(file_mask, mask_hdr)
+        message, "Defaulting to a mask of finite elements.", /info
+        mask = finite(data)
      endelse
   endif
 
@@ -43,9 +48,15 @@ pro assign_cprops $
 ; READ IN THE KERNELS
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
+; NOTE WHETHER WE GET THE MERGER MATRIX ALONG WITH THE KERNELS
+  have_merger_matrix = 0B
+
   if n_elements(kernfile) gt 0 then begin
      if keyword_set(idlformat) then begin
         restore, kernfile
+        if n_elements(merger_matrix) gt 0 then begin
+           have_merger_matrix = 1B
+        endif
      endif else begin
         readcol, kernfile, comment="#" $
                  , format="L,L,L,F,F,F,F" $
@@ -65,7 +76,7 @@ pro assign_cprops $
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   if n_elements(sigma) eq 0 then $
-     sigma = mad(data)
+     sigma = mad(data,/finite)
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; SET THE MINIMUM NUMBER OF LEVELS
@@ -112,12 +123,14 @@ pro assign_cprops $
      , nmin=nmin)
 
 ; WORK OUT MERGER MATRIX
-  merger_matrix =  $
-     mergefind_approx(minicube $
-                      , minikern $
-                      , levels=levels $
-                      , all_neighbors = all_neighbors $
-                      , verbose = verbose)     
+  if have_merger_matrix eq 0B then begin
+     merger_matrix =  $
+        mergefind_approx(minicube $
+                         , minikern $
+                         , levels=levels $
+                         , all_neighbors = all_neighbors $
+                         , verbose = verbose)     
+  endif
   merger_matrix_nodiag = merger_matrix
   sz_merge = size(merger_matrix)
   ind = lindgen(sz_merge[1])

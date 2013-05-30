@@ -25,10 +25,10 @@ pro extract_dendro $
 
   if n_elements(infile) gt 0 then begin
      restore, infile
-     if file_ct eq 0 then begin
-        message, "Data not found.", /info
-        return
-     endif
+;     if file_ct eq 0 then begin
+;        message, "Data not found.", /info
+;        return
+;     endif
   endif
 
   if n_elements(merger_matrix) eq 0 then begin

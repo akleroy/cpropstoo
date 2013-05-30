@@ -14,6 +14,13 @@ pro assign_clfind $
    , spacing=spacing $
    , minlev=minlev
 
+; NB - assumes equal weighting for velocity and spatial pixel; we may
+;      want to add the ability to weight distance in spatial pixels
+;      relative to distance in velocity pixels. In the case of a
+;      weirdly sampled cube this is a big deal...
+
+; Potentially allow levels set by hand.
+
   compile_opt idl2
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
@@ -31,12 +38,17 @@ pro assign_clfind $
   endif
 
   if n_elements(mask) eq 0 then begin
-     file_mask = file_search(inmask, count=file_ct)
-     if file_ct eq 0 then begin
-        message, "Mask not found.", /info
-        return
+     if n_elements(inmask) gt 0 then begin
+        file_mask = file_search(inmask, count=file_ct)
+        if file_ct eq 0 then begin
+           message, "Mask file not found.", /info
+           return
+        endif else begin
+           mask = readfits(file_mask, mask_hdr)
+        endelse
      endif else begin
-        mask = readfits(file_mask, mask_hdr)
+        message, "Defaulting to a mask of finite elements.", /info
+        mask = finite(data)
      endelse
   endif
 
@@ -66,7 +78,7 @@ pro assign_clfind $
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   if n_elements(spacing) eq 0 then begin
-     sigma = mad(data)
+     sigma = mad(data,/finite)
      spacing = 2.0*sigma
   endif
 
@@ -74,8 +86,8 @@ pro assign_clfind $
 ; SET THE MINIMUM LEVEL TO CONSIDER
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  if n_elements(minval) eq 0 then $
-     minval = min(data[where(mask)])
+  if n_elements(minlev) eq 0 then $
+     minlev = min(data[where(mask)])
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; PARE CUBE TO MINIMUM SIZE
@@ -112,7 +124,7 @@ pro assign_clfind $
      minicube $
      , /linspace $
      , spacing=spacing $
-     , minval=minval)
+     , minval=minlev)
   nlev = n_elements(levels)
 
 ; LOOP OVER LEVELS (HIGH TO LOW)

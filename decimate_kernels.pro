@@ -14,6 +14,8 @@ function decimate_kernels $
    , verbose = verbose $
    , ignore_islands = ignore_islands
 
+; - explore the ability to work on a S/N cube
+
 ;+
 ; NAME:
 ;
@@ -56,12 +58,14 @@ function decimate_kernels $
   kernels = kernels_in
 
 ; IS THE CONTRAST CUT IN REAL OR SNR UNITS?
-  if n_elements(delta_is_snr) eq 0 then $
-     delta_is_snr = 1B
+  if keyword_set(delta_is_snr) then $
+     delta_is_snr = 1B $
+  else $
+     delta_is_snr = 0B
 
 ; MEAN ABSOLUTE DEVIATION (CONVERTED TO SIGMA) OF DATA IN THE CUBE
   if n_elements(sigma) eq 0 then $
-     sigma = mad(cube)
+     sigma = mad(cube,/finite)
 
 ; MINIMUM ABSOLUTE INTENSITY VALUE FOR A MAXIMUM
   if n_elements(minval) eq 0 then $
@@ -79,7 +83,7 @@ function decimate_kernels $
         delta = 2.*sigma
   endif
 
-; BASE ON THIS WORK OUT THE CUTOFF (THIS IS TOO CONVOLUTED)
+; IF NEEDED, CONVERT THE DELTA CUTOFF INTO A REAL INTENSITY CUTOFF
   if delta_is_snr then $
      cutoff = sigma*delta $
   else $

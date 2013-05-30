@@ -65,7 +65,7 @@ pro cube_to_level_moments $
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   if n_elements(sigma) eq 0 then $
-     sigma = mad(data)
+     sigma = mad(data,/finite)
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; WORK THROUGH THE MERGER INFRASTRUCTURE

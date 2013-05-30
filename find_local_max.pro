@@ -49,12 +49,17 @@ pro find_local_max $
   endif
 
   if n_elements(mask) eq 0 then begin
-     file_mask = file_search(inmask, count=file_ct)
-     if file_ct eq 0 then begin
-        message, "Mask not found.", /info
-        return
+     if n_elements(inmask) gt 0 then begin
+        file_mask = file_search(inmask, count=file_ct)
+        if file_ct eq 0 then begin
+           message, "Mask file not found.", /info
+           return
+        endif else begin
+           mask = readfits(file_mask, mask_hdr)
+        endelse
      endif else begin
-        mask = readfits(file_mask, mask_hdr)
+        message, "Defaulting to a mask of finite elements.", /info
+        mask = finite(data)
      endelse
   endif
 
@@ -78,7 +83,7 @@ pro find_local_max $
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   if n_elements(sigma) eq 0 then $
-     sigma = mad(data)
+     sigma = mad(data, /finite)
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; SEARCH CRITERIA ...
@@ -167,7 +172,6 @@ pro find_local_max $
      sub_kernels = alllocmax(minicube $
                              , friends = friends $
                              , specfriends = specfriends $
-                             , search_kern = search_kern $
                              , verbose = verbose)
   endif
 

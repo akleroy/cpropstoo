@@ -12,7 +12,11 @@ pro deconvolve_gauss $
    , point = point $            ; returns 1 if close to a point source
    , verbose = verbose          ; set output level
 
+;  WARNING!!! Currently this appears to have issues returning a full
+;  range of position angle values. This needs more investigation.
+
 ;  ADAPTED FROM gaupar.for in MIRIAD via K. Sandstrom
+
 ;
 ;  Determine the parameters of a gaussian deconvolved with another
 ;  gaussian.

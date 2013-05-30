@@ -12,6 +12,11 @@ function calc_props_from_moments $
    , chantosig = chantosig $
    , vircoeff = vircoeff
 
+; Error calculation is still TBD via Monte Carlo
+
+; Consider naming convention shift ... ORIG/CORR/EXTRAP/DECONV?
+; README. Fill in.
+
   compile_opt idl2
 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
@@ -93,8 +98,9 @@ function calc_props_from_moments $
      endelse
   endif
   
+; DEFAULT TO A SYMMETRIC BEAM IF NO MINOR AXIS IS SUPPLIED
   if n_elements(bmin) eq 0 then begin
-     bmin = bpa
+     bmin = bmaj
   endif
   
   beamfwhm_deg = sqrt(bmaj*bmin)
@@ -320,7 +326,7 @@ function calc_props_from_moments $
 ; AREA AT HALF MAX
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-; ... CONVERSION TO PC
+; ... CONVERSION FROM AREA TO AN EFFECTIVE SIGMA IN PC
    props.area_hm_maj.val_meas = $
      sqrt(props.moments.area_halfmax.val/!pi)*2.0*pcperpix/sig_to_fwhm
 

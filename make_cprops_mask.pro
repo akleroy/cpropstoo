@@ -24,6 +24,10 @@ pro make_cprops_mask $
 ;  GIVE OUTPUT
    , verbose = verbose
 
+; --- HANDLE EDGE CASE BETTER (AVOID WRAPS)
+; --- AREA DECIMATION OF REGIONS DOESN'T HANDLE SHADOWING RIGHT NOW - FIX?
+
+; --- ORDER OF GROWING (Z/XY)
 ; --- MAYBE ADD A VERBOSE FLAG AND GIVE SOME MORE OUTPUT?
 ; --- ADD SOME CAPABILITY TO CLIP HIGH NOISE REGIONS?
 
@@ -55,7 +59,7 @@ pro make_cprops_mask $
         message, "Noise not found.", /info
         return
      endif else begin
-        rms = readfits(file_rms, mask_hdr)
+        rms = readfits(file_rms, rms_hdr)
      endelse
   endif
 
@@ -64,7 +68,7 @@ pro make_cprops_mask $
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
   if n_elements(rms) eq 0 then $
-     rms = mad(cube)
+     rms = mad(cube, /finite)
 
   if n_elements(hi_thresh) eq 0 then $
      hi_thresh = 5.0
@@ -218,12 +222,12 @@ pro make_cprops_mask $
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ;  GROW THE FINAL MASK IN THE XY OR Z DIRECTIONS
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
-
+ 
   if n_elements(grow_xy) gt 0 then begin
      for i = 0, sz[3]-1 do $
         mask[*,*,i] =  grow_mask(mask[*,*,i], rad=grow_xy, /quiet)
   endif
-  
+
   if n_elements(grow_z) gt 0 then begin
      for i = 0, grow_z do $
         mask = mask or shift(mask,0,0,i) or shift(mask,0,0,-i)

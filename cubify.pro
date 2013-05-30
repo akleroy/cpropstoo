@@ -10,6 +10,8 @@ pro cubify $
    , location = location $
    , twod = twod
 
+; CLEAN UP - make SZIN a parameter, better docs
+
 ;+
 ; NAME:
 ;

@@ -126,11 +126,13 @@ pro prep_cube $
         if n_elements(bmin_deg) ne 0 then begin
            sxaddpar, hdr, "BMIN", bmin_deg
         endif else begin
-           sxaddpar, hdr, "BMAJ", bmaj_deg
+;          ... ASSUME A SYMMETRIC BEAM
+           sxaddpar, hdr, "BMIN", bmaj_deg
         endelse
         if n_elements(bpa_deg) ne 0 then begin
            sxaddpar, hdr, "BPA", bpa_deg
         endif else begin
+;          ... ASSUME A SYMMETRIC BEAM
            sxaddpar, hdr, "BPA", 0.0
         endelse
      endif else begin
@@ -181,6 +183,7 @@ pro prep_cube $
      if total(units eq ["JY/BEAM","JY/BM"]) then begin
         jtok = calc_jtok(hdr=hdr)
         cube *= jtok
+        sxaddpar, hdr, "BUNIT", "K"
      endif
   endif
 

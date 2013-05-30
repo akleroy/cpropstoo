@@ -22,7 +22,9 @@ function mad, x, window = window, finite = finite
 ;
 ;       Mon Oct 4 2004, Adam Leroy <aleroy@astro>
 ;               Altered MAD to consider only finite values if
-;               the finite keyword is on. NB: you may not always want this.
+;               the finite keyword is on. NB: you may not always want
+;               this (only matters for infinities).
+;               
 ;
 ;       Tue Oct 7 15:59:16 2003, Erik Rosolowsky <eros@cosmic>
 ;		Added Compatibility for distributions with non-zero
