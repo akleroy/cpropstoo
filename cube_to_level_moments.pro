@@ -203,12 +203,16 @@ pro cube_to_level_moments $
                            , /extrap, extarg=0, do_clip=do_clip)
         
 ;       ... ... FIND ALL KERNELS IN THIS REGION        
-        this_kern = where(kern_regions eq kern_regions[j], ct_this_kern)
+        this_kern = where(kern_regions eq kern_regions[j], ct_this_kern)        
+
+;       .... ... FLIP THE KERNELS IN THIS REGION TO DONE
+        if ct_this_kern gt 0 then $
+           done_this_level[this_kern] = 1B
 
 ;       ... ... SAVE THE DATA
         for k = 0, ct_this_kern-1 do $
            moments[this_kern[k],i] = this_mom
-        
+
      endfor
 
   endfor

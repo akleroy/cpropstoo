@@ -102,6 +102,7 @@ pro assign_bound_clouds $
 ; CALCULATE Q VALUE 
 ; should be done before hand...? 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
+
  ;WILL USE THE WEIGHTED CENTER POSITION INSTEAD
  ; ind_to_xyv, kernel_ind, sz=cube_sz, x=kernel_x, y=kernel_y, v=kernel_v
  ; xloc = rad*!values.f_nan
@@ -115,6 +116,8 @@ pro assign_bound_clouds $
  xloc = props.moments.mom1_x.val_meas
  yloc = props.moments.mom1_y.val_meas
 
+; ADXY to go x, y -> RA, DEC
+
   make_axes, hdr, raxis=raxis, daxis=daxis
   readcol, 'freqcurves14feb2013.dat', v1,v2,v3,v4,v5 
 ;INPUT FILE.... OR HAVE Q VALUES ALREADY?
@@ -124,8 +127,12 @@ pro assign_bound_clouds $
 
 ;Dynamical center, inclination, and PA from pety et al. 
 
+; Deproject RA, DEC + {incl, pa, ctr} -> rgal, theta
+
   deproject, ra, dec, [173,21,raxis[461],daxis[303]],$
              rgrid=rgrid,tgrid=tgrid,/vector
+
+; rgal + profile -> Q?
 
   Radius = rgrid*3600
   Density = (mass)/(!Pi*rad^2)  ; msun/pc^2

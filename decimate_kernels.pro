@@ -15,6 +15,7 @@ function decimate_kernels $
    , ignore_islands = ignore_islands
 
 ; - explore the ability to work on a S/N cube
+; - there are issues with NMIN right now... hard coded/not used
 
 ;+
 ; NAME:
@@ -130,7 +131,7 @@ function decimate_kernels $
      cube $
      , /linspace $
      , spacing=0.2*sigma $
-     , nmin=100)
+     , nmin=100)                ; HACK?
 
   merger_matrix =  $
      mergefind_approx(cube $
@@ -179,8 +180,11 @@ function decimate_kernels $
         merge_level = max(merges,/nan)
         if finite(merge_level) eq 0 then $
            mask = cube gt 0.0 $
-        else $
-           mask = cube gt merge_level
+        else begin
+           unique_lev = min(levels[where(levels gt merge_level)],/nan)
+;           mask = cube gt merge_level
+           mask = cube gt unique_lev
+        endelse
         asgn = label_region(mask)
         stat_mask, asgn eq asgn[kernels[order[i]]] $
                    , volume=npixels, area=area, vwidth=vwidth
