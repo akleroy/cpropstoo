@@ -53,7 +53,7 @@ pro counter, num, outof, infostring $
              , wait_time = waittime, percent = percent
 
   on_error, 2
-  clearline = fifteenb()        ;create a fresh line
+  clearline = string("15b)        ;create a fresh line
   if n_elements(infostring) eq 0 then $
     st = 'Number '              ;set default info string
   
