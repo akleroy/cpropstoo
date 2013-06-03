@@ -3,7 +3,7 @@ pro assign_from_levelprops $
    , props = props $ 
    , flags = flags $
    , flagfile = flagfile $
-   , kernels = kernels $
+   , kernel_ind = kernel_ind $
    , kernfile = kernfile $
    , data = data $
    , infile = infile $
@@ -11,7 +11,8 @@ pro assign_from_levelprops $
    , inmask = inmask $
    , hdr = hdr $
    , index = index $
-   , outfile = outfile 
+   , outfile = outfile $
+   , verbose = verbose
 
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
@@ -63,7 +64,7 @@ pro assign_from_levelprops $
   if n_elements(propfile) gt 0 then $
     restore, propfile
 
-  if n_elememts(flagfile) gt 0 then $
+  if n_elements(flagfile) gt 0 then $
      restore, flagfile ,/v
      
 
@@ -75,6 +76,7 @@ pro assign_from_levelprops $
   index = [!values.f_nan, !values.f_nan]
   cube_sz = size(cube)
   assign = lonarr(cube_sz[1],cube_sz[2],cube_sz[3])
+  next_assgn = 1
 
 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
