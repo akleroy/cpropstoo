@@ -172,9 +172,14 @@ pro assign_cprops $
 ; OUTPUT
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 
-  out_hdr = hdr
-  sxaddpar, hdr, "BUNIT", "ASSIGNMENT"
-  writefits, outfile, assign, hdr
+  if n_elements(hdr) gt 0 then begin
+     out_hdr = hdr
+     sxaddpar, out_hdr, "BUNIT", "ASSIGNMENT"
+     writefits, outfile, assign, out_hdr
+  endif else begin
+     message, "Consider passing a header so that the assignment has astrometry.", /info
+     writefits, outfile, assign
+  endelse
 
 end
 
