@@ -109,6 +109,38 @@ pro assign_cprops $
   minikern = kernel_ind
   for i = 0, n_elements(minikern)-1 do $
      minikern[i] = where(indcube eq kernel_ind[i])
+  
+; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
+; THE "ISLANDS" SUBCASE
+; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
+
+  if keyword_set(islands) then begin
+
+;    INITIALIZE ASSIGNMENT CUBE
+     sz = size(data)
+     assign = lonarr(sz[1], sz[2], sz[3])
+     
+;    LABEL THE NON-ZERO REGIONS ... THE ISLANDS
+     reg = label_region(minicube gt 0)
+
+;    LOOP OVER KERNELS
+     counter = 1
+     nkern = n_elements(kernel_ind)
+     for i = 0, nkern-1 do begin
+
+;       IF THE ISLAND IS ALREADY ASSIGNED, CONTINUE
+        if assign[kernel_ind[i]] ne 0 then $
+           continue
+
+;       FIND THE ISLAND FOR THIS KERNEL
+        cloud_ind = where(reg eq reg[minikern[i]])
+
+;       ASSIGN THAT ISLAND TO A NEW CLOUD NUMBER
+        assign[indcube[cloud_ind]] = counter
+        counter += 1        
+     endfor
+
+  endif
 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 ; ASSIGNMENT
@@ -162,7 +194,6 @@ pro assign_cprops $
      reg = label_region(minicube gt unique_lev)
      cloud_ind = where(reg eq reg[minikern[i]])
 
-;     assign[indcube[cloud_ind]] = counter
      assign[indcube[cloud_ind]] = counter
      counter += 1
 
