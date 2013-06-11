@@ -8,7 +8,8 @@ pro cube_to_level_moments $
    , inmask=inmask $
    , outfile=outfile $
    , clip=do_clip $
-   , verbose=verbose
+   , verbose=verbose $
+   , levels = levels 
 
 ;  CLIPPING --> REALLY SUBTRACT THE CONTOUR OR USE LOWEST VALUE OKAY?
 ;  OTHER?
@@ -101,6 +102,7 @@ pro cube_to_level_moments $
      minikern[i] = where(indcube eq kernel_ind[i])
 
 ; CALCULATE LEVELS TO WORK WITH
+  if n_elements(levels) EQ 0 then $
   levels = $
      contour_values( $
      minicube $
