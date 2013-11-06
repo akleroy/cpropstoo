@@ -3,6 +3,7 @@ pro make_cprops_mask $
    , indata = cube $
    , outmask = mask $
    , outfile=outfile $   
+   , outimg=outimg $   
    , rmsfile = rmsfile $
    , inrms = rms $
 ;  CONDITIONS FOR THE MASK
@@ -248,6 +249,19 @@ pro make_cprops_mask $
   if n_elements(outfile) gt 0 then begin
      sxaddpar, hdr, 'BUNIT', 'MASK'
      writefits, outfile, mask, hdr
+  endif
+  
+; Can also output 2D version of mask
+  if n_elements(outimg) gt 0 then begin
+     mom0 = total(mask, 3, /nan)
+     sxaddpar, hdr, 'BUNIT', 'MASK'
+     sxdelpar, hdr, 'CTYPE3'
+     sxdelpar, hdr, 'CRVAL3'
+     sxdelpar, hdr, 'CRPIX3'
+     sxdelpar, hdr, 'CDELT3'
+     sxaddpar, hdr, 'DATAMAX', max(mom0,/nan)
+     sxaddpar, hdr, 'DATAMIN', 0
+     writefits, outimg, mom0, hdr
   endif
 
 end                             ; of make_cprops_mask
