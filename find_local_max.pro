@@ -21,12 +21,53 @@ pro find_local_max $
    , text_out = text_out $
    , verbose = verbose
 
+
+;+
+;
+; NAME:
+;
+;   FIND_LOCAL_MAX
+;
+; PURPOSE:
+;   Generates a set of kernels (local maxima) from a CO data cube and
+;   initial max. Kernels are found using the brightest point in a
+;   search box with size friends by friends by specfiends.    
+;
+; CALLING SEQUENCE:
+;    
+;
+; INPUTS:
+;   INFILE -- Path to a .fits cube.
+;   DATA -- (optional) CO Cube.  
+;   INMASK -- Path to .fits mask (must be same size as data)    
+;   MASK -- (optional) CO byte mask. 
+;   HDR -- (optional) .fits Header (required if no filepath is specified). 
+;   
+;             
+; KEYWORD PARAMETERS:
+;   FRIENDS -- (optional) Pixels to search over in the x-y plane. Total search
+;              box length is 2*Friends+1. Default is friends=3
+;   SPECFRIENDS -- (optional) Pixels to search over in the v plane. Total search
+;                  box length is 2*Specfriends+1. Default is
+;                  specfriends=1
+;
+; OUTPUTS: 
+;   KENELS -- Array of local maxima.
+
+; MODIFICATION HISTORY:
+;
+;      Some documentation -- Mon Nov 25, 2013  Stephen Pardy 
+;                     <spardy@astro.wisc.edu>
+; 
+;-
+
+
+
 ;+
 ;
 ; TBD:
 ;
 ; - proper island handling in the decimation
-; - accepts files instead of data
 ; - default mask creation call? debateable
 ; - noise assumed homogeneous?
 ;

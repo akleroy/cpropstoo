@@ -12,9 +12,46 @@ pro add_noise_to_cube $
    , psf = psf
 
 
-;FIRST CRACK AT WRITING A NOISE ADDER 
-;ADDS ANY GAIN FIRST IF YOU THROW THE SWITCH (normalized percentage)
-;THEN ADDS RANDOM NOISE CONVOLVED BY BEAM IF YOU THROW THE SWITCH
+;+
+;
+; NAME:
+;
+;   ADD_NOISE_TO_CUBE
+;
+; PURPOSE:
+;   To take a data cube (from disk or in array) and add a gain noise
+;   and random noise (useful for Montecarlo errors). Will convolve
+;   with a given PSF or generate one from the header.     
+;
+;
+; CALLING SEQUENCE:
+;   add_noise_to_cube, in_file=filename, out_file=noisyfilename 
+;   /addgain, /addnoise [, noise_file=noise_file]  
+;
+; INPUTS:
+;   CUBE -- data cube to add noise.
+;   HDR -- fits header, required if passing an array
+;   IN_FILE -- data on disk to read in.  
+;   PSF -- (optional) Custom PSF.
+;   SEED -- (optional) Random number generator seed, if you want
+;           repeatable "randomness." Default is the system time. 
+;   GAIN -- (optional) The percentage gain. 
+;             
+; KEYWORD PARAMETERS:
+;   ADDNOISE -- (optional) if set this will add random noise at
+;               the same noise level.
+;   ADDGAIN -- (optional) if set this will add a flux gain term to the data.
+;   OUT_FILE -- (optional) Variable specifying a filepath to save the noisy cube. 
+;
+; OUTPUTS:
+;   OUT_CUBE -- Variable that will hold the new (noisy) cube
+;
+; MODIFICATION HISTORY:
+;
+;       More documentation -- Mon Nov 25  2013  Stephen Pardy
+;                     <spardy@astro.wisc.edu>
+; 
+;-
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; READ IN

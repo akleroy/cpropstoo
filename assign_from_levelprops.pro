@@ -15,6 +15,56 @@ pro assign_from_levelprops $
    , verbose = verbose
 
 
+;+
+;
+; NAME:
+;
+;   ASSIGN_FROM_LEVELPROPS
+;
+; PURPOSE:
+;   To decompose a data cube into the largest coherent regions that match
+;   criteria given by an input mask. Requires: a dendrogram property
+;   file (or array) and a mask (flags) of the same size, the data cube and
+;   mask to which they correspond, and a list of local maxima (kernels).      
+;
+;
+; CALLING SEQUENCE:
+;   assign_from_levelprops, propfile=propfile, flagfile=flagfile,
+;   kernfile=kernfile, infile=infile, inmask=inmask, outfile=outfile 
+;
+; INPUTS:
+;   PROPFILE --  Path to property array from DENDROGRAM output.
+;   PROPS -- (optional) Array of measurements from DENDROGRAM output.
+;   FLAGFILE -- Path to byte array with flags for decomposing cube
+;               (property mask). A 1B value indicates that this kernel
+;               at this threshold level should be included, a 0B value
+;               indicates that that kernel at that threshold value
+;               shoul dbe excluded. 
+;   FLAGS -- (optional) Input flag array.
+;   KERNFILE -- Path to the array of kernels (local maxima) in .idl
+;               format or in text columns.
+;   KERNEL_IND -- (optional) The array of kernels. 
+;   INFILE -- The path to the .fits file containing a cube to be decomposed.
+;   DATA -- (optional) The cube itself. 
+;   INMASK -- (optional) Path to a mask for the .fits cube.
+;   MASK -- (optional) The mask itself.
+;   HDR -- (optional) .fits header. Must supply this if you do not
+;          supply the filepath. 
+;             
+; KEYWORD PARAMETERS:
+;    
+;
+; OUTPUTS:
+;   OUTFILE -- Location (no extensions) to save the new fits file and
+;              index file. Will save as OUTFILE.fits and OUTFILE.idl. 
+;   INDEX -- The index locations in the property array. 
+; MODIFICATION HISTORY:
+;
+;       Update and documentation -- Mon Nov 25  2013  Stephen Pardy 
+;                     <spardy@astro.wisc.edu>
+; 
+;-
+
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; READ IN THE DATA
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
@@ -29,11 +79,13 @@ pro assign_from_levelprops $
      endelse
   endif
 
+  cube_sz = size(data)
+
   if n_elements(mask) eq 0 then begin
      file_mask = file_search(inmask, count=file_ct)
      if file_ct eq 0 then begin
         message, "Mask not found.", /info
-        return
+        mask = bytarr(cube_sz[1],cube_sz[2],cube_sz[3])
      endif else begin
         mask = readfits(file_mask, mask_hdr)
      endelse
@@ -74,7 +126,6 @@ pro assign_from_levelprops $
 
   cube = data*mask 
   index = [!values.f_nan, !values.f_nan]
-  cube_sz = size(cube)
   assign = lonarr(cube_sz[1],cube_sz[2],cube_sz[3])
   next_assgn = 1
 
@@ -118,15 +169,13 @@ pro assign_from_levelprops $
 ; WRITE OUT FILES
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 
-  if n_elements(outfile) eq 0 then $
-    outfile = 'props_assignment.fits'     
-   outfile_b = strmid(outfile,0,strpos(outfile, '.fits'))+'_index.idl' 
-  
-  out_hdr = hdr
-  sxaddpar, hdr, "BUNIT", "ASSIGNMENT"
-  writefits, outfile, assign, hdr
-
-  save, index, filename=outfile_b
-
+  if n_elements(outfile) NE 0 then begin 
+     outfits = outfile+".fits"
+     outidl = outfile+".idl"
+     out_hdr = hdr
+     sxaddpar, hdr, "BUNIT", "ASSIGNMENT"
+     writefits, outfits, assign, hdr
+     save, index, filename=outidl
+  endif
 
 end

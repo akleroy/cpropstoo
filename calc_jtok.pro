@@ -4,6 +4,42 @@ function calc_jtok, hdr=hdr $
                     , restfreq=restfreq $
                     , aips=aips
 
+
+;+
+;
+; NAME:
+;
+;   CALC_JTOK()
+;
+; PURPOSE:
+;   Helper function to turn cube in units of Jy/Beam into units of K.      
+;
+;
+; CALLING SEQUENCE:
+;   jtok = calc_jtok(hdr=hdr [,bmaj=bmaj, bmin=bmin,restfreq=restfreq,aips=aips]) 
+;
+; INPUTS:
+;    HDR -- .fits header as an array of strings.
+;    BMAJ -- (optional) Specify beam major axis (required without
+;            header).
+;    BMIN -- (optional) Specify beam minor axis (required without
+;            header). 
+;    restfreq -- (optional) The restfrequency of the observation
+;                (required without header).  
+;             
+; KEYWORD PARAMETERS:
+;    AIPS -- USE AIPS HEADER PARAMETERS
+;
+; OUTPUTS:
+;   JTOK -- The conversion from Jansky/Beam to Kelvin
+; MODIFICATION HISTORY:
+;
+;       Documentated -- Mon Nov 25  2013  Stephen Pardy 
+;                     <spardy@astro.wisc.edu>
+; 
+;-
+
+
   ; PHYSICAL CONSTANTS
   c = 2.99792458d10             ; speed of light CGS
   h = 6.6260755d-27             ; Planck's constant CGS

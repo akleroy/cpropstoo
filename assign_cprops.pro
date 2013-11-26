@@ -15,6 +15,51 @@ pro assign_cprops $
 
   compile_opt idl2
 
+
+;+
+;
+; NAME:
+;
+;   ASSIGN_CPROPS
+;
+; PURPOSE:
+;   Use the cprops method to decompose a CO data cube from a list of
+;   kernels (local maxima).  
+;
+;
+; CALLING SEQUENCE:
+;   assign_cprops, infile=infile,inmask=inmask, kernfile=kernfile, outfile=outfile 
+;
+; INPUTS:
+;   KERNFILE -- Path to kernel file in .idl or .txt format. 
+;   KENELS -- (optional) Kernel array.
+;   INFILE -- Path to .fits cube.
+;   DATA -- (optional) CO Cube.  
+;   INMASK -- Path to .fits mask (must be same size as data)    
+;   MASK -- (optional) CO byte mask. 
+;   HDR -- (optional) .fits Header (required without a filepath). 
+;   SIGMA -- (optional) Noise of the cube. Default is to take the MAD
+;            value of the data.
+;    
+;
+;             
+; KEYWORD PARAMETERS:
+;   IDLFORMAT --  Set to true if kernel file is in .idl or .sav format.
+;   ISLANDS -- Set to decompose based on the islands instead of the
+;              GMCs.
+;
+; OUTPUTS:
+;   OUTFILE -- Location to save the decomposed cube. 
+;   ASSIGN -- Variable that holds the decomposed cube.
+;
+; MODIFICATION HISTORY:
+;
+;       More documentation -- Mon Nov 25  2013    Stephen Pardy
+;                     <spardy@astro.wisc.edu>
+; 
+;-
+
+
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; READ IN THE DATA
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
