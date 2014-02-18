@@ -1,18 +1,36 @@
 CPROPStoo
 
---- User Tasks ---
+Welcome!
 
-These are intended to be accessed by the user.
+This is an IDL package to aid in the analysis of emission line data
+cubes. It expands and modularizes the CPROPS package introduced by
+Rosolowsky & Leroy (2006). It provides utilities to estimate noise and
+mask cubes, identify local maxima, partition cubes into object
+assignments, and derive properties from an object assignments.
+
+------------------
+--- User Tasks ---
+------------------
+
+These tasks are intended to be accessed by the user.
+
+--- Units and Book Keeping ---
 
 * cprops_check_header : verify that a cube is appropriate for
   analysis: units are K, km/s, and has beam info in header.
 
 * prep_cube : attempt to place a cube in correct units
 
+--- Cube Analysis ---
+
 * make_noise_cube : accept a cube and optionally a mask and return 0,
   1, 2, or 3d noise estimates.
 
+--- Signal Identification ---
+
 * make_cprops_mask : makes a mask based on joint thresholding
+
+--- Feature Identification ---
 
 * find_local_max : accept a cube and mask and return a set of local
   maxima.
@@ -25,7 +43,7 @@ These are intended to be accessed by the user.
   approach (unique associated isocontours) to generate an assignment
   cube.
 
-* (additional assignment procedures)
+--- Feature Characterization ---
 
 * cube_to_moments : extract moment measurements for a list of clouds
   given an assignment cube and a data cube
@@ -40,9 +58,12 @@ These are intended to be accessed by the user.
 * (dendrogram) : extract a tree diagram from the level moments type
   structure.
 
+----------------------
 --- Infrastructure ---
+----------------------
 
-These are called by other programs, though they may be of general use.
+These programs are called by other routines and not intended to be
+user facing. They may still be of general use, of course.
 
 * alllocmax : find all candidate local maxima via rolling a cube.
 
@@ -86,21 +107,23 @@ These are called by other programs, though they may be of general use.
 
 * xyv_to_ind : convert pixels to cube index
 
---- Next Moles ---
+-----------------------
+--- Next Priorities ---
+-----------------------
 
-Roughly in priority order
+* PEAK IDENTIFICATION/OBJECT ASSIGNMENT: add a multiline
+  decomposer. Right now it's possible to analyze multiple lines but
+  there's no simple decomposer.
 
-* add a multiline decomposer
+* PEAK IDENTIFICATION: put derivative decimation of kernels back in -
+  a natural interaction here
 
-* put derivative decimation of kernels back in - a natural interaction
-  here
+* PEAK IDENTIFICATION: gaussianity and roundedness based region
+  rejection
 
-* add monte carlo uncertainty to moment measurement 
+* UNCERTAINTIES: add monte carlo uncertainty to moment measurement
 
-* put a curve-of-growth tester in
+* APERTURE CORRECTIONS: put a curve-of-growth tester in
 
-* gaussianity and roundedness based region rejection
-
-* that's not a mole, that's a python
-
-* look into 2-d decomposer / gridcore
+Longer term: two-d decomposition, perhaps merging with gridcore, a
+gradual migration to python.
