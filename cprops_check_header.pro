@@ -85,7 +85,7 @@ function cprops_check_header $
      perfect = 0B
      comments = [comments, "... MAJOR: no CTYPE3 keyword"]
   endif else begin
-     if total(ctype3 eq valid_veltypes) eq 0 then begin
+     if total(strumpcase(ctype3) eq valid_veltypes) eq 0 then begin
         comments = [comments, "... MAJOR: CTYPE3 keyword does not match valid vel (km/s)"]     
      endif
   endelse
