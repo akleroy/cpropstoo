@@ -1,7 +1,6 @@
 pro prep_cube $
    , in_file=in_file $
    , out_file=out_file $
-   , skip_info=skip_info $
    , dist_pc=dist_pc $
    , skip_units=skip_units $
    , skip_beam=skip_beam $
@@ -59,7 +58,7 @@ pro prep_cube $
 ; ADDITIONAL INFORMATION
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
   
-  if keyword_set(skip_info) eq 0 then begin
+  if n_elements(dist_pc) gt 0 then begin
      sxaddpar, hdr, 'DIST', dist_pc, 'PC'
   endif
 
