@@ -252,7 +252,7 @@ function calc_props_from_moments $
   deconvolve_gauss $
      , meas_maj = props.mom_maj.val_extrap*sig_to_fwhm $
      , meas_min = props.mom_min.val_extrap*sig_to_fwhm $
-     , meas_pa = props.moments.posang.val $
+     , meas_pa = props.moments.posang.val/!dtor $ ; INPUT AS DEGREES
      , beam_maj = bmaj*!dtor*dist $
      , beam_min = bmin*!dtor*dist $
      , beam_pa = bpa $
@@ -261,6 +261,7 @@ function calc_props_from_moments $
      , src_pa = src_pa $
      , worked = worked $
      , point = point
+  src_pa *= !dtor               ; SAVE AS RADIANS
 
   if worked then begin
      props.mom_maj.val = src_maj/sig_to_fwhm

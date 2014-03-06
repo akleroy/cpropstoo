@@ -7,7 +7,7 @@ pro deconvolve_gauss $
    , beam_pa = beam_pa $        ; beam position angle
    , src_maj = src_maj $        ; source major axis
    , src_min = src_min $        ; source minor axis
-   , src_pa = src_pa $          ; source position
+   , src_pa = src_pa $          ; source position angle
    , worked = worked $          ; returns 0 if not possible to convolve
    , point = point $            ; returns 1 if close to a point source
    , verbose = verbose          ; set output level
@@ -149,6 +149,9 @@ pro deconvolve_gauss $
      worked = 1B
      point = 0B
   endelse
+
+; CONVERT THE SOURCE POSITION ANGLE BACK TO DEGREES
+  src_pa = src_pa/!dtor
 
 ; RETURN!
   return
