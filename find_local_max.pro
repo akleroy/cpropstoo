@@ -13,7 +13,8 @@ pro find_local_max $
    , kernels = kernels $
    , delta = delta $
    , snr = delta_is_snr $
-   , sigma = sigma $     
+   , rmsfile = rmsfile $
+   , inrms = rms $
    , minval = minval $
    , nodecimate = nodecimate $
    , justdecimate = justdecimate $
@@ -120,11 +121,26 @@ pro find_local_max $
   endif
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-; GET AN RMS ESTIMATE
+; SIGNAL-TO-NOISE AND RMS UNITS
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  if n_elements(sigma) eq 0 then $
-     sigma = mad(data, /finite)
+; DEFINE UNITS OF DELTA (S/N OR REAL)
+  if n_elements(delta_is_snr) eq 0 then $
+     delta_is_snr = 1B
+
+  if n_elements(rmsfile) gt 0 then begin
+     file_rms = file_search(rmsfile, count=file_ct)
+     if file_ct eq 0 then begin
+        message, "Noise not found.", /info
+        return
+     endif else begin
+        rms = readfits(file_rms, rms_hdr)
+     endelse
+  endif else begin
+     if n_elements(rms) eq 0 then begin        
+        rms = mad(data, /finite)
+     endif
+  endelse
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; SEARCH CRITERIA ...
@@ -151,10 +167,6 @@ pro find_local_max $
 ; CONTRAST WITH MERGE LEVEL
   if n_elements(delta) eq 0 then $
      delta = 3
-
-; DEFINE UNITS OF DELTA (S/N OR REAL)
-  if n_elements(delta_is_snr) eq 0 then $
-     delta_is_snr = 1B
 
 ; MINIMUM VOLUME
   if n_elements(minval) eq 0 then $
