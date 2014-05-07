@@ -76,6 +76,14 @@ pro ellfit $
   mat = [[i11, i12], $
          [i12, i22]]
 
+; CATCH THE CASE OF MATRIX WITH NANs  
+  if finite(total(mat)) eq 0 then begin
+     major = !values.f_nan
+     minor = !values.f_nan
+     posang = !values.f_nan
+     return
+  endif
+
 ; CATCH THE CASE OF ZERO DETERMINANT  
   if determ(mat, /check) eq 0 then begin
      major = !values.f_nan

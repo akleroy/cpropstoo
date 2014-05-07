@@ -215,7 +215,9 @@ pro make_noise_cube $
            
 ;          FINAL ESTIMATE (ALL DATA WITH OUTLIER REJECTION)
            use_ind = where(abs(data) lt sig_false*sigma)
-           noise = mad(data[use_ind])
+;        noise = mad(data[use_ind]) ; wrong? cf. line 226
+           sigma = mad(data[use_ind]) ; want to put result into sigma? cf line 226
+
 
         endif
      endif
