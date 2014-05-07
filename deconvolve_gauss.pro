@@ -151,7 +151,7 @@ pro deconvolve_gauss $
   endelse
 
 ; CONVERT THE SOURCE POSITION ANGLE BACK TO DEGREES
-  src_pa = src_pa/!dtor
+  src_pa = src_pa
 
 ; RETURN!
   return

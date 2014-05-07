@@ -111,6 +111,8 @@ user facing. They may still be of general use, of course.
 --- Next Priorities ---
 -----------------------
 
+* add_to_kernels, read_kernels ...
+
 * PEAK IDENTIFICATION/OBJECT ASSIGNMENT: add a multiline
   decomposer. Right now it's possible to analyze multiple lines but
   there's no simple decomposer.

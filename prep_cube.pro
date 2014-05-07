@@ -101,7 +101,10 @@ pro prep_cube $
      cdelt3 = sxpar(hdr, 'CDELT3')
      if keyword_set(ms_to_kms) or abs(cdelt3) gt 1e2 then begin
         sxaddpar, hdr, 'CDELT3', cdelt3/1e3        
+        crval3 = sxpar(hdr, 'CRVAL3')
+        sxaddpar, hdr, 'CRVAL3', crval3/1e3        
         sxaddpar, hdr, 'CTYPE3', 'KM/S'
+        sxaddpar, hdr, 'CUNIT3', 'KM/S'
         ;ctype3 = strupcase(strcompress(sxpar(hdr, 'CTYPE3'), /rem))
         ;if ctype3 eq 'M/S' then begin
         ;   sxaddpar, hdr, 'CTYPE3', 'KM/S'
