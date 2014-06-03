@@ -144,7 +144,13 @@ pro make_noise_cube $
 ; ERROR CATCH LACK OF HEADER
   if n_elements(cube_hdr) eq 0 then begin
      message, "Header missing. Output files will be compromised.", /info
-  endif
+  endif else begin
+     noise_hdr = cube_hdr
+     sxdelpar, noise_hdr, "HISTORY"
+     sxaddpar, noise_hdr $
+              , "HISTORY" $
+              , "Now holds estimates of local RMS noise."
+  endelse
 
 ; INITIALIZE PLOTTING
   if keyword_set(show) then begin
@@ -521,12 +527,6 @@ pro make_noise_cube $
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
   if n_elements(noise_file) gt 0 then begin
-
-     noise_hdr = cube_hdr
-     sxdelpar, noise_hdr, "HISTORY"
-     sxaddpar, noise_hdr $
-              , "HISTORY" $
-              , "Now holds estimates of local RMS noise."
 
      writefits, noise_file, noise_cube, noise_hdr
 
