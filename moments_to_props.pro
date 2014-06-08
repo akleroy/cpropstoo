@@ -1,7 +1,7 @@
 pro moments_to_props $
    , indata = indata $
    , infile = infile $
-   , outfile = outfile $
+   , outfile = outfile $ ; should be deprecated ? 
    , hdrfile = hdrfile $
    , inhdr = inhdr $
    , dist = dist $
@@ -9,7 +9,9 @@ pro moments_to_props $
    , rmstorad = rmstorad $
    , chantosig = chantosig $
    , vircoeff = vircoeff $
-   , verbose = verbose
+   , verbose = verbose $
+   , text_file = text_file $ ; give a directory and file stem here 
+   , idl_file = idl_file
 
   compile_opt idl2
 
@@ -89,12 +91,19 @@ pro moments_to_props $
 ; OUTPUT
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 
-  if n_elements(outfile) gt 0 then begin
+  if n_elements(outfile) gt 0 or n_elements(idl_file) gt 0 then begin
      if n_elements(levels) gt 0 then begin
         save, file=outfile, props, levels, kernel_ind, hdr, merger_matrix
      endif else begin
         save, file=outfile, props
      endelse
+  endif
+  if n_elements(text_file) gt 0 then begin
+     ; check to see if the text_file contains .txt extension
+     ; remove it if it does (we will add these later)
+     if strmatch(text_file, '*.txt') then $
+        text_file = "_"+strmid(text_file, 3,/REVERSE_OFFSET)
+     write_props_text, props,  file=outfile
   endif
   
 end                             ; OF MOMENTS_TO_PROPS

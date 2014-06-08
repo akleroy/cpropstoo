@@ -31,14 +31,66 @@ pro write_text_file, data, field, filestem
 
     close, lun
     free_lun, lun
-end
+ end     ; OF WRITE_TEXT_FILE
 
+function write_text_header, data, filestem 
+  ; SHOULD THIS BE HARDCODED? 
+    indices = []
+    names = tag_names(data)
+    head_tags = [ 'ID' $              
+                  , 'TAG' $
+                  , 'GAL' $
+                  , 'LINE' $            
+                  , 'FILENAME' $
+                  , 'DIST_PC' $ 
+                  , 'BEAMFWHM_PIX' $
+                  , 'BEAMFWHM_DEG' $
+                  , 'BEAMFWHM_PC' $
+                  , 'DEGPERPIX' $
+                  , 'PCPERPIX' $
+                  , 'PIXPERBEAM' $
+                  , 'SRPERBEAM' $
+                  , 'PC2PERBEAM' $
+                  , 'CHANWIDTH_KMS' $
+                  , 'CHAN_TO_SIG' $
+                  , 'RMS_TO_RAD' $
+                  , 'XCO' $
+                  , 'VIRCOEFF']
+
+    fle_open = 0
+    for i=0, n_elements(head_tags)-1 do begin
+       ; locate header tags in our tags
+       w = where(head_tags[i] eq names, ct)
+       if ct GT 0 then begin 
+          if not fle_open then begin ; check if the file is open
+             outfile = filestem+"_Header.txt"
+             OPENW, lun, outfile, /get_lun
+             fle_open = 1
+          endif   
+          ; if we have the tags then write them out
+          printf, lun, names[w]+" "+str(data.(w))
+       endif   
+    endfor
+
+    indices = [indices, w]
+
+    if fle_open then begin
+       close, lun
+       free_lun, lun
+    endif
+
+    return,  indices
+ end                 ; OF WRITE_TEXT_HEADER 
 
 
 pro write_props_text, props,  file=outfile
     names = tag_names(props)
     N_tags = n_elements(names)
-    for i = 0, N_tags - 1 do begin
+    head_ind = write_text_header(props, outfile)
+    for i = 0, N_tags - 1 do begin 
+       ; check if this was already written in the header file
+       if total(i EQ head_ind) GT 0 then $
+          continue
        ; Check to see if this is the moments structure
        ; if it is then we can just call this function recursively
        if names[i] eq 'MOMENTS' then $
@@ -50,4 +102,4 @@ pro write_props_text, props,  file=outfile
        ; if not we can just call the actual writer
     endfor
 
-end
+ end   ; OF WRITE_PROPS_TEXT
