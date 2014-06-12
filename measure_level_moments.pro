@@ -1,6 +1,8 @@
 pro measure_level_moments $
    , data = data $
    , mask = mask $
+   , template_data = template_data $
+   , template_mask = template_mask $
    , moments = moments $ 
    , levels = levels $
    , kernel_ind = kernel_ind $
@@ -25,9 +27,15 @@ pro measure_level_moments $
      endif
 
 ;    ... LABEL REGION WITHIN THE MASK AT THIS LEVEL
-     this_mask = mask and (data ge levels[i])
-     regions = label_region(this_mask)
-
+;    Use the template to find the regions if provided
+     if n_elements(template_data) GT 0 then begin
+        this_mask = template_mask $
+                    and (template_data ge levels[i])
+        regions = label_region(this_mask)
+     endif else begin 
+        this_mask = mask and (data ge levels[i])
+        regions = label_region(this_mask)
+     endelse
 ;    ... EXTRACT PIXELS WITH ASSIGNMENTS
      ind = where(regions ne 0, ct)
      if ct eq 0 then $
@@ -36,7 +44,7 @@ pro measure_level_moments $
 ;    ... VECTORIZE (SPEEDS UP SPARSE CASE)
      kern_regions = regions[kernel_ind]
      regions = regions[ind]
-     t = data[ind]
+     t = data[ind] ; Always measure this from data 
      ind_to_xyv, ind, x=x, y=y, v=v, sz=size(data)
      
 ;    ... INTIALIZE KERNEL CHECKLIST
