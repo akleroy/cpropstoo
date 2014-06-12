@@ -37,7 +37,6 @@ pro write_text_file, data, field, filestem
 
 function write_text_header, data, filestem 
   ; SHOULD THIS BE HARDCODED? 
-    indices = []
     names = tag_names(data)
     head_tags = [ 'ID' $              
                   , 'TAG' $
@@ -71,10 +70,12 @@ function write_text_header, data, filestem
           endif   
           ; if we have the tags then write them out
           printf, lun, names[w]+" "+str(data.(w))
+          if n_elements(indices) LT 1 then $
+             indices = [w] else $
+                indices = [indices, w]
        endif   
     endfor
 
-    indices = [indices, w]
 
     if fle_open then begin
        close, lun
