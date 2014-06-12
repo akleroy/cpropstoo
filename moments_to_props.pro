@@ -103,7 +103,7 @@ pro moments_to_props $
      ; remove it if it does (we will add these later)
      if strmatch(text_file, '*.txt') then $
         text_file = "_"+strmid(text_file, 3,/REVERSE_OFFSET)
-     write_props_text, props,  file=outfile
+     write_props_text, props,  file=text_file
   endif
   
 end                             ; OF MOMENTS_TO_PROPS
