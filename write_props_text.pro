@@ -88,7 +88,7 @@ function write_text_header, data, filestem
 
 pro write_props_text, props,  file=outfile
   ; First check to see if the directory they requested is already made
-  dir =   strmid(string, 0, strpos(string, "/", /reverse_search))
+  dir =   strmid(outfile, 0, strpos(outfile, "/", /reverse_search))
   ; This will find everything before the last backslash
   if not file_test(dir) $ ; if it is not
     then  file_mkdir, dir ; then make it
