@@ -1,8 +1,9 @@
 pro write_text_file, data, field, filestem 
     outfile = filestem+"_"+field+".txt"
     OPENW, lun, outfile, /get_lun
-    ; check to see if this is a structure or a single value
-    if ISA(data[0], /ARRAY) then begin
+    ; check to see if this is a structure (type 8)
+    ; or a single value
+    if size(data[0], /TYPE) EQ 8 then begin
        names = tag_names(data)
        len = n_elements(data)
        N_tags = n_elements(names)
@@ -25,7 +26,8 @@ pro write_text_file, data, field, filestem
        endfor
     endif else begin
        ; if we have a single value we have an easy job
-       ; BUT THESE SINGLE VALUES SHOULD REALLY BE SPLIT OFF!
+       ; BUT THESE SINGLE VALUES SHOULD ALREADY 
+       ; BE WRITTEN IN THE HEADER
        printf, lun, str(data)
     endelse
 
@@ -84,6 +86,7 @@ function write_text_header, data, filestem
 
 
 pro write_props_text, props,  file=outfile
+    
     names = tag_names(props)
     N_tags = n_elements(names)
     head_ind = write_text_header(props, outfile)
