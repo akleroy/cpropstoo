@@ -78,6 +78,4 @@ pro measure_level_moments $
   endfor
 
 
-return
-
 end

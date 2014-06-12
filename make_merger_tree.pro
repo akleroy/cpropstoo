@@ -105,6 +105,4 @@ pro make_merger_tree $
   endfor
 
 
-return
-
 end
