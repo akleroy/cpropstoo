@@ -45,6 +45,8 @@ pro vectorify, cube, mask = mask $
 ; MODIFICATION HISTORY:
 ;
 ; created on Dec 2, 2004.
+; 
+; June 12, 2014:  Added 2D ability (sets v vector to all zeros)
 ;-
 
 ; GET THE SIZE OF THE CUBE
@@ -59,11 +61,23 @@ pro vectorify, cube, mask = mask $
 ; FIGURE OUT X, Y, V FROM THE INDEX FOR EACH ELEMENT IN THE VECTOR AND
 ; THEN RECORD THE INTENSITY (DATA VALUE), AND LABEL (MASK VALUE) FOR
 ; EACH ELEMENT
-  x = indvec mod sz[1]
-  y = (indvec mod (sz[1]*sz[2])) / sz[1]
-  v = indvec / (sz[1]*sz[2])
-  t = cube[indvec]    
-  if (n_elements(mask) gt 0) then $
-    id = mask[indvec]
+
+  ; Original 3D case
+  if sz[0] EQ 3 then begin 
+     x = indvec mod sz[1]
+     y = (indvec mod (sz[1]*sz[2])) / sz[1]
+     v = indvec / (sz[1]*sz[2])
+     t = cube[indvec]    
+     if (n_elements(mask) gt 0) then $
+        id = mask[indvec]
+     ; 2D CASE
+  endif else if sz[0] EQ 2 then begin 
+     x = indvec mod sz[1]
+     y = indvec/sz[1]
+     v = indvec*0
+     t = cube[indvec]    
+     if (n_elements(mask) gt 0) then $
+        id = mask[indvec]
+  endif
   
 end                             ; OF VECTORIFY

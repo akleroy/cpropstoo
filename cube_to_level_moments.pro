@@ -6,6 +6,10 @@ pro cube_to_level_moments $
    , infile=infile $
    , mask=mask $
    , inmask=inmask $
+   , template_data = template_data $ ; USE THIS TO DEFINE LEVEL MOMENTS
+   , intemplate_data = intemplate_data $
+   , template_mask = template_mask $
+   , intemplate_mask = intemplate_mask $
    , outfile=outfile $
    , clip=do_clip $
    , verbose=verbose $
@@ -28,15 +32,38 @@ pro cube_to_level_moments $
      endif else begin
         data = readfits(file_data, hdr)
      endelse
+  endif else if n_elements(data) eq 0 then begin 
+     message, "Must have either infile or data set.", /info
+     return
   endif
 
-  if n_elements(mask) eq 0 then begin
+  if n_elements(inmask) gt 0 then begin
      file_mask = file_search(inmask, count=file_ct)
      if file_ct eq 0 then begin
         message, "Mask not found.", /info
         return
      endif else begin
         mask = readfits(file_mask, mask_hdr)
+     endelse
+  endif
+
+  if n_elements(intemplate_data) gt 0 then begin
+     file_template = file_search(intemplate_data, count=file_ct)
+     if file_ct eq 0 then begin
+        message, "Template not found.", /info
+        return
+     endif else begin
+        template_data = readfits(file_template, template_hdr)
+     endelse
+  endif
+
+  if n_elements(intemplate_mask) gt 0 then begin
+     file_template_mask = file_search(intemplate_mask, count=file_ct)
+     if file_ct eq 0 then begin
+        message, "Template mask not found.", /info
+        return
+     endif else begin
+        template_mask = readfits(file_template_mask, template_mask_hdr)
      endelse
   endif
 
@@ -57,167 +84,50 @@ pro cube_to_level_moments $
      endelse
   endif
 
-; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
-; DEFINITIONS AND DEFAULTS
-; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
-
-; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-; GET AN RMS ESTIMATE
-; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-  if n_elements(sigma) eq 0 then $
-     sigma = mad(data,/finite)
-
+ 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; WORK THROUGH THE MERGER INFRASTRUCTURE
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
-       
-  if keyword_set(verbose) then begin
-     message, "Working out cluster tree.", /info
-  endif
-  
-; PARE CUBE TO MINIMUM SIZE
 
-; ... convert the data inside the mask to a vector
+  ; IF YOU GIVE A TEMPLATE DATA FILE THEN RUN THE MERGER TREE
+  ; AND THE LEVEL PROPS ON THAT INSTEAD
 
-  vectorify, data $
-             , mask = mask $
-             , x = x, y = y, v = v, t = t $
-             , ind = cubeindex
+  if n_elements(template_data) GT 0 then begin
+     make_merger_tree $
+        , data = template_data $
+        , mask = template_mask $
+        , levels = levels $
+        , kernel_ind = kernel_ind $
+        , merger_matrix = merger_matrix $
+        , n_kern = n_kern $
+        , verbose = verbose 
+  endif else begin
+     make_merger_tree $
+        , data = data $
+        , mask = mask $
+        , levels = levels $
+        , kernel_ind = kernel_ind $
+        , merger_matrix = merger_matrix $
+        , n_kern = n_kern $
+        , verbose = verbose 
+  endelse
 
-; ... rebuild a minimum-sized cube from the vectorized data.
-
-  szdata = size(data)
-  cubify, x, y, v, t $
-          , cube = minicube $
-          , pad = 3 $
-          , twod = (szdata[0] eq 2) $
-          , indvec = cubeindex $
-          , indcube = indcube
-
-; ... retreive kernel location inside the cube.
-
-  minikern = kernel_ind
-  for i = 0, n_elements(minikern)-1 do $
-     minikern[i] = where(indcube eq kernel_ind[i])
-
-; CALCULATE LEVELS TO WORK WITH
-  if n_elements(levels) EQ 0 then $
-  levels = $
-     contour_values( $
-     minicube $
-     , /linspace $
-     , spacing=0.2*sigma $
-     , nmin=nmin)
-
-; WORK OUT MERGER MATRIX
-  merger_matrix =  $
-     mergefind_approx(minicube $
-                      , minikern $
-                      , levels=levels $
-                      , all_neighbors = all_neighbors $
-                      , verbose = verbose)     
-  sz_merge = size(merger_matrix)
-  ind = lindgen(sz_merge[1])
-  ;merger_matrix[ind,ind] = !values.f_nan
-
-; ... invert to get a distance useful for the dendrogram
-; calculation. Kernels are closer if they merge at a higher level.
-  dist_matrix = max(merger_matrix, /nan) - merger_matrix
-
-; ... place zeros on diagonal (required by cluster functions)
-  dist_matrix[ind, ind] = 0.0
-
-  nan_ind = where(finite(dist_matrix) eq 0, nan_ct)
-  if nan_ct gt 0 then $
-     dist_matrix[nan_ind] = max(dist_matrix)
-
-; DO THE CLUSTER TREE CALCULATION
-  clusters = cluster_tree(dist_matrix, linkdistance, linkage=0)
-  dendrogram, clusters, linkdistance, outverts, outconn $
-              , leafnodes=leafnodes
-
-; REORDER THE KERNELS AND MERGER MATRIX  
-  kernel_ind = kernel_ind[leafnodes]
-  old_merger_matrix= merger_matrix  
-  n_kern = n_elements(kernel_ind)
-  for i = 0, n_kern-1 do begin
-     for j = 0, n_kern-1 do begin
-                                ;if i eq j then $
-                                ;   continue     
-        merger_matrix[i,j] = $
-           old_merger_matrix[leafnodes[i], leafnodes[j]]
-     endfor
-  endfor
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; CALL THE MEASUREMENT CODE
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-  n_levels = n_elements(levels)
-
-; INITIALIZE OUTPUT
-  moments = replicate(empty_moment_struct(), n_kern, n_levels)
-
-; LOOP OVER LEVELS
-  for i = 0, n_levels-1 do begin
-       
-     if keyword_set(verbose) then begin
-        counter, i+1, n_levels, "Moments for contour level "
-     endif
-
-;    ... LABEL REGION WITHIN THE MASK AT THIS LEVEL
-     this_mask = mask and (data ge levels[i])
-     regions = label_region(this_mask)
-
-;    ... EXTRACT PIXELS WITH ASSIGNMENTS
-     ind = where(regions ne 0, ct)
-     if ct eq 0 then $
-        continue
-
-;    ... VECTORIZE (SPEEDS UP SPARSE CASE)
-     kern_regions = regions[kernel_ind]
-     regions = regions[ind]
-     t = data[ind]
-     ind_to_xyv, ind, x=x, y=y, v=v, sz=size(data)
+  measure_level_moments $
+     , data = data $
+     , mask = mask $
+     , template_data = template_data $
+     , template_mask = template_mask $
+     , moments = moments $
+     , levels = levels $
+     , kernel_ind = kernel_ind $
+     , n_kern = n_kern $
+     , verbose = verbose 
      
-;    ... INTIALIZE KERNEL CHECKLIST
-     done_this_level = bytarr(n_kern)
-     
-;    ... LOOP OVER KERNELS
-     for j = 0, n_kern-1 do begin
-        
-        if done_this_level[j] then $
-           continue
-
-;       ... ... FIND DATA FOR THIS KERNEL
-        ind = where(regions eq kern_regions[j], ct)
-        if ct eq 0 then continue
-             
-        this_t = t[ind]
-        this_x = x[ind]
-        this_y = y[ind]
-        this_v = v[ind]
-     
-;       ... ... WORK OUT PROPERTIES FOR THIS KERNEL       
-        this_mom = $
-           measure_moments(x=this_x, y=this_y, v=this_v, t=this_t $
-                           , /extrap, extarg=0, do_clip=do_clip)
-        
-;       ... ... FIND ALL KERNELS IN THIS REGION        
-        this_kern = where(kern_regions eq kern_regions[j], ct_this_kern)        
-
-;       .... ... FLIP THE KERNELS IN THIS REGION TO DONE
-        if ct_this_kern gt 0 then $
-           done_this_level[this_kern] = 1B
-
-;       ... ... SAVE THE DATA
-        for k = 0, ct_this_kern-1 do $
-           moments[this_kern[k],i] = this_mom
-
-     endfor
-
-  endfor
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; SAVE TO DISK

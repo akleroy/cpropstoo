@@ -23,7 +23,9 @@ pro make_cprops_mask $
 ;  INVERT NEGATIVE->POSITIVE (USEFUL TO CHECK FALSE POSITIVES)
    , invert = invert $
 ;  GIVE OUTPUT
-   , verbose = verbose
+   , verbose = verbose $
+;  CONVERT MASK TO FLOAT BEFORE OUTPUT (CASA WONT READ BYTE ARRAYS)
+   , use_float = use_float 
 
 ; --- HANDLE EDGE CASE BETTER (AVOID WRAPS)
 ; --- AREA DECIMATION OF REGIONS DOESN'T HANDLE SHADOWING RIGHT NOW - FIX?
@@ -245,6 +247,9 @@ pro make_cprops_mask $
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; RETURN THE MASK
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
+
+  if keyword_set(use_float) then $
+     mask = float(mask)
 
   if n_elements(outfile) gt 0 then begin
      sxaddpar, hdr, 'BUNIT', 'MASK'

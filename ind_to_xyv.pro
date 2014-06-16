@@ -10,7 +10,7 @@ pro ind_to_xyv $
 ;
 ; Convert from indices in a cube to 1-d indices. Needs the size of the
 ; cube. Pure convenience.
-;
+; Now works for 2D data as well
 ;-
 
   if n_elements(sz) eq 0 then begin
@@ -22,8 +22,13 @@ pro ind_to_xyv $
      endelse
   endif
 
-  x = ind mod sz[1]
-  y = (ind mod (sz[1]*sz[2])) / sz[1]
-  v = ind / (sz[1]*sz[2])
-  
+  if sz[0] EQ 3 then begin 
+     x = ind mod sz[1]
+     y = (ind mod (sz[1]*sz[2])) / sz[1]
+     v = ind / (sz[1]*sz[2])
+  endif else if sz[0] EQ 2 then begin 
+     x = ind mod sz[1]
+     y = ind/sz[1]
+  endif
+
 end
