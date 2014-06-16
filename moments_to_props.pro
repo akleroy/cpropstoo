@@ -91,13 +91,17 @@ pro moments_to_props $
 ; OUTPUT
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 
-  if n_elements(outfile) gt 0 or n_elements(idl_file) gt 0 then begin
+  if n_elements(outfile) gt 0 or $
+     n_elements(idl_file) gt 0 then begin
+
      if n_elements(levels) gt 0 then begin
-        save, file=outfile, props, levels, kernel_ind, hdr, merger_matrix
+        save, file=outfile, props, moments, levels, kernel_ind, hdr, merger_matrix
      endif else begin
-        save, file=outfile, props
+        save, file=outfile, props, moments
      endelse
+
   endif
+
   if n_elements(text_file) gt 0 then begin
      ; check to see if the text_file contains .txt extension
      ; remove it if it does (we will add these later)
