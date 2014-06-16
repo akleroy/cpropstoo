@@ -247,9 +247,6 @@ function calc_props_from_moments $
   props.mommaj_extrap = moments.mom2maj_extrap*pcperpix
   props.mommaj_extrap_err = moments.mom2maj_extrap_err*pcperpix
 
-  props.mommaj = moments.mom2maj*pcperpix
-  props.mommaj_err = moments.mom2maj_err*pcperpix
-
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; MINOR AXIS SIZE
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -260,9 +257,6 @@ function calc_props_from_moments $
 
   props.mommin_extrap = moments.mom2min_extrap*pcperpix
   props.mommin_extrap_err = moments.mom2min_extrap_err*pcperpix
-
-  props.mommin = moments.mom2min*pcperpix
-  props.mommin_err = moments.mom2min_err*pcperpix
   
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; FULL DECONVOLUTION

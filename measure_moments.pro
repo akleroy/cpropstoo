@@ -217,6 +217,8 @@ function measure_moments $
   endif
 
   props.momposang_meas = posang     
+  props.momposang = posang     
+
   props.mom0_meas = mom0t[n_elements(mom0t)-1]
   props.mom1x_meas = mom1x[n_elements(mom1x)-1]
   props.mom1y_meas = mom1y[n_elements(mom1y)-1]
