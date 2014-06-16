@@ -54,25 +54,25 @@ function measure_moments $
   t = t[sort_t]  
 
 ; RECORD BASICS
-  props.npix.val = n_elements(t)
-  props.minval.val = min(t)
-  props.maxval.val = max(t)
+  props.npix_meas = n_elements(t)
+  props.minval_meas = min(t)
+  props.maxval_meas = max(t)
 
 ; IF REQUESTED, CLIP THE DATA
   if keyword_set(do_clip) then begin
      
 ;    DEFAULT TO CLIP AT THE EDGE VALUE OF THE CLOUD
      if n_elements(clipval) eq 0 then $
-        clipval = props.minval.val
+        clipval = props.minval_meas
      
 ;    REMOVE THE CLIPPING VALUE FROM THE INTENSITY
      t = (t - clipval) > 0
      props.clipped = 1B
-     props.clipval.val = clipval
+     props.clipval_meas = clipval
 
 ;    REMEASURE THE MIN AND MAX AFTER CLIPPING
-     props.minval.val = min(t)
-     props.maxval.val = max(t)
+     props.minval_meas = min(t)
+     props.maxval_meas = max(t)
   endif
 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
@@ -135,7 +135,7 @@ function measure_moments $
 ; ELLIPSE FITS
 
 ; ... TOTAL, UNWEIGHTED (TWOD ONLY)
-  if props.npix.val gt 1 then begin
+  if props.npix_meas gt 1 then begin
      ellfit, x=twod_x, y=twod_y $
              , maj=ell_maj, min=ell_min, posang=ell_pa
      
@@ -148,7 +148,7 @@ function measure_moments $
   endelse
   
 ; ... WORK OUT INDICES WHERE INTENSITY > 0.5 MAX
-  halfmax_ind = where(t gt 0.5*props.maxval.val, halfmax_ct) 
+  halfmax_ind = where(t gt 0.5*props.maxval_meas, halfmax_ct) 
   if halfmax_ct gt 0 then begin
      halfmax_twod_ind = uniq(twod_id[halfmax_ind], sort(twod_id[halfmax_ind]))
      halfmax_twod_x = x[halfmax_twod_ind]
@@ -199,34 +199,34 @@ function measure_moments $
 ; ASSIGN VALUES TO THE OUTPUT STRUCTURE
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 
-  props.area.val = area
-  props.deltav.val = deltav
+  props.area_meas = area
+  props.deltav_meas = deltav
 
-  if props.npix.val gt 1 then begin
-     props.ell_maj.val = ell_maj
-     props.ell_min.val = ell_min
-     props.ell_pa.val = ell_pa
+  if props.npix_meas gt 1 then begin
+     props.ellmaj_meas = ell_maj
+     props.ellmin_meas = ell_min
+     props.ellposang_meas = ell_pa
   endif
 
   if halfmax_ct gt 0 then begin
-     props.area_halfmax.val = area_halfmax
-     props.deltav_halfmax.val = deltav_halfmax
-     props.ell_maj_halfmax.val = half_ell_maj
-     props.ell_min_halfmax.val = half_ell_min
-     props.ell_pa_halfmax.val = half_ell_pa     
+     props.areahalfmax_meas = area_halfmax
+     props.deltavhalfmax_meas = deltav_halfmax
+     props.ellmajhalfmax_meas = half_ell_maj
+     props.ellminhalfmax_meas = half_ell_min
+     props.ellposanghalfmax_meas = half_ell_pa     
   endif
 
-  props.posang.val = posang     
-  props.mom0.val_meas = mom0t[n_elements(mom0t)-1]
-  props.mom1_x.val_meas = mom1x[n_elements(mom1x)-1]
-  props.mom1_y.val_meas = mom1y[n_elements(mom1y)-1]
-  props.mom1_v.val_meas = mom1v[n_elements(mom1v)-1]
-  props.mom2_x.val_meas = mom2x[n_elements(mom2x)-1]
-  props.mom2_y.val_meas = mom2y[n_elements(mom2y)-1]
-  props.mom2_v.val_meas = mom2v[n_elements(mom2v)-1]
+  props.momposang_meas = posang     
+  props.mom0_meas = mom0t[n_elements(mom0t)-1]
+  props.mom1x_meas = mom1x[n_elements(mom1x)-1]
+  props.mom1y_meas = mom1y[n_elements(mom1y)-1]
+  props.mom1v_meas = mom1v[n_elements(mom1v)-1]
+  props.mom2x_meas = mom2x[n_elements(mom2x)-1]
+  props.mom2y_meas = mom2y[n_elements(mom2y)-1]
+  props.mom2v_meas = mom2v[n_elements(mom2v)-1]
 
-  props.mom2_maj.val_meas = mom2xrot[n_elements(mom2xrot)-1]
-  props.mom2_min.val_meas = mom2yrot[n_elements(mom2yrot)-1]
+  props.mom2maj_meas = mom2xrot[n_elements(mom2xrot)-1]
+  props.mom2min_meas = mom2yrot[n_elements(mom2yrot)-1]
 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 ; CURVE OF GROWTH EXTRAPOLATION
@@ -265,14 +265,24 @@ function measure_moments $
 
 ;    DELTAV
 
-;    ASSIGN TO STRUCTURE
-     
-     props.mom0.val_extrap = ex_mom0t
-     props.mom2_x.val_extrap = ex_mom2x
-     props.mom2_y.val_extrap = ex_mom2y
-     props.mom2_v.val_extrap = ex_mom2v
-     props.mom2_maj.val_extrap = ex_mom2xrot
-     props.mom2_min.val_extrap = ex_mom2yrot
+;    ASSIGN TO STRUCTURE     
+     props.mom0_extrap = ex_mom0t
+     props.mom0 = ex_mom0t
+
+     props.mom2x_extrap = ex_mom2x
+     props.mom2x = ex_mom2x
+
+     props.mom2y_extrap = ex_mom2y
+     props.mom2y = ex_mom2y
+
+     props.mom2v_extrap = ex_mom2v
+     props.mom2v = ex_mom2v
+
+     props.mom2maj_extrap = ex_mom2xrot
+     props.mom2maj = ex_mom2xrot
+
+     props.mom2min_extrap = ex_mom2yrot
+     props.mom2min = ex_mom2yrot
 
   endif
 
