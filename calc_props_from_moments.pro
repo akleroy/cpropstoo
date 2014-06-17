@@ -299,11 +299,11 @@ function calc_props_from_moments $
   
 ; MAJOR
   props.ellmajhalfmax_meas = $
-     moments.ellmajhalfmax*pcperpix*ell_to_sig_half
+     moments.ellmajhalfmax_meas*pcperpix*ell_to_sig_half
 
 ; MINOR
   props.ellminhalfmax_meas = $
-     moments.ellminhalfmax*pcperpix*ell_to_sig_half
+     moments.ellminhalfmax_meas*pcperpix*ell_to_sig_half
 
 ; DO THE TWO-D DECONVOLUTION (FACTORS MATCH SIGMA TO FWHM)
   deconvolve_gauss $
@@ -343,12 +343,12 @@ function calc_props_from_moments $
 
 ; ... CONVERSION FROM AREA TO AN EFFECTIVE SIGMA IN PC
   props.areamajhalfmax_meas = $
-     sqrt(moments.areahalfmax/!pi)*2.0*pcperpix/sig_to_fwhm
+     sqrt(moments.areahalfmax_meas/!pi)*2.0*pcperpix/sig_to_fwhm
   
 ; ... ONE-D DECONVOLUTION   
-  if props.areamajhalfmax_meas gt beamfwhm_pix/sig_to_fwhm then begin
+  if props.areamajhalfmax_meas gt beamfwhm_pix/sig_to_fwhm*pcperpix then begin
      props.areamajhalfmax = $
-        sqrt(props.areamajhalfmax_meas^2 - (beamfwhm_pix/sig_to_fwhm)^2)
+        sqrt(props.areamajhalfmax_meas^2 - (beamfwhm_pix/sig_to_fwhm*pcperpix)^2)
   endif else begin
      props.areahalfmax_unresolved = 1B
   endelse
@@ -395,9 +395,9 @@ function calc_props_from_moments $
   props.radell_meas = $
      rmstorad*sqrt(props.ellmajhalfmax_meas*props.ellminhalfmax_meas)
   props.radell_extrap = $
-     rmstorad*sqrt(props.ellmajhalfmax_extrap*props.ellminhalfmax_extrap)
+     nan
   props.radell = $
-     rmstorad*sqrt(props.ellmajhalfmax*props.ellminhalfmax)
+     rmstorad*sqrt(props.ellmajhalfmax_meas*props.ellminhalfmax_meas)
 
 ; FROM AREA
   props.radarea_meas = $
