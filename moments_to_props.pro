@@ -1,7 +1,7 @@
 pro moments_to_props $
    , indata = indata $
    , infile = infile $
-   , outfile = outfile $ ; should be deprecated ? 
+   , outfile = outfile $ ; WRITES TO FITS
    , hdrfile = hdrfile $
    , inhdr = inhdr $
    , dist = dist $
@@ -10,7 +10,7 @@ pro moments_to_props $
    , chantosig = chantosig $
    , vircoeff = vircoeff $
    , verbose = verbose $
-   , text_file = text_file $ ; give a directory and file stem here 
+   , text_file = text_file $ ; WRITES IN CSV FORMAT
    , idl_file = idl_file
 
   compile_opt idl2
@@ -91,23 +91,22 @@ pro moments_to_props $
 ; OUTPUT
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 
-  if n_elements(outfile) gt 0 or $
-     n_elements(idl_file) gt 0 then begin
-
+  if n_elements(idl_file) gt 0 then begin
      if n_elements(levels) gt 0 then begin
-        save, file=outfile, props, moments, levels, kernel_ind, hdr, merger_matrix
+        save, file=idl_file, props, moments, levels, kernel_ind, hdr, merger_matrix
      endif else begin
-        save, file=outfile, props, moments
+        save, file=idl_file, props, moments
      endelse
-
   endif
 
   if n_elements(text_file) gt 0 then begin
-     ; check to see if the text_file contains .txt extension
-     ; remove it if it does (we will add these later)
-     if strmatch(text_file, '*.txt') then $
-        text_file = "_"+strmid(text_file, 3,/REVERSE_OFFSET)
-     write_props_text, props,  file=text_file
+     ; write to csv is super easy 
+     ; need to tweak this
+     write_csv, text_file, props, header=tag_names(props)
   endif
   
+  if n_elements(outfile) gt 0 then begin 
+     mwrfits, props, outfile ; needs tweaking 
+  endif 
+
 end                             ; OF MOMENTS_TO_PROPS
