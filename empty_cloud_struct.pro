@@ -36,7 +36,12 @@ function empty_cloud_struct
                  chan_to_sig: nan, $
                  rms_to_rad: nan, $
                  xco: nan, $
-                 vircoeff: nan $
+                 vircoeff: nan, $
+                 peak_to_edge: nan, $
+                 gcorr_1d: nan, $
+                 gcorr_area: nan, $
+                 gcorr_delta: nan, $
+                 gcorr_flux: nan $
                  }
   
   empty_struct = add_prop_to_struct( $

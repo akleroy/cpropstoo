@@ -126,6 +126,21 @@ function calc_props_from_moments $
   props.rms_to_rad = rmstorad
   props.chanwidth_kms = chanwidth_kms
   props.chan_to_sig = chantosig
+  
+; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
+; LOOK UP GAUSSIAN CORRECTION FACTOR
+; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
+
+  props.peak_to_edge = moments.maxval_meas / moments.minval_meas
+
+  calc_gauss_corr, props.peak_to_edge $
+                   , corr_1d=gcorr_sig, corr_delta=gcorr_delta, corr_area=gcorr_area, corr_flux=gcorr_flux
+  
+  props.gcorr_1d = gcorr_sig
+  props.gcorr_area = gcorr_area
+  props.gcorr_delta = gcorr_delta
+  props.gcorr_flux = gcorr_flux
+
 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 ; MOMENT 0
