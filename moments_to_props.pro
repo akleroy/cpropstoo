@@ -98,9 +98,9 @@ pro moments_to_props $
 
   if n_elements(idl_file) gt 0 then begin
      if n_elements(levels) gt 0 then begin
-        save, file=idl_file, props, moments, levels, kernel_ind, hdr, merger_matrix
+        save, file=idl_file, props, levels, kernel_ind, hdr, merger_matrix
      endif else begin
-        save, file=idl_file, props, moments
+        save, file=idl_file, props
      endelse
   endif
 
@@ -111,7 +111,7 @@ pro moments_to_props $
   endif
   
   if n_elements(outfile) gt 0 then begin 
-     mwrfits, props, outfile ; needs tweaking 
+     mwrfits, props, outfile, /create
   endif 
 
 end                             ; OF MOMENTS_TO_PROPS
