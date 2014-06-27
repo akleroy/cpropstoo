@@ -6,7 +6,7 @@ This is an IDL package to aid in the analysis of emission line data
 cubes. It expands and modularizes the CPROPS package introduced by
 Rosolowsky & Leroy (2006). It provides utilities to estimate noise and
 mask cubes, identify local maxima, partition cubes into object
-assignments, and derive properties from an object assignments.
+assignments, and derive properties from object assignments.
 
 ------------------
 --- User Tasks ---
@@ -19,7 +19,9 @@ These tasks are intended to be accessed by the user.
 * cprops_check_header : verify that a cube is appropriate for
   analysis: units are K, km/s, and has beam info in header.
 
-* prep_cube : attempt to place a cube in correct units
+* prep_cube : attempt to place a cube in correct units. This can be
+  hit-or-miss but will save you some annoying work if it fires off
+  correctly.
 
 --- Cube Analysis ---
 
@@ -28,7 +30,7 @@ These tasks are intended to be accessed by the user.
 
 --- Signal Identification ---
 
-* make_cprops_mask : makes a mask based on joint thresholding
+* make_cprops_mask : makes a mask based on joint thresholding.
 
 --- Feature Identification ---
 
@@ -55,7 +57,7 @@ These tasks are intended to be accessed by the user.
 * moments_to_props : calculate cloud properties based on moment
   measurements and other physical information.
 
-* (dendrogram) : extract a tree diagram from the level moments type
+* extract_dendro : extract a tree diagram from the level moments type
   structure.
 
 ----------------------
@@ -64,6 +66,11 @@ These tasks are intended to be accessed by the user.
 
 These programs are called by other routines and not intended to be
 user facing. They may still be of general use, of course.
+
+* add_noise_to_cube : add correlated noise to a data cube. Useful for
+  Monte Carlo calculations.
+
+* add_props_fields : structure utility
 
 * alllocmax : find all candidate local maxima via rolling a cube.
 
@@ -106,26 +113,3 @@ user facing. They may still be of general use, of course.
 * write_kernels : write a set of kernels to a text or IDL file
 
 * xyv_to_ind : convert pixels to cube index
-
------------------------
---- Next Priorities ---
------------------------
-
-* add_to_kernels, read_kernels ...
-
-* PEAK IDENTIFICATION/OBJECT ASSIGNMENT: add a multiline
-  decomposer. Right now it's possible to analyze multiple lines but
-  there's no simple decomposer.
-
-* PEAK IDENTIFICATION: put derivative decimation of kernels back in -
-  a natural interaction here
-
-* PEAK IDENTIFICATION: gaussianity and roundedness based region
-  rejection
-
-* UNCERTAINTIES: add monte carlo uncertainty to moment measurement
-
-* APERTURE CORRECTIONS: put a curve-of-growth tester in
-
-Longer term: two-d decomposition, perhaps merging with gridcore, a
-gradual migration to python.
