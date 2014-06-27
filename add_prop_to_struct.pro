@@ -1,7 +1,8 @@
 function add_prop_to_struct $
    , struct $
    , prop_name $
-   , unit=unit
+   , unit=unit $
+   , errors=errors
 
 ;+
 ;
@@ -20,14 +21,14 @@ function add_prop_to_struct $
   if n_elements(unit) eq 0 then $
      unit = ""
 
-; ADD UNITS
+; UNITS
   new_struct = $
      create_struct( $
      struct $
      , prop_name+"_unit" $
      , unit)
 
-; ADD MEASUREMENT
+; MEASUREMENT
   new_struct = $
      create_struct( $
      new_struct $
@@ -40,7 +41,7 @@ function add_prop_to_struct $
      , prop_name+"_meas_err" $
      , nan)
 
-; ADD EXTRAPOLATION
+; DATA-DRIVEN EXTRAPOLATION
   new_struct = $
      create_struct( $
      new_struct $
@@ -53,7 +54,20 @@ function add_prop_to_struct $
      , prop_name+"_extrap_err" $
      , nan)
 
-; ADD BEST ESTIMATE
+; GAUSSIAN APERTURE CORRECTION
+  new_struct = $
+     create_struct( $
+     new_struct $
+     , prop_name+"_gcorr" $
+     , nan)
+  
+  new_struct = $
+     create_struct( $
+     new_struct $
+     , prop_name+"_gcorr_err" $
+     , nan)
+
+; BEST ESTIMATE
   new_struct = $
      create_struct( $
      new_struct $
@@ -65,7 +79,7 @@ function add_prop_to_struct $
      new_struct $
      , prop_name+"_err" $
      , nan)
-
+  
   return, new_struct
 
 end                             

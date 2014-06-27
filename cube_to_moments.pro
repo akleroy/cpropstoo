@@ -80,7 +80,8 @@ pro cube_to_moments $
      
      this_mom = $
         measure_moments(x=this_x, y=this_y, v=this_v, t=this_t $
-                        , /extrap, extarg=0)
+                        , /extrap, extarg=0 $
+                        , empty_props = empty_props)
 
      this_mom.peaknum = cloudlist[i]
 

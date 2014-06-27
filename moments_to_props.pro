@@ -5,7 +5,7 @@ pro moments_to_props $
    , hdrfile = hdrfile $
    , inhdr = inhdr $
    , dist = dist $
-   , xco = xco $
+   , alpha = alpha $
    , rmstorad = rmstorad $
    , chantosig = chantosig $
    , vircoeff = vircoeff $
@@ -53,14 +53,6 @@ pro moments_to_props $
  
   sz = size(moments)
 
-  if sz[0] eq 1 then begin
-     props = replicate(empty_cloud_struct(), sz[1])
-  endif
-
-  if sz[0] eq 2 then begin
-     props = replicate(empty_cloud_struct(), sz[1], sz[2])
-  endif
-
   n_mom = n_elements(moments)
   
   for i = 0, n_mom-1 do begin
@@ -71,17 +63,30 @@ pro moments_to_props $
 
      this_prop = calc_props_from_moments( $
                  moments[i] $
+                 , empty_props = empty_props $
                  , hdr = hdr $
                  , astr = astr $
                  , vaxis = vaxis $
                  , dist = dist $
-                 , xco = xco $
+                 , alpha = alpha $
                  , bmaj = bmaj $
                  , bmin = bmin $
                  , bpa = bpa $
                  , rmstorad = rmstorad $
                  , chantosig = chantosig $
                  , vircoeff = vircoeff)
+
+     if n_elements(props) eq 0 then begin
+
+        if sz[0] eq 1 then begin
+           props = replicate(empty_props, sz[1])
+        endif
+
+        if sz[0] eq 2 then begin
+           props = replicate(empty_props, sz[1], sz[2])
+        endif
+
+     endif
      
      props[i] = this_prop
 
