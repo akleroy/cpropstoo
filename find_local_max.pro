@@ -1,8 +1,9 @@
 pro find_local_max $
    , data=data $
    , infile=infile $
-   , mask=mask $
-   , inmask=inmask $
+   , mask=mask_in $
+   , inmask=mask_file $
+   , trueval=trueval $
    , hdr=hdr $
    , friends = friends $
    , specfriends = specfriends $
@@ -41,7 +42,8 @@ pro find_local_max $
 ;   INFILE -- Path to a .fits cube.
 ;   DATA -- (optional) CO Cube.  
 ;   INMASK -- Path to .fits mask (must be same size as data)    
-;   MASK -- (optional) CO byte mask. 
+;   MASK -- (optional) CO byte mask.
+;   TRUEVAL -- (optional) truth value of mask. Defaults to >= 1.
 ;   HDR -- (optional) .fits Header (required if no filepath is specified). 
 ;   
 ;             
@@ -90,19 +92,34 @@ pro find_local_max $
      endelse
   endif
 
-  if n_elements(mask) eq 0 then begin
-     if n_elements(inmask) gt 0 then begin
-        file_mask = file_search(inmask, count=file_ct)
+  if n_elements(mask_in) eq 0 then begin
+     if n_elements(mask_file) gt 0 then begin
+        full_file_mask = file_search(mask_file, count=file_ct)
         if file_ct eq 0 then begin
            message, "Mask file not found.", /info
            return
         endif else begin
-           mask = readfits(file_mask, mask_hdr)
+           mask = readfits(full_file_mask, mask_hdr)
         endelse
      endif else begin
         message, "Defaulting to a mask of finite elements.", /info
         mask = finite(data)
      endelse
+  endif else begin
+     mask = mask_in
+  endelse
+
+; If requested, use only the mask where it equals a certain true
+; value. Useful for analyzing only part of an assignment cube, for
+; example.
+  if n_elements(trueval) ne 0 then begin
+     mask = mask eq trueval
+  endif
+
+; Return in the case of an empty mask
+  if total(mask) eq 0 then begin
+     message, "Empty mask. Returning.", /info
+     return
   endif
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%

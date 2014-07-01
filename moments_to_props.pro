@@ -1,7 +1,6 @@
 pro moments_to_props $
    , indata = indata $
    , infile = infile $
-   , outfile = outfile $ ; WRITES TO FITS
    , hdrfile = hdrfile $
    , inhdr = inhdr $
    , dist = dist $
@@ -10,8 +9,9 @@ pro moments_to_props $
    , chantosig = chantosig $
    , vircoeff = vircoeff $
    , verbose = verbose $
-   , text_file = text_file $ ; WRITES IN CSV FORMAT
-   , idl_file = idl_file
+   , text_file = text_file $
+   , idl_file = idl_file $
+   , fits_file = fits_file
 
   compile_opt idl2
 
@@ -110,8 +110,8 @@ pro moments_to_props $
      write_csv, text_file, props, header=tag_names(props)
   endif
   
-  if n_elements(outfile) gt 0 then begin 
-     mwrfits, props, outfile, /create
+  if n_elements(fits_file) gt 0 then begin 
+     mwrfits, props, fits_file, /create
   endif 
 
 end                             ; OF MOMENTS_TO_PROPS

@@ -54,7 +54,7 @@ function calc_props_from_moments $
   props = empty_props
 
 ; Assign values from the moments 
-  struct_assign, moments, props
+  struct_assign, moments, props, /nozero
 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 ; FILL IN META DATA
