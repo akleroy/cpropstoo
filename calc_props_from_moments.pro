@@ -51,6 +51,8 @@ function calc_props_from_moments $
                          , _extra=extra)
      endfor
   endif
+
+  empty_props = alphabetize_struct(empty_props)
   props = empty_props
 
 ; Assign values from the moments 
