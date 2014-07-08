@@ -121,12 +121,17 @@ function moments_gausscorr $
      
      props.peak_to_edge = props.maxval / props.minval
 
+     if props.peak_to_edge gt 1.0 then begin
 ;    USE THE LOOK-UP FUNCTION
-     calc_gauss_corr $
-        , props.peak_to_edge $
-        , corr_1d=gcorr_sig $
-        , corr_flux=gcorr_flux
-     
+        calc_gauss_corr $
+           , props.peak_to_edge $
+           , corr_1d=gcorr_sig $
+           , corr_flux=gcorr_flux
+     endif else begin
+        gcorr_sig = 1.0
+        gcorr_flux = 1.0
+     endelse
+
 ;    RECORD THE CORRECTIONS
      props.gcorr_1d = gcorr_sig
      props.gcorr_flux = gcorr_flux
