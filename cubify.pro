@@ -1,16 +1,17 @@
 pro cubify $
-   , x, y, v, t $
-   , szin $
-   , cube = cube $
-   , mask = mask $
-   , indcube = indcube $
+   , x = x $
+   , y = y $
+   , v = v $
+   , t = t $
+   , size = szin $
    , id = id $
    , indvec = indvec $
    , pad = pad $
+   , cube = cube $
+   , mask = mask $
+   , indcube = indcube $
    , location = location $
    , twod = twod
-
-; CLEAN UP - make SZIN a parameter, better docs
 
 ;+
 ; NAME:
@@ -19,124 +20,255 @@ pro cubify $
 ;
 ; PURPOSE:
 ;
-;   Converts vectorized arrays and IDs into 
+;   Converts vectorized arrays and IDs into cubes. If a size vector is
+;   supplied, then build a cube of that size with (0,0,0) at the
+;   bottom left corner. Otherwise, figure out a minimum spanning cube
+;   (optionally with padding) that holds the given x, y, and v.
 ;
 ; CALLING SEQUENCE:
 ;
-;   CUBIFY, x, y, v, t, sz, CUBE = cube [,ID = id, MASK = mask]
+;   CUBIFY, x=x, y=y, v=v, t=y, size=size, CUBE = cube, MASK = mask, 
+;           INDCUBE = indcube, ID = id, INDVEC = indvec,
+;           PAD = pad, LOCATION = location, TWOD = twod
 ;
 ; INPUTS:
+;
 ;   X,Y,V -- Pixel coordinates (zero indexed) of elements in a datacube
 ;   T -- Brigthness units to fill cube with.
-;   SZ -- Size structure characterizing the datacube. 
+;
 ; KEYWORD PARAMETERS:
-;   ID -- Vector of cloud identifications.  
+;
+;   SIZE -- Size structure characterizing the datacube with
+;           conventions following a call to size(CUBE, /dim), i.e.,
+;           the vector has ndim elements with entries (xsize, ysize,
+;           vsize).
+;
+;   PAD -- pad the output cube by this value. Use this if you want to
+;          guarantee one or more rows of zeros around the edge of the
+;          cube (e.g., to avoid wraps in labeling or shifting).
+;
+;   ID -- Vector of cloud identifications. If this is set then these
+;         values are written into the MASK output. Else MASK holds 1s
+;         and 0s indicating where data have been filled in.
+;
 ;   TWOD -- Set this flag to force "cubification" to a 2-D matrix.
-;           Mostly for compatibility with routines outside the CRPOPS
+;           Mostly for compatibility with routines outside the CPROPS
 ;           distribution. 
+;
+;   INDVEC -- An optional input that holds the index of the pixel in
+;             the original (parent) cube. It will be filled in to the
+;             optional output INDCUBE.
+;
 ; OUTPUTS:
-;   CUBE -- Set this to named variable containing the output data cube
-;           restored to full size.
-;   MASK -- Set this to named variable containing the output mask
-;           array with values equal to ID for each pixel.  If ID is
-;           not set, then mask defaults to a BYTE array with a value
-;           of 1B where every value of T was set.
+;
+;   CUBE -- Set this to named variable that will contain the output
+;           data cube.
+;
+;   MASK -- Set this to named variable that will contain an output
+;           mask array. If ID is not set, then mask defaults to a BYTE
+;           array with a value of 1B where every value of T was
+;           set. If ID is set then MASK will hold the assignment
+;           values from the indcube.
+;
+;   INDCUBE -- Set this to a named variable containing the location of
+;              a given pixel in the parent cube, which must be
+;              supplied by INDVEC. If INDVEC is not specified, then
+;              INDCUBE is full of -1.
+;
+;   LOCATION -- Set this to a named variable that will contain a
+;               vector that indicates position of the input
+;               (vectorized x, y, v) data in the newly created cube.
 ;
 ; MODIFICATION HISTORY:
 ;
 ;       Thu Dec 2 12:29:39 2004, Erik Rosolowsky <eros@cosmic>
 ;		Written.
 ;
+;       Revision and documentation for CPROPSTOO freeze. - aleroy 2014.
+;
+; TO DO:
+;
+;
 ;-
 
-  help, calls = calls
+; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
+; DEFAULTS AND DEFINITIONS
+; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-  if n_elements(szin) lt 4 then begin 
+; CHECK THAT WE HAVE THE MINIMUM INPUTS
+  if n_elements(x) eq 0 or n_elements(y) or n_elements(t) eq 0 then begin
+     message, "Not enough information to form cube or image. Require at least {X, Y, T} ", /info
+     return
+  endif
 
-     if n_elements(calls) eq 2 then $
-        message, 'No size information.  Assuming minimum size.', /con
+; CHECK WHETHER WE HAVE INFO ON THE THIRD DIMENSION
+  if n_elements(v) eq 0 then begin
+     if keyword_set(twod) eq 0 then begin
+        message, "Assuming two dimensions.", /info
+     endif
+  endif
 
-;   FIGURE OUT THE MINIMUM SIZE OF THE (POSSIBLY PADDED) CUBE
-     if (not keyword_set(pad)) then begin
-        sz = [-1, max(x)-min(x)+1, max(y)-min(y)+1, max(v)-min(v)+1] 
-        minx = min(x)
-        miny = min(y)
-        minv = min(v)
+; CHECK WHETHER THE SIZE HAS BEEN FORCED
+  if n_elements(szin) gt 0 then begin
+
+;    ERROR CHECKING
+     if n_elements(szin) eq 2 then begin
+        twod = 1B
      endif else begin
-        sz = [-1, max(x)-min(x)+1+2*pad $
-              , max(y)-min(y)+1+2*pad, max(v)-min(v)+1+2*pad]
-        minx = min(x) - pad
-        miny = min(y) - pad
-        minv = min(v) - pad
+        if n_elements(szin) ne 3 then begin
+           message, "Expect 2 or 3 dimensions. Check SIZE parameter.", /info
+           return
+        endelse
      endelse
-     if sz[0] eq 2 or keyword_set(twod) then begin
-        sz[3] = 1
-        minv = 0
+          
+;    INFORMATIONAL
+     if keyword_set(pad) then $
+        print, 'Keyword PAD has no effect when SZ is supplied. Ignoring.'
+
+;    WITH THE SIZE FORCED, THE MINIMA ARE ZERO BY CONSTRUCTION
+     minx = 0
+     miny = 0
+     minv = 0
+
+;    RECAST SIZE
+     sz = szin
+
+  endif else begin
+
+;    IF SIZE IS NOT SUPPLIED FORM THE CUBE TO SPAN THE MINIMUM RANGE
+;    OF X, Y, V PLUS ANY PADDING
+     message, 'No size information.  Assuming minimum size.', /con
+
+;    FIGURE OUT THE MINIMUM SIZE OF THE (POSSIBLY PADDED) CUBE
+     if keyword_set(pad) eq 0 then $
+        pad = 0
+
+     sz = [max(x)-min(x)+1+2*pad $
+           , max(y)-min(y)+1+2*pad]
+     minx = min(x) - pad
+     miny = min(y) - pad
+
+     if keyword_set(twod) eq 0 then begin
+        sz = [sz, max(y)-min(y)+1+2*pad]
+        minv = min(v) - pad
      endif
 
-;   NUMBER OF ELEMENTS
-     sz[0] = long(sz[1])*sz[2]*sz[3]
+  endelse
 
-;   MAKE EMPTY ARRAYS OF APPROPRIATE TYPE
+; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
+; GENERATE OUTPUTS
+; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
+
+; Generate the cube, mask, index output cube, and the vector of
+; locations.
+
+  if keyword_set(twod) then begin
+
+     cube = $
+        make_array(sz[1], sz[2], type = size(t, /type))* $
+        !values.f_nan
+
+     mask = make_array(sz[1], sz[2], type = size(id, /type) > 1)
+
+     indcube = make_array(sz[1], sz[2], $
+                          type = size(indvec, /type) > 1)-1
+
+     location = lonarr(n_elements(x))-1L
+     
+  endif else begin
+
      cube = $
         make_array(sz[1], sz[2], sz[3], type = size(t, /type))* $
         !values.f_nan
+
      mask = make_array(sz[1], sz[2], sz[3], type = size(id, /type) > 1)
+
      indcube = make_array(sz[1], sz[2], sz[3], $
                           type = size(indvec, /type) > 1)-1
 
+     location = lonarr(n_elements(x))-1L
+
+  endelse
+
+; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
+; FILL OUT OUTPUT
+; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
+
+  if keyword_set(twod) then begin
+
+;   .......................................
+;   TWO DIMENSIONAL CASE
+;   .......................................
+
+;    FIND WHERE THE DATA FIT INTO THE IMAGE
+     ind = where(((x-minx) lt sz[1]) and $
+                 ((x-minx) ge 0) and $
+                 ((y-miny) lt sz[2]) and $
+                 ((y-miny) ge 0), ct)
+
+     if ct eq 0 then return
+
 ;   PLACE THE DATA INTO THE (POSSIBLY PADDED) ARRAY
-     cube[x-minx, y-miny, v-minv] = t
+     cube[x[ind]-minx, y[ind]-miny] = t[ind]
 
-;   AND FILL OUT THE MASK (WITH 1s IF NOT SUPPLIED, ELSE WITH THE
-;   ASSIGNMENT CUBE)
+;   FILL OUT THE MASK (WITH THE ASSIGNMENT CUBE IF SUPPLIED, OTHERWISE
+;   WITH 1s WHERE WE HAVE DATA)
      if (n_elements(id) eq n_elements(x)) then $
-        mask[x-minx, y-miny, v-minv] = id else $
-           mask[x-minx, y-miny, v-minv] = 1b
+        mask[x[ind]-minx, y[ind]-miny] = id[ind] $
+     else $
+        mask[x[ind]-minx, y[ind]-miny] = 1b
      
-;   AND FILL OUT THE INDEX CUBE MAPPING BACK TO THE ORIGINAL CUBE
+;   IF INDVEC HAS BEEN SUPPLIED THEN FILL OUT THE INDEX CUBE MAPPING
+;   BACK TO THE ORIGINAL CUBE
      if (n_elements(indvec) eq n_elements(x)) then $
-        indcube[x-minx, y-miny, v-minv] = indvec else $
-           indcube[x-minx, y-miny, v-minv] = -1
+        indcube[x[ind]-minx, y[ind]-miny] = indvec[ind] $
+     else $
+        indcube[x[ind]-minx, y[ind]-miny] = -1
 
-     indexcube = lindgen(sz[1], sz[2], sz[3])
-     location = indexcube[x-minx, y-miny, v-minv]
+;   WORK OUT THE LOCATION OF THE VECTORIZED DATA IN THE NEW CUBE
+     indexcube = lindgen(sz[1], sz[2])
+     location[ind] = indexcube[x[ind]-minx, y[ind]-miny]
 
   endif else begin
-     sz = szin
-     if sz[0] eq 2 then sz[3] = 1
-     if n_elements(minx) eq 0 then minx = 0
-     if n_elements(miny) eq 0 then miny = 0
-     if n_elements(minv) eq 0 then minv = 0
 
-;   ERROR CHECKING
-     if (keyword_set(pad) AND (n_elements(sz) gt 0)) then $
-        print, 'Keyword PAD has no effect when SZ is supplied. Ignoring. Dumbass.'
+;   .......................................
+;   THREE DIMENSIONAL CASE
+;   .......................................
 
-;   MAKE THE EMPTY CUBE
-     cube = make_array(sz[1], sz[2], sz[3], type = size(t, /type))*$
-            !values.f_nan
-     mask = make_array(sz[1], sz[2], sz[3], type = size(id, /type) > 1)
-     indcube = make_array(sz[1], sz[2], sz[3], type = size(indvec, /type) > 1)
+;    FIND WHERE THE DATA FIT INTO THE IMAGE
+     ind = where(((x-minx) lt sz[1]) and $
+                 ((x-minx) ge 0) and $
+                 ((y-miny) lt sz[2]) and $
+                 ((y-miny) ge 0) and $
+                 ((v-miny) lt sz[3]) and $
+                 ((v-miny) ge 0), ct)
+     
+     if ct eq 0 then return
 
-;   FILL IN THE DATA
-     cube[x, y, v] = t
+;   PLACE THE DATA INTO THE (POSSIBLY PADDED) ARRAY
+     cube[x[ind]-minx, y[ind]-miny, v[ind]-minv] = t[ind]
 
-;   AND THE MASK
-     if n_elements(id) eq n_elements(x) then $
-        mask[x, y, v] = id else $
-           mask[x, y, v] = 1B
+;   FILL OUT THE MASK (WITH THE ASSIGNMENT CUBE IF SUPPLIED, OTHERWISE
+;   WITH 1s WHERE WE HAVE DATA)
+     if (n_elements(id) eq n_elements(x)) then $
+        mask[x[ind]-minx, y[ind]-miny, v[ind]-minv] = id[ind] $
+     else $
+        mask[x[ind]-minx, y[ind]-miny, v[ind]-minv] = 1b
 
-;   AND THE INDEX CUBE
-     if n_elements(indvec) eq n_elements(x) then $
-        indcube[x, y, v] = indvec else $
-           indcube[x, y, v] = 1B
+;   IF INDVEC HAS BEEN SUPPLIED THEN FILL OUT THE INDEX CUBE MAPPING
+;   BACK TO THE ORIGINAL CUBE
+     if (n_elements(indvec) eq n_elements(x)) then $
+        indcube[x[ind]-minx, y[ind]-miny, v[ind]-minv] = indvec[ind] $
+     else $
+        indcube[x[ind]-minx, y[ind]-miny, v[ind]-minv] = -1
 
+;   WORK OUT THE LOCATION OF THE VECTORIZED DATA IN THE NEW CUBE
      indexcube = lindgen(sz[1], sz[2], sz[3])
-     location = indexcube[x-minx, y-miny, v-minv]
+     location[ind] = indexcube[x[ind]-minx, y[ind]-miny, v[ind]-minv]
 
   endelse
 
   return
+
 end
 

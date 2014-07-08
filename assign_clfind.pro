@@ -119,13 +119,13 @@ pro assign_clfind $
 ; Rebuild a minimum-sized cube from the vectorized data.
 
   szdata = size(data)
-  cubify, x, y, v, t $
+  cubify, x=x, y=y, v=v, t=t $
           , cube = minicube $
           , pad = 3 $
           , twod = (szdata[0] eq 2) $
           , indvec = cubeindex $
           , indcube = indcube
-
+  
   minikern = kernel_ind
   for i = 0, n_elements(minikern)-1 do $
      minikern[i] = where(indcube eq kernel_ind[i])

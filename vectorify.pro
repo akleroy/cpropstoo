@@ -1,9 +1,17 @@
-pro vectorify, cube, mask = mask $
-               , x = x, y = y, v = v, t = t, id = id $
-               , sz = sz, indvec = indvec
+pro vectorify $
+   , cube $
+   , mask = mask $
+   , x = x $
+   , y = y $
+   , v = v $
+   , t = t $
+   , id = id $
+   , sz = sz $
+   , indvec = indvec
 
 ;+
 ; NAME:
+;
 ;  VECTORIFY
 ;
 ; PURPOSE: 
@@ -15,7 +23,7 @@ pro vectorify, cube, mask = mask $
 ; CALLING SEQUENCE:
 ;
 ; vectorify, cube, mask = mask, x = x, y = y, v = v, t = t, id = id $
-;          , sz = sz
+;          , sz = sz, indvec=indvec
 ;
 ; INPUTS:
 ;

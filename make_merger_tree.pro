@@ -42,7 +42,7 @@ pro make_merger_tree $
 ; ... rebuild a minimum-sized cube from the vectorized data.
 
   szdata = size(data)
-  cubify, x, y, v, t $
+  cubify, x=x, y=y, v=v, t=t $
           , cube = minicube $
           , pad = 3 $
           , twod = (szdata[0] eq 2) $

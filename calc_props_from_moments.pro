@@ -142,7 +142,8 @@ function calc_props_from_moments $
   endif
   
 ; DEFAULT TO A SYMMETRIC BEAM IF NO MINOR AXIS IS SUPPLIED
-  if n_elements(bmin) eq 0 then begin
+  if props.bmin_deg eq 0 or finite(props.bmin_deg) eq 0 then begin
+     message, "Assuming a symmetric beam.", /info
      props.bmin_deg = props.bmaj_deg
   endif
   
