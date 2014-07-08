@@ -9,12 +9,11 @@ Rosolowsky & Leroy (2006). It provides utilities to estimate noise and
 mask cubes, identify local maxima, partition cubes into object
 assignments, and derive properties from object assignments.
 
-User Tasks
-----------
+#### User Tasks
 
 These tasks are intended to be accessed by the user.
 
-# Units and Book Keeping
+###### Units and Book Keeping
 
 * cprops_check_header : verify that a cube is appropriate for
   analysis: units are K, km/s, and has beam info in header.
@@ -23,16 +22,14 @@ These tasks are intended to be accessed by the user.
   hit-or-miss but will save you some annoying work if it fires off
   correctly.
 
-# Monte Carlo
+###### Signal Identification
 
 * make_noise_cube : accept a cube and optionally a mask and return 0,
   1, 2, or 3d noise estimates.
 
---- Signal Identification ---
-
 * make_cprops_mask : makes a mask based on joint thresholding.
 
---- Feature Identification ---
+###### Feature Identification ---
 
 * find_local_max : accept a cube and mask and return a set of local
   maxima.
@@ -45,7 +42,7 @@ These tasks are intended to be accessed by the user.
   approach (unique associated isocontours) to generate an assignment
   cube.
 
---- Feature Characterization ---
+###### Feature Characterization
 
 * cube_to_moments : extract moment measurements for a list of clouds
   given an assignment cube and a data cube
@@ -59,6 +56,10 @@ These tasks are intended to be accessed by the user.
 
 * extract_dendro : extract a tree diagram from the level moments type
   structure.
+
+###### Monte Carlo
+
+* add_noise_to_cube : add correlated noise to a cube.   
 
 ----------------------
 --- Infrastructure ---
