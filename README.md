@@ -8,6 +8,18 @@ Rosolowsky & Leroy (2006). It provides utilities to estimate noise and
 mask cubes, identify local maxima, partition cubes into object
 assignments, and derive properties from object assignments.
 
+If you use this version, please reference Rosolowsky & Leroy
+(2006). An additional updated reference is forthcoming in 2014 or
+2015. If you would like to contribute to the code, please feel
+encouraged to do so via pull request or email aleroy@nrao.edu about
+being added as a collaborator on the wiki. Thanks for stopping by!
+
+### Examples
+
+A suite of rich examples remains under development. Currently the
+repository includes one full example applying the full analysis flow
+to an unnamed ALMA data cube. See 
+
 ### User Tasks
 
 These are high level tasks are intended to be accessed by the user. A
@@ -71,7 +83,7 @@ sizes). <\em>
 * extract_dendro : extract a tree diagram from the level moments type
   structure.
 
-###### Results Analysis
+###### Analysis of Results
 
 ###### Monte Carlo
 
@@ -85,15 +97,10 @@ be of general use.
 
 <em> These are alphabetized by topic. <\em>
 
-###### Peak Identification
+###### Astrophysical Calculations
 
-* alllocmax : find all candidate local maxima via rolling a cube.
-
-* decimate_kernels : reject candidate local maxima
-
-* mergefind_approx : solve for merger levels among a set of kernels
-
-* write_kernels : write a set of kernels to a text or IDL file
+* calc_jtok [documented] : convert from Janskies per beam to Kelvin
+  (widely useful).
 
 ###### Cube Infrastructure
 
@@ -140,6 +147,16 @@ from the cg routines may preclude ever actually doing that. </em>
   structure containing moments, wrapping the extrapolation
 
 * pa_moment : use PCA to find suggest the major and minor axis
+
+###### Peak Identification
+
+* alllocmax : find all candidate local maxima via rolling a cube.
+
+* decimate_kernels : reject candidate local maxima
+
+* mergefind_approx : solve for merger levels among a set of kernels
+
+* write_kernels : write a set of kernels to a text or IDL file
 
 ###### Properties and Moment "Packages"
 
