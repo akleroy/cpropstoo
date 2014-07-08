@@ -1,5 +1,4 @@
-CPROPStoo
-=========
+# CPROPStoo
 
 Welcome!
 
@@ -9,9 +8,10 @@ Rosolowsky & Leroy (2006). It provides utilities to estimate noise and
 mask cubes, identify local maxima, partition cubes into object
 assignments, and derive properties from object assignments.
 
-#### User Tasks
+### User Tasks
 
-These tasks are intended to be accessed by the user.
+These are high level tasks are intended to be accessed by the user. A
+normal cube analysis path calls them in sequency.
 
 ###### Units and Book Keeping
 
@@ -29,7 +29,7 @@ These tasks are intended to be accessed by the user.
 
 * make_cprops_mask : makes a mask based on joint thresholding.
 
-###### Feature Identification ---
+###### Feature Identification
 
 * find_local_max : accept a cube and mask and return a set of local
   maxima.
@@ -48,8 +48,8 @@ These tasks are intended to be accessed by the user.
   given an assignment cube and a data cube
 
 * cube_to_level_moments : measure moments for each kernel plus contour
-  combination in a cube. Feeds dendrogram analysis or other
-  multiscale approaches.
+  combination in a cube. Feeds dendrogram analysis or other multiscale
+  approaches.
 
 * moments_to_props : calculate cloud properties based on moment
   measurements and other physical information.
@@ -57,60 +57,87 @@ These tasks are intended to be accessed by the user.
 * extract_dendro : extract a tree diagram from the level moments type
   structure.
 
+###### Results Analysis
+
 ###### Monte Carlo
-
-* add_noise_to_cube : add correlated noise to a cube.   
-
-----------------------
---- Infrastructure ---
-----------------------
-
-These programs are called by other routines and not intended to be
-user facing. They may still be of general use, of course.
 
 * add_noise_to_cube : add correlated noise to a data cube. Useful for
   Monte Carlo calculations.
 
-* add_props_fields : structure utility
+### Lower Level Routines
+
+These programs are called by the higher level routines. They may still
+be of general use.
+
+###### Signal Identification
+
+* grow_mask : manipulate masks.
+
+###### Peak Identification
 
 * alllocmax : find all candidate local maxima via rolling a cube.
 
+* decimate_kernels : reject candidate local maxima
+
+* mergefind_approx : solve for merger levels among a set of kernels
+
+* write_kernels : write a set of kernels to a text or IDL file
+
+##### Feature Characterization
+
 * calc_props_from_moments: convert moment measurements to properties.
+
+###### Structure Handling
+
+* add_props_fields [documented] : add fields to a structure related to property
+  measurements
+
+* alphabetize_struct [documented] : alphabetize the fields in a
+  structure.
+
+* empty_moment_struct [documented] : initialize an empty moment structure.
+
+###### Vector Analysis
+
+<em> Note that these are potentially of wide general use. </em>
 
 * contour_values : return contours given data and some criteria
 
-* cubify : convert a vector of {x,y,v,t} measurements into a cube
+* mad : meadian absolute deviation. Cheap, robust noise estimate.
 
-* decimate_kernels : reject candidate local maxima
+###### Cube Infrastructure
 
-* empty_moment_struct : initialize an empty moment structure.
+<em> Note that these are potentially of general use for moving fluidly
+between cube data and vectorized analysis. </em>
 
-* empty_prop_struct : initialize an empty property structure.
+* cubify [documented] : convert a vector of {x,y,v,t} measurements into a cube
 
-* empty_cloud_struct : initialize an empty cloud structure.
+* vectorify [documented] : convert a subset of a cube into {x,y,v,t} vector
+
+* xyv_to_ind : convert pixels to cube index
+
+* ind_to_xyv : convert cube index to pixels
+
+###### Display
+
+<em> A long term goal would be to deprecate these in favor the Coyote
+graphic libraries. But the overhead in getting the disp functionality
+from the cg routines may preclude ever actually doing that. </em>
+
+* disp : two-d image display program.
+
+* fasthist : quick histogram program.
+
+###### Moment Calculation
 
 * extrap : use a curve-of-growth analysis to correct moments for
   finite sensitivity
 
-* grow_mask : manipulate masks.
-
-* ind_to_xyv : convert cube index to pixels
-
-* mad : meadian absolute deviation. Cheap, robust noise estimate.
-
 * measure_moments : given a vector x, y, v, and t calculate a
   structure containing moments, wrapping the extrapolation
-
-* mergefind_approx : solve for merger levels among a set of kernels
 
 * calc_props : expands a moment structure into a property structure.
 
 * pa_moment : use PCA to find suggest the major and minor axis
 
 * stat_mask : extract statistics on regions inside a mask
-
-* vectorify : convert a subset of a cube into {x,y,v,t} vector
-
-* write_kernels : write a set of kernels to a text or IDL file
-
-* xyv_to_ind : convert pixels to cube index

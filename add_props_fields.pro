@@ -9,8 +9,15 @@ function add_props_fields $
 ;
 ; PURPOSE:
 ;
-;   
+; Adds fields to a structure that are expected in any CPROPS property
+; measurement. Accepts a seed structure. If one is not supplied, it
+; generates an empty moment strucutre. Returns a new structure with
+; properties fields in place.
 ;
+; NOTE:
+;
+; This is an infrastructure routine and not documented for general
+; use.
 ;
 ;-
 

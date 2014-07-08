@@ -2,7 +2,22 @@ function alphabetize_struct, struct_in
 
 ;+
 ;
-; Alphabetize the fields in a structure.
+; NAME
+;
+;   alphabetize_struct
+;
+; SYNTAX
+;
+;   new_struct = alphabetize_struct(struct_in)
+;
+; OUTPUT
+;
+; A new structure with the fields arranged into alphabetical order.
+;
+; NOTE
+; 
+; This is an infrastructure program and not documented for general
+; use. Though it's really simple and potentially general.
 ;
 ;-  
 

@@ -4,12 +4,16 @@ function empty_moment_struct
 ;
 ; NAME:
 ;
-;   empty_props_struct
+;   empty_moment_struct
 ;
 ; PURPOSE:
+; 
+; Return a structure holding the first few common fields present in
+; any CPROPS moment measurement.
 ;
-;   
+; NOTE:
 ;
+; This is purely an infrastructure routine and not heavily documented.
 ;
 ;-
 
