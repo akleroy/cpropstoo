@@ -127,7 +127,8 @@ pro cpropstoo_example
   loadct, 33
   disp, peak_map, /sq
   readcol, "../measurements/co32_lmax.txt", comment="#", x, y
-  oplot, x, y, color=fsc_color("gray"), ps=1
+  loadct, 0
+  oplot, x, y, color=255, ps=1
 
 ; Manipulate the FIND_LOCAL_MAX call and iterate until happy.
 

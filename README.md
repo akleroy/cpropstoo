@@ -14,11 +14,22 @@ If you use this version, please reference Rosolowsky & Leroy
 encouraged to do so via pull request or email aleroy@nrao.edu about
 being added as a collaborator on the wiki. Thanks for stopping by!
 
+### Prerequisites
+
+The IDL Astronomy User's library is required to run the package and
+the Coyote Graphics libraries are a nominal (though currently unused)
+requirement. If you encounter any other dependencies, please email and
+we will endeavor to include the routine in this distribution.
+
 ### Examples
 
 A suite of rich examples remains under development. Currently the
 repository includes one full example applying the full analysis flow
-to an unnamed ALMA data cube. See 
+to an unnamed ALMA data cube. See:
+
+* cpropstoo_example : a documented rich example application
+
+More examples forthcoming as papers using the code are accepted.
 
 ### User Tasks
 
@@ -97,10 +108,17 @@ be of general use.
 
 <em> These are alphabetized by topic. <\em>
 
-###### Astrophysical Calculations
+###### Astrophysical or Observational Calculations
 
-* calc_jtok [documented] : convert from Janskies per beam to Kelvin
-  (widely useful).
+<em> We have found these widely useful. <\em>
+
+* calc_jtok [documented] : convert from Janskies per beam to Kelvin.
+
+* deconvolve_gauss : deconvolve one Gaussian from another. Rigorously
+  useful for interferometer beams. Approximately useful for clouds.
+
+* make_axes [documented] : generate RA, Dec, and Velocity axes or
+  images from FITS headers.
 
 ###### Cube Infrastructure
 
@@ -121,11 +139,11 @@ between cube data and vectorized analysis. </em>
 graphic libraries. But the overhead in getting the disp functionality
 from the cg routines may preclude ever actually doing that. </em>
 
-* counter : progress-bar style counter
+* counter [documented] : progress-bar style counter
 
-* disp : two-d image display program.
+* disp [documented] : two-d image display program.
 
-* fasthist : quick histogram program.
+* fasthist [documented] : quick histogram program.
 
 ###### Feature Characterization Infrastructure
 
@@ -140,8 +158,19 @@ from the cg routines may preclude ever actually doing that. </em>
 
 ###### Moment Calculation
 
-* extrap : use a curve-of-growth analysis to correct moments for
-  finite sensitivity
+* calc_gauss_corr : procedurally generated file that calculates the
+  aperture corrections for a three dimensional Gaussian. Created by
+  gauss_model.
+
+* ellfit [documented] : fit a two dimensional ellipse to data, solving
+  for the principle axes.
+
+* extrap [documented] : use a curve-of-growth analysis to derive the
+  correction needed to extrapolate a moment to perfect sensitivity.
+
+* gauss_model [documented] : generates a program or IDL file recording
+  the aperture corrections appropriate for a 3-d Gaussian as a
+  function of peak-to-edge ratio.
 
 * measure_moments : given a vector x, y, v, and t calculate a
   structure containing moments, wrapping the extrapolation
@@ -196,6 +225,6 @@ metadta. <\em>
 
 <em> Note that these are potentially of wide general use. </em>
 
-* contour_values : return contours given data and some criteria
+* contour_values : return contours given data and some criteria.
 
-* mad : meadian absolute deviation. Cheap, robust noise estimate.
+* mad [documented] : median absolute deviation. Cheap, robust noise estimate.

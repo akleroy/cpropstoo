@@ -5,9 +5,26 @@ pro gauss_model $
 
 ;+
 ;
+; NAME
+;    
+;  gauss_model
+;
+; SYNTAX
+;
+; gauss_model, /write_pro_file, outfile="calc_gauss_corr.pro"
+;
+;
+; DESCRIPTION
+;
 ; Create a model three dimensional gaussian for use calculating the
-; extrapolation factors for a Gaussian. Used as a check against our
-; implemented analytic case.
+; extrapolation factors for a Gaussian. Can save the results as an IDL
+; file or write a program that loads them as vectors (compiling this
+; should be faster than repeated read/write).
+;
+; NOTE
+;
+; This is an infrastructure program and not documented for general
+; use.
 ;
 ;-
 

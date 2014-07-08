@@ -16,6 +16,8 @@ pro fasthist, data2, log = log, poly = poly, _extra=_extra
 ;   LOG -- Set the values to show the logarithm of the histogram.
 ;          This is the only keyword because it's damn useful.
 ;
+;   IMPORTANT! Note that all extra parameters go to the plot.
+;
 ; OUTPUTS:
 ;   A nice histogram of the data.
 ;
