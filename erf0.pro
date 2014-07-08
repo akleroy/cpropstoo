@@ -1,4 +1,5 @@
 function erf0, x, erftarg = erftarg
-; Where error function equals a given value.
+; Helper function allowing error function at a target value to be
+; solved by the bisection root finder.
   return, errorf(x)-erftarg
 end

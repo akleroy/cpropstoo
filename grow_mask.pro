@@ -16,12 +16,12 @@ function grow_mask $
 ;
 ; PURPOSE:
 ;
-; Expand a byte mask in one of three ways:
+; Expand a byte mask (binary dilation) in one of three ways:
 ;
 ; 1) by a specified radius in pixels
 ;
-; 2) a set # of iterations where all pixels adjacent to the mask enter the
-; mask
+; 2) via a set number of iterations where all pixels adjacent to the
+; mask enter the mask
 ;
 ; 3) expanding the current mask to a larger mask defined by constraint
 ;
@@ -55,7 +55,9 @@ function grow_mask $
 ; one of these is also needed:
 ;
 ; ITERS - iterations to grow the mask into its nearest neighbors
+;
 ; CONSTRAINT - another mask to 'grow into' or to contrain 'iters'
+;
 ; RADIUS - radial distance to expand the map
 ;
 ; OPTIONAL INPUTS:
@@ -69,6 +71,8 @@ function grow_mask $
 ; NO_EDGE - blank the edges of the mask
 ;
 ; KEEP_MASK - ensure that the original mask is part of the final mask
+;
+; TWOD - operate only in two dimensions.
 ;
 ; OUTPUTS:
 ;
