@@ -1,4 +1,5 @@
 CPROPStoo
+=========
 
 Welcome!
 
@@ -8,13 +9,12 @@ Rosolowsky & Leroy (2006). It provides utilities to estimate noise and
 mask cubes, identify local maxima, partition cubes into object
 assignments, and derive properties from object assignments.
 
-------------------
---- User Tasks ---
-------------------
+User Tasks
+----------
 
 These tasks are intended to be accessed by the user.
 
---- Units and Book Keeping ---
+# Units and Book Keeping
 
 * cprops_check_header : verify that a cube is appropriate for
   analysis: units are K, km/s, and has beam info in header.
@@ -23,7 +23,7 @@ These tasks are intended to be accessed by the user.
   hit-or-miss but will save you some annoying work if it fires off
   correctly.
 
---- Cube Analysis ---
+# Monte Carlo
 
 * make_noise_cube : accept a cube and optionally a mask and return 0,
   1, 2, or 3d noise estimates.
