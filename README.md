@@ -54,6 +54,8 @@ CPROPS.
 
 * make_cprops_mask : makes a mask based on joint thresholding.
 
+* show_mask : visualize a mask.
+
 ###### Feature Identification
 
 * find_local_max : accept a cube and mask and return a set of local
@@ -72,6 +74,13 @@ CPROPS.
   combined with an array of flags and map this back to a cube
   assignment giving the largest "flagged" structures (e.g., the
   largest bound structures).
+
+* make_merger_tree : generate a merger tree of the sort needed in the
+  dendrogram or level moments calculation.
+
+* mergefind_approx : find merger levels between peaks using brute
+  force. "Approximate" because it assumes some contouring (e.g., steps
+  of 0.25 sigma or similar) in the calculation.
 
 ###### Feature Characterization
 
@@ -145,6 +154,10 @@ from the cg routines may preclude ever actually doing that. </em>
 
 * fasthist [documented] : quick histogram program.
 
+* reversect [documented] : invert a color table.
+
+* str : smart number to string conversion.
+
 ###### Feature Characterization Infrastructure
 
 * calc_props_from_moments: convert moment measurements to properties.
@@ -195,12 +208,16 @@ each do three things: return an empty structure of moments/properties,
 calculate moments, and convert moments to properties given proper
 metadta. <\em>
 
+* moments_area : properties calculated using area as a size metric.
+
 * moments_classic : the original Rosolowsky & Leroy '06 moments.
 
 * moments_gausscor : properties calculated using Gaussian
   extrapolation.
 
-* moments_area : properties calculated using area as a size metric.
+* moments_template [documented] : an example / template file
+  demonstrating how to put together one of the moment packages. Not
+  intended to be run.
 
 ###### Signal Identification
 
