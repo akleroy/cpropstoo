@@ -63,7 +63,8 @@ CPROPS.
 
 * assign_clfind : accept a list of kernels and a cube and use the
   CLUMPFIND approach (nearest neighbors) to generate an assignment
-  cube.
+  cube. Alternatively, if a set of kernels is not supplied, generate
+  an assignment cube following the "classic" CLUMPFIND approach.
 
 * assign_cprops : accept a list of kernels and a cube use the CPROPS
   approach (unique associated isocontours) to generate an assignment
