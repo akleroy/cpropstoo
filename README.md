@@ -88,7 +88,7 @@ CPROPS.
 defined loosely as values calculated from the cube with little
 awareness of metadata (e.g., sizes in pixels) - and "properties" -
 which are more physical values (e.g., deconvolved angular or linear
-sizes). <\em>
+sizes).
 
 * cube_to_moments : extract moment measurements for a list of clouds
   given an assignment cube and a data cube
@@ -115,11 +115,11 @@ sizes). <\em>
 These programs are called by the higher level routines. They may still
 be of general use.
 
-<em> These are alphabetized by topic. <\em>
+<em> These are alphabetized by topic.
 
 ###### Astrophysical or Observational Calculations
 
-<em> We have found these widely useful. <\em>
+<em> We have found these widely useful.
 
 * calc_jtok [documented] : convert from Janskies per beam to Kelvin.
 
@@ -132,7 +132,7 @@ be of general use.
 ###### Cube Infrastructure
 
 <em> Note that these are potentially of general use for moving fluidly
-between cube data and vectorized analysis. </em>
+between cube data and vectorized analysis. 
 
 * cubify [documented] : convert a vector of {x,y,v,t} measurements into a cube
 
@@ -146,7 +146,7 @@ between cube data and vectorized analysis. </em>
 
 <em> A long term goal would be to deprecate these in favor the Coyote
 graphic libraries. But the overhead in getting the disp functionality
-from the cg routines may preclude ever actually doing that. </em>
+from the cg routines may preclude ever actually doing that. 
 
 * counter [documented] : progress-bar style counter
 
@@ -206,7 +206,7 @@ from the cg routines may preclude ever actually doing that. </em>
 calculate families of related moments and properties. These packages
 each do three things: return an empty structure of moments/properties,
 calculate moments, and convert moments to properties given proper
-metadta. <\em>
+metadta.
 
 * moments_area : properties calculated using area as a size metric.
 
@@ -221,7 +221,7 @@ metadta. <\em>
 
 ###### Signal Identification
 
-<em> These routines are of general use dealing with binary masks. <\em>
+<em> These routines are of general use dealing with binary masks.
 
 * grow_mask [documented] : manipulate masks.
 
@@ -240,7 +240,7 @@ metadta. <\em>
 
 ###### Vector Analysis
 
-<em> Note that these are potentially of wide general use. </em>
+<em> Note that these are potentially of wide general use. 
 
 * contour_values : return contours given data and some criteria.
 
