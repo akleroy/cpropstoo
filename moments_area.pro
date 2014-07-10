@@ -202,19 +202,19 @@ function moments_area $
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
      props.deltav_phys = $
-        props.deltav_phys*props.chanwidth_kms
+        props.deltav*props.chanwidth_kms
      props.deltav_phys_halfmax = $
-        props.deltav_phys_halfmax*props.chanwidth_kms
+        props.deltav_halfmax*props.chanwidth_kms
 
      props.ellmaj = $
-        props.ellmaj*props.pcperpix*props.ell_to_sig_half
+        props.ellfitmaj*props.pcperpix*props.ell_to_sig_half
      props.ellmaj_halfmax = $
-        props.ellmaj_halfmax*props.pcperpix*props.ell_to_sig_half
+        props.ellfitmaj_halfmax*props.pcperpix*props.ell_to_sig_half
 
      props.ellmin = $
-        props.ellmin*props.pcperpix*props.ell_to_sig_half
+        props.ellfitmin*props.pcperpix*props.ell_to_sig_half
      props.ellmin_halfmax = $
-        props.ellmin_halfmax*props.pcperpix*props.ell_to_sig_half
+        props.ellfitmin_halfmax*props.pcperpix*props.ell_to_sig_half
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; DECONVOLUTION
