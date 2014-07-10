@@ -165,12 +165,12 @@ pro cubify $
   if keyword_set(twod) then begin
 
      cube = $
-        make_array(sz[1], sz[2], type = size(t, /type))* $
+        make_array(sz[0], sz[1], type = size(t, /type))* $
         !values.f_nan
 
-     mask = make_array(sz[1], sz[2], type = size(id, /type) > 1)
+     mask = make_array(sz[0], sz[1], type = size(id, /type) > 1)
 
-     indcube = make_array(sz[1], sz[2], $
+     indcube = make_array(sz[0], sz[1], $
                           type = size(indvec, /type) > 1)-1
 
      location = lonarr(n_elements(x))-1L
@@ -178,12 +178,12 @@ pro cubify $
   endif else begin
 
      cube = $
-        make_array(sz[1], sz[2], sz[3], type = size(t, /type))* $
+        make_array(sz[0], sz[1], sz[2], type = size(t, /type))* $
         !values.f_nan
 
-     mask = make_array(sz[1], sz[2], sz[3], type = size(id, /type) > 1)
+     mask = make_array(sz[0], sz[1], sz[2], type = size(id, /type) > 1)
 
-     indcube = make_array(sz[1], sz[2], sz[3], $
+     indcube = make_array(sz[0], sz[1], sz[2], $
                           type = size(indvec, /type) > 1)-1
 
      location = lonarr(n_elements(x))-1L
@@ -201,9 +201,9 @@ pro cubify $
 ;   .......................................
 
 ;    FIND WHERE THE DATA FIT INTO THE IMAGE
-     ind = where(((x-minx) lt sz[1]) and $
+     ind = where(((x-minx) lt sz[0]) and $
                  ((x-minx) ge 0) and $
-                 ((y-miny) lt sz[2]) and $
+                 ((y-miny) lt sz[1]) and $
                  ((y-miny) ge 0), ct)
 
      if ct eq 0 then return
@@ -226,7 +226,7 @@ pro cubify $
         indcube[x[ind]-minx, y[ind]-miny] = -1
 
 ;   WORK OUT THE LOCATION OF THE VECTORIZED DATA IN THE NEW CUBE
-     indexcube = lindgen(sz[1], sz[2])
+     indexcube = lindgen(sz[0], sz[1])
      location[ind] = indexcube[x[ind]-minx, y[ind]-miny]
 
   endif else begin
@@ -236,11 +236,11 @@ pro cubify $
 ;   .......................................
 
 ;    FIND WHERE THE DATA FIT INTO THE IMAGE
-     ind = where(((x-minx) lt sz[1]) and $
+     ind = where(((x-minx) lt sz[0]) and $
                  ((x-minx) ge 0) and $
-                 ((y-miny) lt sz[2]) and $
+                 ((y-miny) lt sz[1]) and $
                  ((y-miny) ge 0) and $
-                 ((v-miny) lt sz[3]) and $
+                 ((v-miny) lt sz[2]) and $
                  ((v-miny) ge 0), ct)
      
      if ct eq 0 then return
@@ -263,7 +263,7 @@ pro cubify $
         indcube[x[ind]-minx, y[ind]-miny, v[ind]-minv] = -1
 
 ;   WORK OUT THE LOCATION OF THE VECTORIZED DATA IN THE NEW CUBE
-     indexcube = lindgen(sz[1], sz[2], sz[3])
+     indexcube = lindgen(sz[0], sz[1], sz[2])
      location[ind] = indexcube[x[ind]-minx, y[ind]-miny, v[ind]-minv]
 
   endelse

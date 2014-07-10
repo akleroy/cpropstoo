@@ -181,7 +181,7 @@ pro assign_clfind $
      reg_done = bytarr(n_reg+1) ; ... 0 IS NOT USED, DO 1 INDEX FOR EASE OF REFERENCE
 
 ;    IF WE HAVE EXISTING KERNELS FIND THEIR REGIONS AND CREATE A CHECKLIST
-     if n_elements(minikern) eq 0 then begin
+     if n_elements(minikern) gt 0 then begin
         kern_reg = reg[minikern]
         kern_done = bytarr(n_elements(minikern))
      endif
