@@ -130,7 +130,7 @@ pro assign_clfind $
   cubify, x=x, y=y, v=v, t=t $
           , cube = minicube $
           , pad = 3 $
-          , twod = (szdata[0] eq 2) $
+          , dim_2d = (szdata[0] eq 2) $
           , indvec = cubeindex $
           , indcube = indcube
   

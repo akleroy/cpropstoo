@@ -11,7 +11,7 @@ pro cubify $
    , mask = mask $
    , indcube = indcube $
    , location = location $
-   , twod = twod
+   , dim_2d = twod
 
 ;+
 ; NAME:
@@ -27,9 +27,9 @@ pro cubify $
 ;
 ; CALLING SEQUENCE:
 ;
-;   CUBIFY, x=x, y=y, v=v, t=y, size=size, CUBE = cube, MASK = mask, 
+;   CUBIFY, x=x, y=y, v=v, temp=temp, size=size, CUBE = cube, MASK = mask, 
 ;           INDCUBE = indcube, ID = id, INDVEC = indvec,
-;           PAD = pad, LOCATION = location, TWOD = twod
+;           PAD = pad, LOCATION = location, DIM_2d = dim_2d
 ;
 ; INPUTS:
 ;
@@ -51,7 +51,7 @@ pro cubify $
 ;         values are written into the MASK output. Else MASK holds 1s
 ;         and 0s indicating where data have been filled in.
 ;
-;   TWOD -- Set this flag to force "cubification" to a 2-D matrix.
+;   DIM_2D -- Set this flag to force "cubification" to a 2-D matrix.
 ;           Mostly for compatibility with routines outside the CPROPS
 ;           distribution. 
 ;
@@ -118,7 +118,7 @@ pro cubify $
         if n_elements(szin) ne 3 then begin
            message, "Expect 2 or 3 dimensions. Check SIZE parameter.", /info
            return
-        endelse
+        endif
      endelse
           
 ;    INFORMATIONAL

@@ -224,10 +224,10 @@ pro find_local_max $
 
 ; Rebuild a minimum-sized cube from the vectorized data.
 
-  cubify, x, y, v, t $
+  cubify, x=x, y=y, v=v, t=t $
           , cube = minicube $
           , pad = (friends > specfriends) $
-          , twod = (szdata[0] eq 2) $
+          , dim_2d = (szdata[0] eq 2) $
           , indvec = cubeindex $
           , indcube = indcube
 
