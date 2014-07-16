@@ -149,7 +149,7 @@ pro cubify $
      miny = min(y) - pad
 
      if keyword_set(twod) eq 0 then begin
-        sz = [sz, max(y)-min(y)+1+2*pad]
+        sz = [sz, max(v)-min(v)+1+2*pad]
         minv = min(v) - pad
      endif
 
@@ -240,8 +240,8 @@ pro cubify $
                  ((x-minx) ge 0) and $
                  ((y-miny) lt sz[1]) and $
                  ((y-miny) ge 0) and $
-                 ((v-miny) lt sz[2]) and $
-                 ((v-miny) ge 0), ct)
+                 ((v-minv) lt sz[2]) and $
+                 ((v-minv) ge 0), ct)
      
      if ct eq 0 then return
 
