@@ -96,7 +96,7 @@ pro cubify $
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
 ; CHECK THAT WE HAVE THE MINIMUM INPUTS
-  if n_elements(x) eq 0 or n_elements(y) or n_elements(t) eq 0 then begin
+  if n_elements(x) eq 0 or n_elements(y) eq 0 or n_elements(t) eq 0 then begin
      message, "Not enough information to form cube or image. Require at least {X, Y, T} ", /info
      return
   endif
