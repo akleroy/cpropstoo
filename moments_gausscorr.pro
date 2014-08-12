@@ -175,7 +175,7 @@ function moments_gausscorr $
      props.flux_gcorr = props.mom0_gcorr*mom_to_flux
 
      mom_to_lum = props.chanwidth_kms*(props.pcperpix)^2
-     props.lum_gcorr = props.mom0_gcorr*mom_to_flux
+     props.lum_gcorr = props.mom0_gcorr*mom_to_lum
 
      mom_to_mass = props.chanwidth_kms*(props.pcperpix)^2*props.alpha
      props.mass_gcorr = props.mom0_gcorr*mom_to_mass

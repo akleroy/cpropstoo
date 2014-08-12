@@ -96,7 +96,7 @@ function moments_classic $
 
         props = create_struct(props, "lum", nan)
         props = create_struct(props, "lum_extrap", nan)
-        props = create_struct(props, "lum_unit", "K*km/s*as^2")
+        props = create_struct(props, "lum_unit", "K*km/s*pc^2")
 
         props = create_struct(props, "mass", nan)
         props = create_struct(props, "mass_extrap", nan)
@@ -347,8 +347,8 @@ function moments_classic $
      props.flux_extrap = props.mom0_extrap*mom_to_flux
 
      mom_to_lum = props.chanwidth_kms*(props.pcperpix)^2
-     props.lum = props.mom0*mom_to_flux
-     props.lum_extrap = props.mom0_extrap*mom_to_flux
+     props.lum = props.mom0*mom_to_lum
+     props.lum_extrap = props.mom0_extrap*mom_to_lum
 
      mom_to_mass = props.chanwidth_kms*(props.pcperpix)^2*props.alpha
      props.mass = props.mom0*mom_to_mass
