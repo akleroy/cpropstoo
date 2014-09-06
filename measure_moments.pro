@@ -7,6 +7,7 @@ function measure_moments $
    , modules = extra_modules $
    , do_clip = do_clip $
    , clipval = clipval $
+   , just_empty = just_empty $
    , _extra = extra
 
 ;+
@@ -37,7 +38,7 @@ function measure_moments $
 ; Call the individual modules to initialize the fields that they will
 ; need. this step is skipped if we already have an empty property structure.
   
-  if n_elements(empty_props) eq 0 then begin
+  if n_elements(empty_props) eq 0 or keyword_set(just_empty) then begin
      empty_props = empty_moment_struct()
      for i = 0, n_mod-1 do begin
         empty_props = $
@@ -47,6 +48,9 @@ function measure_moments $
                          , /moments $
                          , _extra=extra)
      endfor
+     if keyword_set(just_empty) then begin
+        return, empty_props
+     endif
   endif
 
   props = empty_props

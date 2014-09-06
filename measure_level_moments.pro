@@ -9,7 +9,8 @@ pro measure_level_moments $
    , n_kern = n_kern $
    , verbose = verbose 
    
-
+  compile_opt idl2
+        
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; CALL THE MEASUREMENT CODE
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
@@ -17,7 +18,10 @@ pro measure_level_moments $
   n_levels = n_elements(levels)
 
 ; INITIALIZE OUTPUT
-  moments = replicate(empty_moment_struct(), n_kern, n_levels)
+  dummy = measure_moments(/extrap, extarg=0, do_clip=do_clip $
+                          , empty_props = empty_props, /just_empty)
+  
+  moments = replicate(empty_props, n_kern, n_levels)
 
 ; LOOP OVER LEVELS
   for i = 0, n_levels-1 do begin
@@ -65,11 +69,12 @@ pro measure_level_moments $
         this_y = y[ind]
         this_v = v[ind]
      
-;       ... ... WORK OUT PROPERTIES FOR THIS KERNEL       
+;       ... ... WORK OUT PROPERTIES FOR THIS KERNEL               
         this_mom = $
            measure_moments(x=this_x, y=this_y, v=this_v, t=this_t $
-                           , /extrap, extarg=0, do_clip=do_clip)
-        
+                           , /extrap, extarg=0, do_clip=do_clip $
+                           , empty_props = empty_props)
+
 ;       ... ... FIND ALL KERNELS IN THIS REGION        
         this_kern = where(kern_regions eq kern_regions[j], ct_this_kern)        
 

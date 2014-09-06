@@ -9,6 +9,21 @@ pro cube_to_moments $
    , cloudlist=cloudlist
 
   compile_opt idl2
+   
+; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
+; DEFINE THE SET OF MODULES THAT WE WILL WORK WITH
+; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
+
+; Each modules adds fields and calculations to the moment structure.
+
+  modules = ["classic" $
+             , "gausscorr" $
+             , "area"]
+
+  if n_elements(extra_modules) gt 0 then begin
+     modules = [modules, extra_modules]
+  endif
+  n_mod = n_elements(modules)
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; READ IN THE DATA
@@ -33,7 +48,7 @@ pro cube_to_moments $
         assign = readfits(file_assign, assign_hdr, /silent)
      endelse
   endif
-
+  
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; CALL THE MEASUREMENT CODE
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
