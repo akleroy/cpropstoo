@@ -237,7 +237,8 @@ pro make_noise_cube $
      if keyword_set(show) then begin
         fasthist, cube/noise_cube, /ylog
         al_legend, /top, /left, box=0, clear=0 $
-                   , lines=[-99], str(sigfig(mad(cube/noise_cube),3))
+                   , lines=[-99] $
+                   , strtrim(string(mad(cube/noise_cube),format='(G10.3)'))
         !p.multi=0
      endif
 
@@ -360,7 +361,8 @@ pro make_noise_cube $
         if keyword_set(show) then begin
            fasthist, cube/noise_cube, /ylog
            al_legend, /top, /left, box=0, clear=0 $
-                      , lines=[-99], sigfig(mad(cube/noise_cube),3)
+                      , lines=[-99] $
+                      , strtrim(string(mad(cube/noise_cube),format='(G10.3)'))
         endif
 
         if n_elements(noise_file) gt 0 then begin           
@@ -468,7 +470,8 @@ pro make_noise_cube $
      if keyword_set(show) then begin
         fasthist, cube/noise_cube
         al_legend, /top, /left, box=0, clear=0 $
-                   , lines=[-99], sigfig(mad(cube/noise_cube),3)
+                   , lines=[-99] $
+                   , strtrim(string(mad(cube/noise_cube),format='(G10.3)'))
      endif
 
      if n_elements(noise_file) gt 0 then begin
@@ -519,7 +522,8 @@ pro make_noise_cube $
   if keyword_set(show) then begin
      fasthist, cube/noise_cube
      al_legend, /top, /left, box=0, clear=0 $
-                , lines=[-99], sigfig(mad(cube/noise_cube),3)
+                , lines=[-99] $
+                , strtrim(string(mad(cube/noise_cube),format='(G10.3)'))
   endif
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
