@@ -186,12 +186,12 @@ function moments_gausscorr $
 
      props.xrms_gcorr = props.mom2x_gcorr*props.pcperpix
      props.xrms_gcorr_deconv = $
-        sqrt(props.mom2x_gcorr - props.beamfwhm_pix/props.sig_to_fwhm)^2 * $
+        sqrt(props.mom2x_gcorr^2 - (props.beamfwhm_pix/props.sig_to_fwhm)^2) * $
         props.pcperpix
      
      props.yrms_gcorr = props.mom2y_gcorr*props.pcperpix
-     props.xrms_gcorr_deconv = $
-        sqrt(props.mom2y_gcorr - props.beamfwhm_pix/props.sig_to_fwhm)^2 * $
+     props.yrms_gcorr_deconv = $
+        sqrt(props.mom2y_gcorr^2 - (props.beamfwhm_pix/props.sig_to_fwhm)^2) * $
         props.pcperpix
 
      props.vrms_gcorr = props.mom2v_gcorr*props.chanwidth_kms
