@@ -1,3 +1,3 @@
-function str,number
-return,strtrim(string(number),1)
+function str, number, format=format
+    return,strtrim(string(number, format=format),1)
 end
