@@ -456,7 +456,8 @@ pro make_noise_cube $
   endfor
 
   if keyword_set(show) then begin
-     makesym, 10
+     circ = FINDGEN(17) * (!PI*2/16.)
+     USERSYM, COS(circ), SIN(circ), /FILL
      plot, chan, noise_spec, ps=8 $
            , xtitle="Channel", ytitle="Noise Spectrum"
   endif
