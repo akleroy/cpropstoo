@@ -38,7 +38,10 @@ function cprops_check_header $
      comments = [comments, "... MAJOR: no BUNIT keyword"]
   endif
 
-  if strcompress(units,/rem) ne "K" then begin
+  if strcompress(units,/rem) ne "K" and $
+     strcompress(units,/rem) ne "KELVIN" and $
+     strcompress(units,/rem) ne "KELVINS" $
+  then begin
      pass = 0B
      perfect = 0B
      comments = [comments, "... MAJOR: units not Kelvin"]     
