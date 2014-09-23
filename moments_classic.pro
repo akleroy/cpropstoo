@@ -372,13 +372,13 @@ function moments_classic $
      props.xrms = props.mom2x*props.pcperpix
      props.xrms_extrap = props.mom2x_extrap*props.pcperpix
      props.xrms_extrap_deconv = $
-        sqrt(props.mom2x_extrap - props.beamfwhm_pix/props.sig_to_fwhm)^2 * $
+        sqrt(props.mom2x_extrap^2 - (props.beamfwhm_pix/props.sig_to_fwhm)^2) * $
         props.pcperpix
      
      props.yrms = props.mom2y*props.pcperpix
      props.yrms_extrap = props.mom2y_extrap*props.pcperpix
-     props.xrms_extrap_deconv = $
-        sqrt(props.mom2y_extrap - props.beamfwhm_pix/props.sig_to_fwhm)^2 * $
+     props.yrms_extrap_deconv = $
+        sqrt(props.mom2y_extrap^2 - (props.beamfwhm_pix/props.sig_to_fwhm)^2) * $
         props.pcperpix
 
      props.vrms = props.mom2v*props.chanwidth_kms
