@@ -46,14 +46,15 @@ pro assign_cprops $
 ; KEYWORD PARAMETERS:
 ;   IDLFORMAT --  Set to true if kernel file is in .idl or .sav format.
 ;   ISLANDS -- Set to decompose based on the islands instead of the
-;              GMCs.
+;              GMCs. NOTE: This will bypass the GMC decomposition
+;              entirely.
 ;
 ; OUTPUTS:
 ;   OUTFILE -- Location to save the decomposed cube. 
 ;   ASSIGN -- Variable that holds the decomposed cube.
 ;
 ; MODIFICATION HISTORY:
-;
+;       Originally written by Adam Leroy and Erik Rosolowsky
 ;       More documentation -- Mon Nov 25  2013    Stephen Pardy
 ;                     <spardy@astro.wisc.edu>
 ; 
@@ -159,7 +160,7 @@ pro assign_cprops $
 ; THE "ISLANDS" SUBCASE
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 
-  if keyword_set(islands) then begin
+  if keyword_set(islands) then begin ;decomp into only islands
 
 ;    INITIALIZE ASSIGNMENT CUBE
      sz = size(data)
@@ -185,10 +186,9 @@ pro assign_cprops $
         counter += 1        
      endfor
 
-  endif
-
+  endif else begin ;else decomp GMCs
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
-; ASSIGNMENT
+; GMC ASSIGNMENT
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 
 ; CALCULATE LEVELS TO WORK WITH
@@ -243,7 +243,7 @@ pro assign_cprops $
      counter += 1
 
   endfor
-  
+ endelse ;end decomp choice
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 ; OUTPUT
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
