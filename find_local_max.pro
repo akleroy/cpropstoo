@@ -45,7 +45,9 @@ pro find_local_max $
 ;   MASK -- (optional) CO byte mask.
 ;   TRUEVAL -- (optional) truth value of mask. Defaults to >= 1.
 ;   HDR -- (optional) .fits Header (required if no filepath is specified). 
-;   
+;   text_out -- Text file to save kernel locations in ascii format.
+;   idl_out -- IDL file (.sav or .idl) to save kernel
+;              locations in IDL format (variable name = kernel_ind).
 ;             
 ; KEYWORD PARAMETERS:
 ;   FRIENDS -- (optional) Pixels to search over in the x-y plane. Total search
@@ -58,6 +60,8 @@ pro find_local_max $
 ;   KENELS -- Array of local maxima.
 
 ; MODIFICATION HISTORY:
+;      Originally written by Adam Leroy and Erik Rosolowsky.
+;
 ;
 ;      Some documentation -- Mon Nov 25, 2013  Stephen Pardy 
 ;                     <spardy@astro.wisc.edu>
