@@ -1,10 +1,13 @@
 pro create_ds9_regions, props, region_file_name = region_file_name,$
-                        pixels = pixels,$
                         type = type, $
-                        ellfit = ellfit
+                        color=color
 
-; Purpose: Create a ds9 region file to output cprops regions. This file can
-; be used in ds9 and aplpy (and maybe casaviewer).
+; Purpose: Create a ds9 region file to output cprops regions.  This
+; file can be used in ds9 and aplpy (and maybe casaviewer). Right now
+; I'm using the ellfit values for the regions. It's seems to produce a
+; good result and is fairly simple. 
+
+; The regions are output as pixels for now.
 
 ; Input: 
 ;
@@ -13,20 +16,20 @@ pro create_ds9_regions, props, region_file_name = region_file_name,$
 ;
 ;       region_file_name: filename for region file
 ;
-;       pixels: output region in pixels, otherwise do actual
-;       values. If doing rapv or depv region file, set this.
 ;
 ;       type: 0 = radec,  1 = rapv, 2 = decpv
 ;
-;       ellfit: use ellfit values for ra/dec sizes. Otherwise use moments.
-;;               
+;       color: string recognized by ds9. options include white,
+;       black, red, green, blue, cyan, magenta, and yellow.
+;
 ;
 ; Output:
 ;
 ;       region file for ds9
 ;
 ; To Do:
-;       -- allow user to select color of region.
+;       -- allow the user to overlay other types of regions.
+;       -- convert to angular units.
 
 ;
 ; Date          Programmer      Description of Changes
@@ -35,109 +38,64 @@ pro create_ds9_regions, props, region_file_name = region_file_name,$
 ; 9/25/2014     A.A. Kepley     props contains moments, so
 ;                               don't need to add both.
 ; 9/25/2014     A.A. Kepley     Modified for choice of region
+; 9/26/2014     A.A. Kepley     Simplified and corrected. Also added
+;                               color choice
 
 ; setting defaults
-if n_elements(props) eq 0  then begin
+if n_elements(props) ne 1  then begin
    message,/info,'create_ds9_regions,props'
    return
 end
 
 if n_elements(region_file_name) eq 0 then region_file_name='ds9.reg'
-if n_elements(pixels) eq 0 then pixels = 0
 if n_elements(type) eq 0 then begin
    type=0
    message,/info,"Assuming that you want RA, Dec positions. Change type parameter generate positions for RA/Vel or Dec/Vel"
 endif
-if n_elements(ellfit) eq 0 then ellfit = 0
-   
-; setting coordinate system
-if pixels then begin
-   coordsys = 'physical'
-   majaxislabel = ''
-endif else begin
-   coordsys = 'fk5 '; assuming J2000 here. probably a bad assumption. get from somewhere else?
-   majaxislabel = '"'
-endelse
+if n_elements(color) eq 0 then color='green'
 
-; setting up the values to print. The calculations are done into
-; pixels an converted to degrees as needed.
+
+; setting coordinate system
+coordsys = 'physical'
+majaxislabel = ''
+
+; setting up the values to print.
 case type of
 
+   ; RA DEC
    0: begin
 
-      if ellfit then begin
-         majoraxis = props.ellfitmaj_halfmax  
-         minoraxis = props.ellfitmin_halfmax 
-         posang = (props.ellfitposang_halfmax) / !dtor
-      endif else begin
-         majoraxis =  props.mom2maj * props.sig_to_fwhm  ;; xxx I'm not sure this is right, it's closish
-         minoraxis = props.mom2min * props.sig_to_fwhm  ;halfmax
-         posang = props.momposang / !dtor
-      endelse
-
-      if pixels then begin
-         xx = props.mom1x
-         yy = props.mom1y
-      endif else begin
-         ;; convert if degrees are requested
-         xx = props.xpos
-         yy = props.ypos         
-         majoraxis = (majoraxis * props.degperpix) * 3600.00 ; arcsec
-         minoraxis = (minoraxis * props.degperpix) * 3600.00 ; arcsec
-      endelse
+      xx = props.mom1x
+      yy = props.mom1y
+      
+      majoraxis = props.ellfitmaj_halfmax  
+      minoraxis = props.ellfitmin_halfmax 
+      posang = (props.ellfitposang_halfmax) / !dtor
 
    end
 
+   ; RA/Vel
    1: begin
-      
-      ;; AAK: fix this up later to be right. really what I want is the
-      ;; extent along the ra or dec axis. I think I can do this with a
-      ;; straightforward application of some math.
-      
-      if ellfit then begin
-         majoraxis = props.ellfitmaj_halfmax
-         minoraxis = props.deltav_halfmax
-         posang = dblarr(n_elements(majoraxis)) * 0.0
-      endif else begin
-         ; use moments here
-      endelse
 
-      if pixels then begin
-         xx =  props.mom1x
-         yy = props.mom1v
-      endif else begin
-         xx = props.xpos
-         yy = props.vpos
-         majoraxis = (majoraxis * props.degperpix) * 3600.0 ; arcsec
-         minoraxis = minoraxis * chanwidth_to_kms * 1000.0 ; m/s
-      endelse
+      xx =  props.mom1x
+      yy = props.mom1v
+      
+      majoraxis = abs(props.ellfitmaj_halfmax * cos(props.ellfitposang_halfmax) - props.ellfitmin_halfmax * sin(props.ellfitposang_halfmax))
+      minoraxis = props.deltav_halfmax
+      posang = dblarr(n_elements(majoraxis)) * 0.0
       
    end
 
+   ; Dec/Vel
    2: begin
-      ;; AAK: fix this up later to be right. really what I want is the
-      ;; extent along the ra or dec axis. I think I can do this with a
-      ;; straightforward application of some math.
-      
-      if ellfit then begin
-         majoraxis = props.ellfitmaj_halfmax
-         minoraxis = props.deltav_halfmax
-         posang = dblarr(n_elements(majoraxis)) * 0.0
-      endif else begin
-         ; use moments here
-      endelse
 
-      if pixels then begin
-         xx =  props.mom1y
-         yy = props.mom1v
-      endif else begin
-         xx = props.ypos
-         yy = props.vpos
-         majoraxis = (majoraxis * props.degperpix) * 3600.0 ; arcsec
-         minoraxis = minoraxis * chanwidth_to_kms * 1000.0 ; m/s
-      endelse
+      xx =  props.mom1y
+      yy = props.mom1v
 
-    
+      majoraxis = abs(props.ellfitmaj_halfmax * sin(props.ellfitposang_halfmax) + props.ellfitmin_halfmax * cos(props.ellfitposang_halfmax))
+      minoraxis = props.deltav_halfmax
+      posang = dblarr(n_elements(majoraxis)) * 0.0
+
    end
 endcase
 
@@ -147,7 +105,7 @@ openw,lun,region_file_name,/get_lun
 
 ; printing header
 printf, lun, '# Region file format: DS9 version 4.0'
-printf, lun, 'global color=magenta font="helvetica 10 normal" select=1 highlite=1 edit=1 move=1 delete=1 include=1 fixed=0 source'
+printf, lun, 'global color=' + string(color)+ ' font="helvetica 10 normal" select=1 highlite=1 edit=1 move=1 delete=1 include=1 fixed=0 source'
 printf, lun, coordsys
 
 ; writing data
