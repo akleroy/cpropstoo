@@ -132,12 +132,12 @@ function moments_classic $
         props = create_struct(props, "majrms", nan)
         props = create_struct(props, "majrms_extrap", nan)
         props = create_struct(props, "majrms_extrap_deconv", nan)
-        props = create_struct(props, "majrms_unit", "km/s")
+        props = create_struct(props, "majrms_unit", "pc")
 
         props = create_struct(props, "minrms", nan)
         props = create_struct(props, "minrms_extrap", nan)
         props = create_struct(props, "minrms_extrap_deconv", nan)
-        props = create_struct(props, "minrms_unit", "km/s")
+        props = create_struct(props, "minrms_unit", "pc")
 
         props = create_struct(props, "posang_extrap_deconv", nan)
         props = create_struct(props, "posang_unit", "rad")
