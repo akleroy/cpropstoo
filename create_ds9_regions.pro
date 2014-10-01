@@ -40,9 +40,10 @@ pro create_ds9_regions, props, region_file_name = region_file_name,$
 ; 9/25/2014     A.A. Kepley     Modified for choice of region
 ; 9/26/2014     A.A. Kepley     Simplified and corrected. Also added
 ;                               color choice
+; 9/30/2014     A.A. Kepley     Fixed logic error 
 
 ; setting defaults
-if n_elements(props) ne 1  then begin
+if n_elements(props) lt 1  then begin
    message,/info,'create_ds9_regions,props'
    return
 end
