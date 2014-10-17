@@ -56,10 +56,9 @@ function realize_noise $
   bpa = sxpar(hdr, "BPA")
 
   conv_with_gauss $
-     , in_data = this_noise $
-     , in_hdr = hdr $
+     , data = this_noise $
+     , hdr = hdr $
      , out_data = this_noise $
-     , cube = sz[0] eq 3 $     
      , target_beam=[bmaj*3600.,bmin*3600.,bpa] $
      , start_beam=[0,0,0]
 

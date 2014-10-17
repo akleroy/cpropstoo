@@ -1,4 +1,4 @@
-pro conv_with_ellip_gauss $
+pro conv_with_gauss $
    , data=in_data $
    , hdr=in_hdr $
    , start_beam=start_beam $
@@ -310,8 +310,9 @@ pro conv_with_ellip_gauss $
 
      message, 'PSF Grid Size [pix] = '+string(kern_size), /info
      message, 'Flux Ratio = '+string(flux_ratio), /info
-     message, 'Treated as uncertainty = ', (keyword_set(unc) ? 'yes':'no')
-     message, 'Corrected per beam units = ', (keyword_set(per_beam) ? 'yes':'no')
+     message, 'Treated as uncertainty = '+(keyword_set(unc) ? 'yes':'no'), /info
+     message, 'Corrected per beam units = '+(keyword_set(per_beam) ? 'yes':'no'), /info
+
   endif
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -323,7 +324,7 @@ pro conv_with_ellip_gauss $
   sxaddpar,hdr,'BPA',target_beam[2],'POSITION ANGLE IN DEGREES'
   sxaddpar,hdr,'HISTORY' $
            ,'IDL CONV_WITH_GAUSS: convolved with '+ $
-           string([kern_bmaj, kern_bmin, kern_bpa],format='(3f10.3)')+' pixel gaussian'
+           string([kernel_bmaj, kernel_bmin, kernel_bpa],format='(3f10.3)')+' pixel gaussian'
   if keyword_set(unc) then $
      sxaddpar,hdr,'HISTORY' $
               ,'IDL CONV_WITH_GAUSS: treated as an uncertainty map'
