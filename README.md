@@ -21,6 +21,22 @@ the Coyote Graphics libraries are a nominal (though currently unused)
 requirement. If you encounter any other dependencies, please email and
 we will endeavor to include the routine in this distribution.
 
+### Contributors
+
+Many thanks to those who have contributed code (add your name if it
+should be here):
+
+Annie Hughes
+Amanda Kepley
+Adam Leroy
+Stephen Pardy
+Karin Sandstrom
+Andreas Schruba
+Erik Rosolowsky
+
+And thanks for feedback to many folks including Frank Bigiel, Dario Colombo,
+and Tony Wong.
+
 ### Examples
 
 A suite of rich examples remains under development. Currently the
@@ -124,6 +140,9 @@ be of general use.
 
 * calc_jtok [documented] : convert from Janskies per beam to Kelvin.
 
+* conv_with_gauss [documented] : convolve a data cube or image with an
+  elliptical Gaussian beam to reach a target resolution. General purpose.
+
 * deconvolve_gauss : deconvolve one Gaussian from another. Rigorously
   useful for interferometer beams. Approximately useful for clouds.
 
@@ -169,6 +188,8 @@ from the cg routines may preclude ever actually doing that.
 
 * erf0 [documented] : helper function allowing the root finder to
   solve for the error function at a particular x value.
+
+* my_gauss2d [documented] : generate a rotated two dimensional gaussian (e.g., for use as a PDF).
 
 ###### Moment Calculation
 
