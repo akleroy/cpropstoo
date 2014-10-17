@@ -1,16 +1,13 @@
 pro add_noise_to_cube $
-   , in_file = in_file $
    , cube = cube $
    , hdr = hdr $
    , out_file = out_file $
    , out_cube = out_cube $
+   , out_noise = this_noise $
    , seed = seed $
-   , gain = gain $
-   , addnoise = addnoise $
-   , addgain = addgain $
-   , noise_file = noise_file $
+   , gain = gain $   
+   , noise = noise $
    , psf = psf
-
 
 ;+
 ;
@@ -29,18 +26,26 @@ pro add_noise_to_cube $
 ;   /addgain, /addnoise [, noise_file=noise_file]  
 ;
 ; INPUTS:
+;
 ;   CUBE -- data cube to add noise.
+;
 ;   HDR -- fits header, required if passing an array
+;
 ;   IN_FILE -- data on disk to read in.  
+;
 ;   PSF -- (optional) Custom PSF.
+;
 ;   SEED -- (optional) Random number generator seed, if you want
 ;           repeatable "randomness." Default is the system time. 
-;   GAIN -- (optional) The percentage gain. 
+; 
+;   GAIN -- If specified, this value is used as the amplitude of the
+;           uncertainty in the gain, which is realized once per cube
+;           and taken to be distributed (normally).
 ;             
 ; KEYWORD PARAMETERS:
 ;   ADDNOISE -- (optional) if set this will add random noise at
 ;               the same noise level.
-;   ADDGAIN -- (optional) if set this will add a flux gain term to the data.
+;
 ;   OUT_FILE -- (optional) Variable specifying a filepath to save the noisy cube. 
 ;
 ; OUTPUTS:
@@ -57,85 +62,63 @@ pro add_noise_to_cube $
 ; READ IN
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-  if n_elements(in_file) gt 0 then begin
-     if not file_test(in_file, /read) then begin
-        message, in_file+' is not accessible.', /con
-        return
-     endif
-     cube = readfits(in_file, hdr)
+  if n_elements(cube) eq 0 then begin
+     message, "Requires a cube.", /info
+     return
   endif
   
-  if not n_elements(hdr) GT 0 then $ 
+  if size(cube, /type) eq size("hello", /type) then $
+     cube = readfits(cube, hdr)
+  
+  if n_elements(hdr) eq 0 then begin
+     message, "Requires a header (or a FITS file name).", /info
      return
-   
+  endif
+     
+; Note the size
   sz = size(cube)
      
-  if not keyword_set(seed) then $
-        seed = float(systime(1))
-
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; ADD RANDOM CALIBRATION GAIN
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-  if keyword_set(addgain) then begin 
-
-     sd = seed
-     if not keyword_set(gain) then $ 
-        gain = randomn(sd, /normal)/10. 
+  if n_elements(gain) gt 0 then begin 
      
-     out_cube = cube*(1+gain)
+;    Realize the gain correction to be applied to this cube.
+     this_gain = gain*randomn(seed)
+     
+;    Apply the gain correction
+     out_cube = cube*(1+this_gain)
 
-  endif
+  endif else begin
+     out_cube = cube
+  endelse
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
-; ADD CONVOLVED NOISE 
+; ADD CONVOLVED NORMAL NOISE 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-  if keyword_set(addnoise) then begin
+; Add normally distributed noise.
 
-     sd = seed
-     noise = randomn(sd, sz[1],sz[2],sz[3],/normal)
-    
-     if n_elements(psf) EQ 0 then begin 
-        bmaj = sxpar(hdr, "BMAJ")
-        bmin = sxpar(hdr, "BMIN")
-     
-        extast, hdr, astr
-        xy2ad, [0,1], [0,0], astr, ra, dec
-        degperpix = sphdist(ra[0], dec[0], ra[1], dec[1], /deg)
-     
-        beamfwhm_deg = sqrt(bmaj*bmin)
-        beamfwhm_pix = beamfwhm_deg / degperpix
-     
-        psf = psf_gaussian(npixel=(3*beamfwhm_pix+1)*[1,1],$
-                        fwhm=beamfwhm_pix*[1,1]) 
-      endif 
-  
-     for i=0,sz[3]-1 do begin
-        plane = noise[*,*,i]
-        new_plane = convolve(plane, psf)
-        noise[*,*,i] = new_plane
-     endfor   
-     
-     rms = mad(cube)
-     current_rms = mad(noise)
-     noise = rms*noise/current_rms
-     
-     out_cube = cube + noise
-
+  if n_elements(noise) gt 0 then begin
+     this_noise = $
+        realize_noise( $
+        noise $
+        , hdr=hdr $
+        , template=cube $
+        , seed=seed $
+                     )
+     out_cube = out_cube+this_noise
   endif 
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; OUTPUT
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-
-sxaddpar, hdr, 'RSEED', seed, 'Random seed value'
-if n_elements(out_file) GT 0 then $
-   writefits, out_file, out_cube, hdr
-
-if keyword_set(noise_file) then $
-   writefits, noise_file, noise_cube
-
+  if n_elements(out_file) GT 0 then $
+     writefits, out_file, out_cube, hdr
+  
+  if keyword_set(noise_file) then $
+     writefits, noise_file, noise_cube
 
 end
