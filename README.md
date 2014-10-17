@@ -27,11 +27,17 @@ Many thanks to those who have contributed code (add your name if it
 should be here):
 
 Annie Hughes
+
 Amanda Kepley
+
 Adam Leroy
+
 Stephen Pardy
+
 Karin Sandstrom
+
 Andreas Schruba
+
 Erik Rosolowsky
 
 And thanks for feedback to many folks including Frank Bigiel, Dario Colombo,
