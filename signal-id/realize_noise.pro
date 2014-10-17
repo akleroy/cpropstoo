@@ -55,7 +55,7 @@ function realize_noise $
   bmin = sxpar(hdr, "BMIN")
   bpa = sxpar(hdr, "BPA")
 
-  conv_with_ellip_gauss $
+  conv_with_gauss $
      , in_data = this_noise $
      , in_hdr = hdr $
      , out_data = this_noise $
