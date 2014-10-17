@@ -224,7 +224,6 @@ pro make_noise_cube $
 ;        noise = mad(data[use_ind]) ; wrong? cf. line 226
            sigma = mad(data[use_ind]) ; want to put result into sigma? cf line 226
 
-
         endif
      endif
 
