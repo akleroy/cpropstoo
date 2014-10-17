@@ -24,24 +24,9 @@ we will endeavor to include the routine in this distribution.
 ### Contributors
 
 Many thanks to those who have contributed code (add your name if it
-should be here):
-
-Annie Hughes
-
-Amanda Kepley
-
-Adam Leroy
-
-Stephen Pardy
-
-Karin Sandstrom
-
-Andreas Schruba
-
-Erik Rosolowsky
-
-And thanks for feedback to many folks including Frank Bigiel, Dario Colombo,
-and Tony Wong.
+should be here): **Annie Hughes, Amanda Kepley, Adam Leroy, Stephen Pardy,
+Erik Rosolowsky,  Karin Sandstrom, Andreas Schruba.** And thanks for feedback 
+to many folks including Frank Bigiel, Dario Colombo, and Tony Wong.
 
 ### Examples
 
