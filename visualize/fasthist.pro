@@ -35,6 +35,7 @@ pro fasthist, data2, log = log, poly = poly, _extra=_extra
     message, 'Variable contains no elements.  Foo!', /con
     return
   endif
+  data2 = float(data2)
 
   data = data2[where(data2 eq data2)]
   data = data[where(finite(data))]

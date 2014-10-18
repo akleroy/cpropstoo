@@ -159,7 +159,7 @@ function grow_mask $
 ; changes in the mask.
 
   if n_elements(constraint) gt 0 and $
-     n_elements(iters) eq 0 and n_elements(radius_in) then begin
+     n_elements(iters) eq 0 and n_elements(radius_in) eq 0 then begin
 
 ;    This operation returns 0 where the cube has no constraint, 1
 ;    where only the constraint exists, and 2 where there is both mask

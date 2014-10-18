@@ -19,7 +19,6 @@ pro cpropstoo_example
   prep_cube $
      , in_file="../data/co32.fits" $
      , out_file="../data/co32_correct.fits" $
-     , /skip_info $
      , line_name="CO3-2"
 
 ; CHECK THE HEADER
