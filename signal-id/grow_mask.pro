@@ -133,13 +133,21 @@ function grow_mask $
   sz = size(mask_in)
 
 ; Check for mutually inconsistent keywords.
-  if n_elements(radius_in) gt 0 AND $
-     (n_elements(constraint) gt 0 OR $
-      n_elements(iters) gt 0) then begin
+  if (n_elements(radius_in) gt 0) AND $
+     (n_elements(iters) gt 0) then begin
      message $
-        , 'RADIUS cannot be used with ITERS and/or CONSTRAINT. Returning.' $
+        , 'radius cannot be used with iters. Returning.' $
         , /info
-     return, !values.f_nan
+     return, mask_in
+  endif
+
+  if (n_elements(iters) eq 0) and $
+     (n_elements(radius_in) eq 0) and $ 
+     (n_elements(constraint) eq 0) then begin
+     message $
+        , 'No mode selected (iters, radius, constraint). Returning.' $
+        , /info
+     return, mask_in
   endif
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
@@ -150,7 +158,8 @@ function grow_mask $
 ; original mask into the constraint, iterating until there are no
 ; changes in the mask.
 
-  if n_elements(constraint) gt 0 and n_elements(iters) eq 0 then begin
+  if n_elements(constraint) gt 0 and $
+     n_elements(iters) eq 0 and n_elements(radius_in) then begin
 
 ;    This operation returns 0 where the cube has no constraint, 1
 ;    where only the constraint exists, and 2 where there is both mask
@@ -237,112 +246,78 @@ function grow_mask $
   endif                         ; of iteration part
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
-; CASE III: GROW THE MASK RADIALLY
+; CASE III: GROW VIA DILATION USING A SINGLE ROUND ELEMENT
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-; The final case identifies the surface of the mask and then uses a
-; simple distance criteria to include all pixels that are outside the
-; mask but within some radius of the surface.
+; The final case builds a spherical structuring element and dilates
+; using this element.
 
   if n_elements(radius_in) gt 0 then begin    
-     radius = ceil(radius_in)
 
-;   VECTORIZE THE MASK EDGES, DEFINED AS PIXELS THAT ARE 1 BUT BORDER 0
-     if sz[0] eq 1 then begin
-        edges = $
-           where(mask_in and $
-                 ((shift(mask_in,-1) + shift(mask_in,+1)) ne 2) $
-                 , edge_ct)
-     endif
-     
-     if sz[0] eq 2 then begin
-        edges = $
-           where(mask_in and $
-                 ((shift(mask_in,-1,0) + $
-                   shift(mask_in,+1,0) + $
-                   shift(mask_in,0,-1) + $
-                   shift(mask_in,0,+1)) $
-                  ne 4) $
-                 , edge_ct)
-     endif
+;    Copy the mask     
+     mask = mask_in
 
-     if sz[0] eq 3 then begin
-        edges = $
-           where(mask_in and $
-                 ((shift(mask_in,-1,0,0) + $
-                   shift(mask_in,+1,0,0) + $
-                   shift(mask_in,0,-1,0) + $
-                   shift(mask_in,0,+1,0) + $
-                   shift(mask_in,0,0,-1) + $
-                   shift(mask_in,0,0,+1)) $
-                  ne 6) $
-                 ,edge_ct)
-     endif
+;    Define a trivial constraint if one is not supplied
+     if n_elements(constraint) eq 0 then $
+        constraint = mask*0B+1B
+     
+;    If edge suppression is desired, zero the edges in the constraint
+     if keyword_set(no_edges) then $
+        zero_edges, constraint
 
-     if edge_ct eq 0 then begin
-        message, 'No edges in the cube, returning input mask.', /info
-        return, mask_in
-     endif
-     
-     x = edges mod sz[1]
-     if sz[0] ge 2 then y = (edges mod (sz[1]*sz[2]))/sz[1]
-     if sz[0] ge 3 then z = edges/(sz[1]*sz[2])
-     
-;   ONE-D CASE
-     if sz[0] eq 1 then begin
-        for i = -radius, radius do begin
-           if (i*i le radius_in*radius_in) then begin                
-              newx = ((x+i) > 0) < (sz[1]-1)
-              mask_out[newx] = 1B
+;    Build the spherical structuring element
+     radius = ceil(radius_in)    
+     if sz[0] eq 1 then $
+        struct = bytarr(2*radius+1)+1
+     if sz[0] eq 2 then $
+        struct = bytarr(2*radius+1,2*radius+1)
+     if sz[0] eq 3 then $
+        struct = bytarr(2*radius+1,2*radius+1,2*radius+1)
+
+     for ii = -radius, radius do begin
+        for jj = -radius, radius do begin
+           if sz[0] eq 2 then begin
+              dist = ii*ii+jj*jj
+              if dist le radius*radius then $
+                 struct[ii+radius,jj+radius] = 1B
+              continue
            endif
-        endfor
-     endif
+           
+           if keyword_set(z_only) then $
+              if ii ne 0 or jj ne 0 then $
+                 continue
 
-;   TWO-D CASE
-     if sz[0] eq 2 then begin
-        for i = -radius, radius do begin
-           for j = -radius, radius do begin
-              if ((i*i + j*j) le radius_in*radius_in) then begin
-                 newx = ((x+i) > 0) < (sz[1]-1)
-                 newy = ((y+j) > 0) < (sz[2]-1)
-                 mask_out[newx,newy] = 1B
+           for kk = -radius, radius do begin
+              if sz[0] eq 3 then begin
+                 if keyword_set(xy_only) then $
+                    if kk ne 0 then $
+                       continue
+
+                 dist = ii*ii+jj*jj+kk*kk
+                 if dist le radius*radius then $
+                    struct[ii+radius,jj+radius,kk+radius] = 1B
               endif
            endfor
         endfor
-     endif
+     endfor
 
-;   THREE-D CASE
-     if sz[0] eq 3 then begin
-        for i = -radius, radius do begin
-           for j = -radius, radius do begin
-              if keyword_set(twod) then begin
-                 if ((i*i + j*j) le radius_in*radius_in) then begin
-                    newx = ((x+i) > 0) < (sz[1]-1)
-                    newy = ((y+j) > 0) < (sz[2]-1)
-                    mask_out[newx,newy,z] = 1B
-                 endif
-              endif else begin
-                 for k = -radius, radius do begin
-                    if ((i*i + j*j + k*k) le radius_in*radius_in) then begin
-                       newx = ((x+i) > 0) < (sz[1]-1)
-                       newy = ((y+j) > 0) < (sz[2]-1)
-                       newz = ((z+k) > 0) < (sz[3]-1)
-                       mask_out[newx,newy,newz] = 1B
-                    endif
-                 endfor
-              endelse
-           endfor
-        endfor
-     endif
+     mask = dilate(mask, struct)
+     mask *= constraint
 
 ;   ALWAYS KEEP THE MASK FOR THIS CASE
-     mask_out = mask_out or mask_in
+     mask = mask or mask_in
 
 ;   GIVING BACK TO THE COMMUNITY...
      if keyword_set(no_edges) then $
-        zero_edges, mask_out
+        zero_edges, mask
 
-     return, mask_out
+;    If requested, ensure that the original mask is included in the
+;    output mask.
+     if keyword_set(keep_mask) then $
+        mask = mask or mask_in
+
+     return, mask
+
   endif                         ; of radial part
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%

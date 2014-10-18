@@ -29,6 +29,8 @@ pro ind_to_xyv $
   endif else if sz[0] EQ 2 then begin 
      x = ind mod sz[1]
      y = ind/sz[1]
+  endif else if sz[0] EQ 1 then begin
+     x = ind
   endif
 
 end
