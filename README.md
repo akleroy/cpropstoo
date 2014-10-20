@@ -118,6 +118,9 @@ sizes).
 * add_noise_to_cube : add correlated noise to a data cube. Useful for
   Monte Carlo calculations.
 
+* realize_noise : take a noise estimate and produce a realistic cube of noise
+(convolved with the beam) for use in Monte Carlo calculations. 
+
 ### Lower Level Routines
 
 These programs are called by the higher level routines. They may still

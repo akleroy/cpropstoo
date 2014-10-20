@@ -216,12 +216,12 @@ pro make_cprops_mask $
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; EXPAND THE HIGH SIGNIFICANCE CORE INTO THE LOW SIGNIFICANCE MASK
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
-
+  
   if keyword_set(verbose) then begin
      message, "Expanding mask to lower threshold.", /info
   endif
   mask = grow_mask(hi_mask, constraint=lo_mask)
-
+  
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ;  GROW THE FINAL MASK IN THE XY OR Z DIRECTIONS
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
