@@ -226,10 +226,10 @@ function grow_mask $
         zero_edges, constraint
 
 ;    Define the structuring element
-     struct = defn_connect(ndim=sz[0] $
-                           , all_neighbors = all_neighbors $
-                           , xy_only = xy_only $
-                           , z_only = z_only)
+     struct = struct_connect(ndim=sz[0] $
+                             , all_neighbors = all_neighbors $
+                             , xy_only = xy_only $
+                             , z_only = z_only)
 
 ;    Repeatedly dilate and apply the constraint
      for ii = 0, iters-1 do begin
@@ -266,50 +266,14 @@ function grow_mask $
         zero_edges, constraint
 
 ;    Build the spherical structuring element
-     radius = ceil(radius_in)    
-     if sz[0] eq 1 then $
-        struct = bytarr(2*radius+1)+1
-     if sz[0] eq 2 then $
-        struct = bytarr(2*radius+1,2*radius+1)
-     if sz[0] eq 3 then $
-        struct = bytarr(2*radius+1,2*radius+1,2*radius+1)
+     struct = struct_round(ndim=sz[0] $
+                           , rad=radius_in $
+                           , xy_only = xy_only $
+                           , z_only = z_only)
 
-     for ii = -radius, radius do begin
-        for jj = -radius, radius do begin
-           if sz[0] eq 2 then begin
-              dist = ii*ii+jj*jj
-              if dist le radius*radius then $
-                 struct[ii+radius,jj+radius] = 1B
-              continue
-           endif
-           
-           if keyword_set(z_only) then $
-              if ii ne 0 or jj ne 0 then $
-                 continue
-
-           for kk = -radius, radius do begin
-              if sz[0] eq 3 then begin
-                 if keyword_set(xy_only) then $
-                    if kk ne 0 then $
-                       continue
-
-                 dist = ii*ii+jj*jj+kk*kk
-                 if dist le radius*radius then $
-                    struct[ii+radius,jj+radius,kk+radius] = 1B
-              endif
-           endfor
-        endfor
-     endfor
-
+;    Dilate the mask
      mask = dilate(mask, struct)
      mask *= constraint
-
-;   ALWAYS KEEP THE MASK FOR THIS CASE
-     mask = mask or mask_in
-
-;   GIVING BACK TO THE COMMUNITY...
-     if keyword_set(no_edges) then $
-        zero_edges, mask
 
 ;    If requested, ensure that the original mask is included in the
 ;    output mask.

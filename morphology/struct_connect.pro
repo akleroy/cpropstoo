@@ -1,4 +1,4 @@
-function defn_connect $
+function struct_connect $
    , ndim = ndim $
    , all_neighbors = all_neighbors $
    , xy_only = xy_only $
@@ -8,7 +8,7 @@ function defn_connect $
 ;
 ; NAME:
 ;
-; defn_connect
+; struct_connect
 ;
 ; PURPOSE:
 ;
@@ -21,7 +21,7 @@ function defn_connect $
 ;
 ; CALLING SEQUENCE:
 ;
-; struct = defn_connect(ndim=3, /all_neighbors, /xy_only, /z_only)
+; struct = struct_connect(ndim=3, /all_neighbors, /xy_only, /z_only)
 ;
 ; INPUTS:
 ;
@@ -29,10 +29,10 @@ function defn_connect $
 ;
 ; all_neighbors: if set then corners are included
 ;
-; just_xy: for a three-d element, suppress z connectivity. Useful, for
+; xy_only: for a three-d element, suppress z connectivity. Useful, for
 ; example, for growing only in the spatial dimension of a data cube.
 ;
-; just_z: for a three-d element, suppress x-y connectivity. Useful,
+; z_only: for a three-d element, suppress x-y connectivity. Useful,
 ; for example, for growing only in the spectral dimension of a data
 ; cube.
 ;
