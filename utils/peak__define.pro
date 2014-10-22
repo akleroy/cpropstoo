@@ -1,3 +1,7 @@
+; Object structure for a peak, currently just stores values for the
+; peaks objects. Is there functionality we should add here?
+
+; INIT - set to 0 by default
 function peak::init, x=x, y=y, z=z, ra=ra, dec=dec, vel=vel, int=int
   if n_elements(x) eq 0 then $
      self.x = 0.0 else self.x = x
@@ -16,6 +20,7 @@ function peak::init, x=x, y=y, z=z, ra=ra, dec=dec, vel=vel, int=int
   return, 1
 end
 
+; Setter
 pro PEAK::set_peak, x, y, z, ra, dec, vel, int
   self.x = x
   self.y = y
@@ -27,9 +32,12 @@ pro PEAK::set_peak, x, y, z, ra, dec, vel, int
   
 end
 
+; Get variable by number reference
 function PEAK::getVAR, id
   return, self.(id)
 end
+
+; Get variables by name:
 
 function PEAK::getX
   return, self.x
@@ -58,6 +66,8 @@ end
 function PEAK::getINT
   return, self.int
 end
+
+; Object definition
 
 pro peak__define
   class={peak, x:0.0, y:0.0, z:0.0, ra:0.0, dec:0.0, vel:0.0, int:0.0}

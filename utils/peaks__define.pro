@@ -1,3 +1,8 @@
+; Object structure for peak visualization, manipulation, and analysis
+
+
+; INIT 
+; Basic usage : peaks = obj_new('peaks', "../measurements/lmax.txt")
 function PEAKS::init, kernfile, idlformat=idlformat
   self.ptr=ptr_new(/allocate)
   self.filters=ptr_new(/allocate)
@@ -48,15 +53,17 @@ function PEAKS::init, kernfile, idlformat=idlformat
   return, 1
 end
 
-function PEAKS::num_peaks
-  return, n_elements(*(self.ptr))
-end
+; XXXXXXXXXXXXXXXXXX
+; Modification
+; XXXXXXXXXXXXXXXXXX
 
+; This currently doesn't work with filters
 pro PEAKS::set_peak, i, x, y, z, ra, dec, vel, int
   (*(self.ptr))[i] $
      ->set_peak, x, y, z, ra, dec, vel, int
 end
 
+; Neither does this
 pro PEAKS::remove_peak, ind
   if ind eq 0 then $
      (*(self.ptr)) = (*(self.ptr))[1:n_elements(*(self.ptr))-1] $
@@ -68,6 +75,7 @@ pro PEAKS::remove_peak, ind
 
 end
 
+; Neither does this... 
 pro PEAK::add_peak, x, y, z, ra, dec, vel, int
   (*(self.ptr)) = [(*(self.ptr)), obj_new('peak' $
                    , x=x $
@@ -79,6 +87,10 @@ pro PEAK::add_peak, x, y, z, ra, dec, vel, int
                    , int=int)]
 end
 
+; XXXXXXXXXXXXXXXXXXX
+; Getters
+; XXXXXXXXXXXXXXXXXXX
+; Convenience functions first, then the workhorse
 function PEAKS::getX, id, nofilter=nofilter
   return, self->getVAR(0, id=id, nofilter=nofilter)
 end
@@ -127,6 +139,10 @@ function PEAKS::getVAR, var, id=id, nofilter=nofilter
      return, vararr
 end
 
+; XXXXXXXXXXXXXXXX
+; SORTING FUNCTIONS
+; XXXXXXXXXXXXXXXX
+
 pro PEAKS::sortX 
   self->sortVAR, 0
 end
@@ -168,6 +184,10 @@ pro PEAKS::sortFilters, s
   self->updateFilter
 end
 
+; XXXXXXXXXXXXXXXXX
+; FILTERING TOOLS
+; XXXXXXXXXXXXXXXXX
+
 pro PEAKS::updateFilter
   indices = bytarr(n_elements((*(self.filters))[0].ind))+1B
   for i=0,n_elements(*(self.filters))-1 do $
@@ -181,30 +201,6 @@ pro PEAKS::listFilters
   for i=0,n_elements(*(self.filters))-1 do $
      print, (*(self.filters))[i].label+" Num = "+str(total((*(self.filters))[i].ind))
 end
-
-
-pro PEAKS::view_peaks, map, header=header, nofilter=nofilter
-  ; settings
-  !p.multi = 0
-  loadct, 5
-  if n_elements(map) GT 0 then begin 
-     if n_elements(header) gt 0 then begin
-        make_axes, header, raxis=raxis, daxis=daxis, vaxis=vaxis
-        disp, peak_map, raxis, daxis, /radec, /sq
-        loadct, 0
-        oplot, self->getRA(nofilter=nofilter) $
-               , self->getDEC(nofilter=nofilter), color=255, ps=1
-     endif else begin
-        disp, peak_map, /sq
-        loadct, 0
-        oplot, self->getX(nofilter=nofilter) $
-               , self->getY(nofilter=nofilter), color=255, ps=1  
-     endelse 
-  endif else begin 
-     plot, self->getX(nofilter=nofilter), self->getY(nofilter=nofilter), ps = 1
-  endelse 
-end
-
 
 ; behind-the-scenes function that also allows for arbitrary inputs
 pro PEAKS::filter, filterArray, label=label
@@ -298,6 +294,37 @@ pro PEAKS::threshold, x=x, y=y, z=z, ra=ra, dec=dec, vel=vel, int=int
      endfor
   endfor
 end
+
+; XXXXXXXXXXXXXXX
+; VISUALIZATION
+; XXXXXXXXXXXXXXX
+
+pro PEAKS::view_peaks, map, header=header, nofilter=nofilter
+  ; settings
+  !p.multi = 0
+  loadct, 5
+  if n_elements(map) GT 0 then begin 
+     if n_elements(header) gt 0 then begin
+        make_axes, header, raxis=raxis, daxis=daxis, vaxis=vaxis
+        disp, peak_map, raxis, daxis, /radec, /sq
+        loadct, 0
+        oplot, self->getRA(nofilter=nofilter) $
+               , self->getDEC(nofilter=nofilter), color=255, ps=1
+     endif else begin
+        disp, peak_map, /sq
+        loadct, 0
+        oplot, self->getX(nofilter=nofilter) $
+               , self->getY(nofilter=nofilter), color=255, ps=1  
+     endelse 
+  endif else begin 
+     plot, self->getX(nofilter=nofilter), self->getY(nofilter=nofilter), ps = 1
+  endelse 
+end
+
+; XXXXXXXXXXXXXX
+; CLASS DEFINITION
+; XXXXXXXXXXXXXX
+
 
 pro peaks__define
   class={peaks, ptr:ptr_new(), indices:ptr_new(), filters:ptr_new()}
