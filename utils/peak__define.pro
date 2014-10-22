@@ -27,6 +27,10 @@ pro PEAK::set_peak, x, y, z, ra, dec, vel, int
   
 end
 
+function PEAK::getVAR, id
+  return, self.(id)
+end
+
 function PEAK::getX
   return, self.x
 end

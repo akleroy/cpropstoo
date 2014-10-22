@@ -1,5 +1,7 @@
 function PEAKS::init, kernfile, idlformat=idlformat
   self.ptr=ptr_new(/allocate)
+  self.filters=ptr_new(/allocate)
+  self.indices=ptr_new(/allocate)
   if n_elements(kernfile) gt 0 then begin
      if keyword_set(idlformat) then begin
         restore, kernfile
@@ -36,7 +38,13 @@ function PEAKS::init, kernfile, idlformat=idlformat
                                             , int=kern_int[i])]
 
      endfor
-  endif else *(self.ptr) = [obj_new('peak')]
+     *(self.indices) = indgen(n_elements(kern_xpix))
+     *(self.filters) = [{ind:bytarr(n_elements(kern_xpix))+1B, label:''}]
+  endif else begin
+     *(self.ptr) = [obj_new('peak')]
+     *(self.indices) = [0]
+     *(self.filters) = [{ind:[1B], label:''}]
+  endelse
   return, 1
 end
 
@@ -51,12 +59,12 @@ end
 
 pro PEAKS::remove_peak, ind
   if ind eq 0 then $
-     (*(self.ptr)) = (*(self.ptr))[1:self->num_peaks-1] $
-  else if ind eq self->num_peaks-1 then $
+     (*(self.ptr)) = (*(self.ptr))[1:n_elements(*(self.ptr))-1] $
+  else if ind eq n_elements(*(self.ptr))-1 then $
      (*(self.ptr)) = (*(self.ptr))[0:ind-1] $
   else $
      (*(self.ptr)) = [(*(self.ptr))[0:ind-1] $
-                      , (*(self.ptr))[ind+1:self->num_peaks-1]]
+                      , (*(self.ptr))[ind+1:n_elements(*(self.ptr))-1]]
 
 end
 
@@ -71,126 +79,196 @@ pro PEAK::add_peak, x, y, z, ra, dec, vel, int
                    , int=int)]
 end
 
-function PEAKS::getX, id
-  if n_elements(id) then $
-     return, (*(self.ptr))[id]->getX() $
-  else begin
-     xarr = [(*(self.ptr))[0]->getX()]
-     for i=1,n_elements(*(self.ptr))-1 do $
-        xarr = [xarr, (*(self.ptr))[i]->getX()]
-  endelse 
-     return, xarr
+function PEAKS::getX, id, nofilter=nofilter
+  return, self->getVAR(0, id=id, nofilter=nofilter)
 end
 
-function PEAKS::getY, id
-  if n_elements(id) then $
-     return, (*(self.ptr))[id]->getY() $ 
-  else begin
-     yarr = [(*(self.ptr))[0]->getY()]
-     for i=1,n_elements(*(self.ptr))-1 do $
-        yarr = [yarr, (*(self.ptr))[i]->getY()]
-  endelse 
-     return, yarr
+function PEAKS::getY, id, nofilter=nofilter
+  return, self->getVAR(1, id=id, nofilter=nofilter)
 end
 
-function PEAKS::getZ, id
-  if n_elements(id) then $
-     return, (*(self.ptr))[id]->getZ() $ 
-  else begin
-     zarr = [(*(self.ptr))[0]->getZ()]
-     for i=1,n_elements(*(self.ptr))-1 do $
-        zarr = [zarr, (*(self.ptr))[i]->getZ()]
-  endelse 
-     return, zarr
+function PEAKS::getZ, id, nofilter=nofilter
+  return, self->getVAR(2, id=id, nofilter=nofilter)
 end
 
-function PEAKS::getRA, id
-  if n_elements(id) then $
-     return, (*(self.ptr))[id]->getRA() $ 
-  else begin
-     raarr = [(*(self.ptr))[0]->getRA()]
-     for i=1,n_elements(*(self.ptr))-1 do $
-        raarr = [raarr, (*(self.ptr))[i]->getRA()]
-  endelse 
-     return, raarr
+function PEAKS::getRA, id, nofilter=nofilter
+  return, self->getVAR(3, id=id, nofilter=nofilter)
 end
 
-function PEAKS::getDEC, id
-  if n_elements(id) then $
-     return, (*(self.ptr))[id]->getDEC() $ 
-  else begin
-     decarr = [(*(self.ptr))[0]->getDEC()]
-     for i=1,n_elements(*(self.ptr))-1 do $
-        decarr = [decarr, (*(self.ptr))[i]->getDEC()]
-  endelse 
-     return, decarr
+function PEAKS::getDEC, id, nofilter=nofilter
+  return, self->getVAR(4, id=id, nofilter=nofilter)
 end
 
-function PEAKS::getVEL, id
-  if n_elements(id) then $
-     return, (*(self.ptr))[id]->getVEL() $ 
-  else begin
-     velarr = [(*(self.ptr))[0]->getVEL()]
-     for i=1,n_elements(*(self.ptr))-1 do $
-        velarr = [velarr, (*(self.ptr))[i]->getVEL()]
-  endelse 
-     return, velarr
+function PEAKS::getVEL, id, nofilter=nofilter
+  return, self->getVAR(5, id=id, nofilter=nofilter)
 end
 
-function PEAKS::getINT, id
+function PEAKS::getINT, id, nofilter=nofilter
+  return, self->getVAR(6, id=id, nofilter=nofilter)
+end
+
+;This function gets a variable by variable number: peak.(VAR) 
+; e.g.: peak.(0) = peak.x
+function PEAKS::getVAR, var, id=id, nofilter=nofilter
   if n_elements(id) then $
-     return, (*(self.ptr))[id]->getINT() $ 
+     return, (*(self.ptr))[id]->getVAR(var) $ 
   else begin
-     intarr = [(*(self.ptr))[0]->getINT()]
-     for i=1,n_elements(*(self.ptr))-1 do $
-        intarr = [intarr, (*(self.ptr))[i]->getINT()]
+     if keyword_set(nofilter) then begin
+        vararr = [(*(self.ptr))[0]->getVAR(var)]
+        for i=1,n_elements(*(self.ptr))-1 do $
+           vararr = [vararr, (*(self.ptr))[i]->getVAR(var)]
+     endif else begin
+        filter = *(self.indices)
+        vararr = [(*(self.ptr))[filter[0]]->getVAR(var)]
+        for i=1,n_elements(filter)-1 do $
+           vararr = [vararr, (*(self.ptr))[filter[i]]->getVAR(var)]        
+     endelse
   endelse 
-     return, intarr
+     return, vararr
 end
 
 pro PEAKS::sortX 
-  xarr = self->getX()
-  s = sort(xarr)
-  (*(self.ptr)) = (*(self.ptr))[s]
+  self->sortVAR, 0
 end
 
 pro PEAKS::sortY
-  yarr = self->getY()
-  s = sort(yarr)
-  (*(self.ptr)) = (*(self.ptr))[s]
+  self->sortVAR, 1
 end
 
 pro PEAKS::sortZ 
-  zarr = self->getZ()
-  s = sort(zarr)
-  (*(self.ptr)) = (*(self.ptr))[s]
+  self->sortVAR, 2
 end
 
 pro PEAKS::sortRA
-  raarr = self->getRA()
-  s = sort(raarr)
-  (*(self.ptr)) = (*(self.ptr))[s]
+  self->sortVAR, 3
 end
 
 pro PEAKS::sortDEC
-  decarr = self->getDEC()
-  s = sort(decarr)
-  (*(self.ptr)) = (*(self.ptr))[s]
+  self->sortVAR, 4
 end
 
 pro PEAKS::sortVEL 
-  velarr = self->getVEL()
-  s = sort(velarr)
-  (*(self.ptr)) = (*(self.ptr))[s]
+  self->sortVAR, 5
 end
 
 pro PEAKS::sortINT
-  intarr = self->getINT()
-  s = sort(intarr)
+  self->sortVAR, 6
+end
+
+pro PEAKS::sortVAR, ind
+  vararr = self->getVAR(ind, /nofilter)
+  s = sort(vararr)
   (*(self.ptr)) = (*(self.ptr))[s]
+  self->sortFilters, s
+end
+
+pro PEAKS::sortFilters, s
+  for i=0,n_elements(*(self.filters))-1 do $
+     (*(self.filters))[i].ind = ((*(self.filters))[i].ind)[s]
+  self->updateFilter
+end
+
+pro PEAKS::updateFilter
+  indices = bytarr(n_elements((*(self.filters))[0].ind))+1B
+  for i=0,n_elements(*(self.filters))-1 do $
+     indices *= (*(self.filters))[i].ind
+  *(self.indices) = where(indices, ct)
+  if ct lt 1 then $
+     *(self.indices) = bytarr(n_elements((*(self.filters))[0].ind))+1B
+end
+
+; behind-the-scenes function that also allows for arbitrary inputs
+pro PEAKS::filter, filterArray, label=label
+; filterArray should be a binary array, give label if you want
+; (e.g. 'x lt 2')
+; NOTE: filterArray MUST have the same length as the original number
+; of kernels
+  if n_elements(label) lt 1 then label = ''
+  filter = {ind:filterArray, label:label}
+  *(self.filters) = [*(self.filters), filter]
+  self->updateFilter
+
+end
+
+;This is just be a convienence function
+pro PEAKS::threshold, x=x, y=y, z=z, ra=ra, dec=dec, vel=vel, int=int
+  variables = [-1]
+  strings = ['']
+  if n_elements(x) GT 0 then begin 
+     variables = [variables, 0]
+     strings = [strings, x]
+  endif
+  if n_elements(y) GT 0 then begin 
+     variables = [variables, 1]
+     strings = [strings, y]
+  endif
+  if n_elements(z) GT 0 then begin
+     variables = [variables, 2]
+     strings = [strings, z]
+  endif
+  if n_elements(ra) GT 0 then begin 
+     variables = [variables, 3]
+     strings = [strings, ra]
+  endif
+  if n_elements(dec) GT 0 then begin
+     variables = [variables, 4]
+     strings = [strings, dec]
+  endif
+  if n_elements(vel) GT 0 then begin
+     variables = [variables, 5]
+     strings = [strings, vel]
+  endif
+  if n_elements(int) GT 0 then begin
+     variables = [variables, 6]
+     strings = [strings, int]
+  endif
+  for j=1,n_elements(variables)-1 do begin
+     id = variables[j]
+     filters = strsplit(strings[j], '&', /extract)
+     for i=0,n_elements(filters)-1 do begin
+                                ; get the pieces of the argument 
+        filterPieces = strsplit(filters[i], ' ', /extract)
+                                ; first piece is the comparison type (lt, gt, etc)
+        comparisonType = strlowcase(filterPieces[0])
+                                ; second piece is the number
+        threshold = float(filterPieces[1]) ; add some sort of error checking
+        case comparisonType of 
+           'gt': begin
+              label = filters[i]
+              filterArray = self->getVAR(id, /nofilter) gt threshold           
+           end
+           'lt': begin
+              label = filters[i]
+              filterArray = self->getVAR(id, /nofilter) lt threshold           
+           end
+           'ge': begin
+              label = filters[i]
+              filterArray = self->getVAR(id, /nofilter) ge threshold           
+           end
+           'le': begin
+              label = filters[i]
+              filterArray = self->getVAR(id, /nofilter) le threshold           
+           end
+           'eq': begin
+              label = filters[i]
+              filterArray = self->getVAR(id, /nofilter) eq threshold           
+           end
+           'ne': begin
+              label = filters[i]
+              filterArray = self->getVAR(id, /nofilter) ne threshold           
+           end
+           
+           else: begin
+              print, "Invalid comparison type, must be standard (e.g. lt, gt, ne...)"
+              return
+           end
+        endcase
+        self->filter, filterArray, label=label
+     endfor
+  endfor
 end
 
 pro peaks__define
-  class={peaks, ptr:ptr_new()}
+  class={peaks, ptr:ptr_new(), indices:ptr_new(), filters:ptr_new()}
 
 end
