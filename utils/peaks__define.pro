@@ -177,6 +177,35 @@ pro PEAKS::updateFilter
      *(self.indices) = bytarr(n_elements((*(self.filters))[0].ind))+1B
 end
 
+pro PEAKS::listFilters
+  for i=0,n_elements(*(self.filters))-1 do $
+     print, (*(self.filters))[i].label+" Num = "+str(total((*(self.filters))[i].ind))
+end
+
+
+pro PEAKS::view_peaks, map, header=header, nofilter=nofilter
+  ; settings
+  !p.multi = 0
+  loadct, 5
+  if n_elements(map) GT 0 then begin 
+     if n_elements(header) gt 0 then begin
+        make_axes, header, raxis=raxis, daxis=daxis, vaxis=vaxis
+        disp, peak_map, raxis, daxis, /radec, /sq
+        loadct, 0
+        oplot, self->getRA(nofilter=nofilter) $
+               , self->getDEC(nofilter=nofilter), color=255, ps=1
+     endif else begin
+        disp, peak_map, /sq
+        loadct, 0
+        oplot, self->getX(nofilter=nofilter) $
+               , self->getY(nofilter=nofilter), color=255, ps=1  
+     endelse 
+  endif else begin 
+     plot, self->getX(nofilter=nofilter), self->getY(nofilter=nofilter), ps = 1
+  endelse 
+end
+
+
 ; behind-the-scenes function that also allows for arbitrary inputs
 pro PEAKS::filter, filterArray, label=label
 ; filterArray should be a binary array, give label if you want
@@ -194,6 +223,7 @@ end
 pro PEAKS::threshold, x=x, y=y, z=z, ra=ra, dec=dec, vel=vel, int=int
   variables = [-1]
   strings = ['']
+  variableNames = ['x', 'y', 'z', 'ra', 'dec', 'vel', 'int']
   if n_elements(x) GT 0 then begin 
      variables = [variables, 0]
      strings = [strings, x]
@@ -232,29 +262,30 @@ pro PEAKS::threshold, x=x, y=y, z=z, ra=ra, dec=dec, vel=vel, int=int
         comparisonType = strlowcase(filterPieces[0])
                                 ; second piece is the number
         threshold = float(filterPieces[1]) ; add some sort of error checking
+        label = variableNames[id]+" "
         case comparisonType of 
            'gt': begin
-              label = filters[i]
+              label += filters[i]
               filterArray = self->getVAR(id, /nofilter) gt threshold           
            end
            'lt': begin
-              label = filters[i]
+              label += filters[i]
               filterArray = self->getVAR(id, /nofilter) lt threshold           
            end
            'ge': begin
-              label = filters[i]
+              label += filters[i]
               filterArray = self->getVAR(id, /nofilter) ge threshold           
            end
            'le': begin
-              label = filters[i]
+              label += filters[i]
               filterArray = self->getVAR(id, /nofilter) le threshold           
            end
            'eq': begin
-              label = filters[i]
+              label += filters[i]
               filterArray = self->getVAR(id, /nofilter) eq threshold           
            end
            'ne': begin
-              label = filters[i]
+              label += filters[i]
               filterArray = self->getVAR(id, /nofilter) ne threshold           
            end
            
