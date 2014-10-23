@@ -59,12 +59,17 @@ pro prep_cube $
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
   
   if n_elements(dist_pc) gt 0 then begin
-     sxaddpar, hdr, 'DIST', dist_pc, 'PC'
+     sxaddpar, hdr, 'DIST', dist_pc, ' parsec', after='OBJECT'
   endif
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; VELOCITY/FREQUENCY UNITS
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
+
+;    PUT IN A USER SUPPLIED LINE NAME
+     if n_elements(line_name) gt 0 then begin
+        sxaddpar, hdr, 'LINE', line_name, after='OBJECT'
+     endif
 
   if keyword_set(skip_vel) eq 0 then begin
 
@@ -76,7 +81,7 @@ pro prep_cube $
 
         sxdelpar, hdr, 'FREQ0'
         sxdelpar, hdr, 'RESTFREQ'
-        sxaddpar, hdr, 'RESTFRQ', restfreq_hz, 'rest frequency (Hz)'
+        sxaddpar, hdr, 'RESTFRQ', restfreq_hz, ' rest frequency (Hz)', after='OBJECT'
 
         if restfreq_hz lt 1e8 then begin
 ;       LESS THAN 1000 MEANS ALMOST CERTAINLY GHZ        
@@ -89,13 +94,8 @@ pro prep_cube $
      endif else begin
         sxdelpar, hdr, 'FREQ0'
         sxdelpar, hdr, 'RESTFREQ'
-        sxaddpar, hdr, 'RESTFRQ', restfreq_hz, 'rest frequency (Hz)'
+        sxaddpar, hdr, 'RESTFRQ', restfreq_hz, ' rest frequency (Hz)', after='OBJECT'
      endelse
-
-;    PUT IN A USER SUPPLIED LINE NAME
-     if n_elements(line_name) gt 0 then begin
-        sxaddpar, hdr, 'LINE', line_name
-     endif
 
 ;    TRY TO ENFORCE KM/S
      cdelt3 = sxpar(hdr, 'CDELT3')
@@ -103,8 +103,8 @@ pro prep_cube $
         sxaddpar, hdr, 'CDELT3', cdelt3/1e3        
         crval3 = sxpar(hdr, 'CRVAL3')
         sxaddpar, hdr, 'CRVAL3', crval3/1e3        
-        sxaddpar, hdr, 'CTYPE3', 'KM/S'
-        sxaddpar, hdr, 'CUNIT3', 'KM/S'
+        sxaddpar, hdr, 'CTYPE3', 'KM/S' ; non-standard definition
+        sxaddpar, hdr, 'CUNIT3', 'KM/S', after='CTYPE3'
         ;ctype3 = strupcase(strcompress(sxpar(hdr, 'CTYPE3'), /rem))
         ;if ctype3 eq 'M/S' then begin
         ;   sxaddpar, hdr, 'CTYPE3', 'KM/S'
@@ -133,10 +133,10 @@ pro prep_cube $
            sxaddpar, hdr, "BMIN", bmaj_deg
         endelse
         if n_elements(bpa_deg) ne 0 then begin
-           sxaddpar, hdr, "BPA", bpa_deg
+           sxaddpar, hdr, "BPA", bpa_deg, after='BMIN'
         endif else begin
 ;          ... ASSUME A SYMMETRIC BEAM
-           sxaddpar, hdr, "BPA", 0.0
+           sxaddpar, hdr, "BPA", 0.0, after='BMIN'
         endelse
      endif else begin
 
@@ -166,9 +166,9 @@ pro prep_cube $
 
 ;          TRAP CASE WHERE ONLY BMAJ IS SPECIFIED
            if bmin_ct eq 0 then $
-              sxaddpar, hdr, "BMIN", bmaj_deg
+              sxaddpar, hdr, "BMIN", bmaj_deg, after='BMAJ'
            if bpa_ct eq 0 then $
-              sxaddpar, hdr, "BPA", 0.0
+              sxaddpar, hdr, "BPA", 0.0, after='BMIN'
         endelse
 
      endelse
