@@ -167,9 +167,9 @@ pro conv_with_gauss $
      , meas_maj = target_beam[0] $
      , meas_min = target_beam[1] $
      , meas_pa = target_beam[2] $
-     , beam_maj = start_beam[0] $
-     , beam_min = start_beam[1] $
-     , beam_pa = start_beam[2] $
+     , beam_maj = current_beam[0] $
+     , beam_min = current_beam[1] $
+     , beam_pa = current_beam[2] $
      , src_maj = kernel_bmaj $
      , src_min = kernel_bmin $
      , src_pa = kernel_bpa $
