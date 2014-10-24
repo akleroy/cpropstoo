@@ -238,7 +238,7 @@ pro conv_with_gauss $
 ; In these two cases we will need to know the beam sizes before and
 ; after convolution.
 
-  if keyword_set(unc) or keyword_set(per_beam) then begin
+  if keyword_set(unc) or keyword_set(perbeam) then begin
 
 ;    Work out the pixels per beam at the start of the convolution
      if n_elements(current_beam) eq 3 then begin
@@ -281,7 +281,7 @@ pro conv_with_gauss $
 ; If we are requested to treat the units as "per beam" then adjust the
 ; final map by the ratio of beam areas (final beam/original beam).
 
-  if keyword_set(per_beam) then begin
+  if keyword_set(perbeam) then begin
 
      scale_fac = ppbeam_final / ppbeam_start
      
@@ -311,7 +311,7 @@ pro conv_with_gauss $
      message, 'PSF Grid Size [pix] = '+string(kern_size), /info
      message, 'Flux Ratio = '+string(flux_ratio), /info
      message, 'Treated as uncertainty = '+(keyword_set(unc) ? 'yes':'no'), /info
-     message, 'Corrected per beam units = '+(keyword_set(per_beam) ? 'yes':'no'), /info
+     message, 'Corrected per beam units = '+(keyword_set(perbeam) ? 'yes':'no'), /info
 
   endif
 
