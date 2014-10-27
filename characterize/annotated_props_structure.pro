@@ -60,8 +60,8 @@
    ;; FLUX_GCORR      FLOAT           13.4698  ## Line flux for Gaussian region in FLUX_UNIT.
    ;; FLUX_UNIT       STRING    'K*km/s*as^2'  ## Unit for FLUX*
    ;; GAL             STRING    ''             ## Galaxy name [xxx Currently not defined in prep_cube. Should equal OBJECT keyword in header.]
-   ;; GCORR_1D        FLOAT           1.29968  ## xxx
-   ;; GCORR_FLUX      FLOAT           1.36469  ## xxx
+   ;; GCORR_1D        FLOAT           1.29968  ## Gaussian correction factor for 1D quantity using PEAK_TO_EDGE ratio calc_gauss_corr.pro from c(see, e.g., Bolatto et al. 2003, Rosolowsky & Blitz 2005).
+   ;; GCORR_FLUX      FLOAT           1.36469  ## Gaussian correction factor for 2D or 3D (?) quantity using PEAK_TO_EDGE ratio calc_gauss_corr.pro from c(see, e.g., Bolatto et al. 2003, Rosolowsky & Blitz 2005).
    ;; LINE            STRING    'CO'           ## Line name.
    ;; LUM             FLOAT           23199.4  ## Measured line luminosity in LUM_UNIT. 
    ;; LUM_EXTRAP      FLOAT           35975.9  ## Line luminosity extrapolated using curve of growth method in LUM_UNIT.
