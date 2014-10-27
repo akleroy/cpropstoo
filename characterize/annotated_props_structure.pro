@@ -55,138 +55,138 @@
    ;; ELLMIN_UNIT     STRING    'pc'           ## Unit for ELLMIN.
    ;; ELL_TO_SIG_HALF FLOAT           1.69536  ## Scaling factor applied to (non-weighted) ELLFITMAJ & ELLFITMIN values to correspond to (intensity-weighted) 2nd moment of 2D or 3D Gaussian (???)
    ;; FILENAME        STRING    ''             ## xxx
-   ;; FLUX            FLOAT           9.87023  ## Line flux in FLUX_UNIT.
-   ;; FLUX_EXTRAP     FLOAT           15.3060  ## Extrapolated line flux for region in FLUX_UNIT.
-   ;; FLUX_GCORR      FLOAT           13.4698  ## Line flux for Gaussian region in FLUX_UNIT.
+   ;; FLUX            FLOAT           9.87023  ## Line flux of region in FLUX_UNIT.
+   ;; FLUX_EXTRAP     FLOAT           15.3060  ## Line flux from curve-of-growth extrapolation in FLUX_UNIT.
+   ;; FLUX_GCORR      FLOAT           13.4698  ## Line flux from Gaussian extrapolation in FLUX_UNIT.
    ;; FLUX_UNIT       STRING    'K*km/s*as^2'  ## Unit for FLUX*
    ;; GAL             STRING    ''             ## Galaxy name [xxx Currently not defined in prep_cube. Should equal OBJECT keyword in header.]
-   ;; GCORR_1D        FLOAT           1.29968  ## Gaussian correction factor for 1D quantity using PEAK_TO_EDGE ratio calc_gauss_corr.pro from c(see, e.g., Bolatto et al. 2003, Rosolowsky & Blitz 2005).
-   ;; GCORR_FLUX      FLOAT           1.36469  ## Gaussian correction factor for 2D or 3D (?) quantity using PEAK_TO_EDGE ratio calc_gauss_corr.pro from c(see, e.g., Bolatto et al. 2003, Rosolowsky & Blitz 2005).
+   ;; GCORR_1D        FLOAT           1.29968  ## Gaussian extrapolation factor for 1D quantity using PEAK_TO_EDGE ratio from calc_gauss_corr.pro(see, e.g., Bolatto et al. 2003, Rosolowsky & Blitz 2005).
+   ;; GCORR_FLUX      FLOAT           1.36469  ## Gaussian extrapolation factor for 2D or 3D (?) quantity using PEAK_TO_EDGE ratio from calc_gauss_corr.pro (see, e.g., Bolatto et al. 2003, Rosolowsky & Blitz 2005).
    ;; LINE            STRING    'CO'           ## Line name.
    ;; LUM             FLOAT           23199.4  ## Measured line luminosity in LUM_UNIT. 
-   ;; LUM_EXTRAP      FLOAT           35975.9  ## Line luminosity extrapolated using curve of growth method in LUM_UNIT.
-   ;; LUM_GCORR       FLOAT           31660.0  ## Line lumionsity calculated assuming Gaussian emission profile in LUM_UNIT.
+   ;; LUM_EXTRAP      FLOAT           35975.9  ## Line luminosity from curve-of-growth extrapolation in LUM_UNIT.
+   ;; LUM_GCORR       FLOAT           31660.0  ## Line lumionsity from Gaussian extrapolation in LUM_UNIT.
    ;; LUM_UNIT        STRING    'K*km/s*pc^2'  ## Unit for LUM*
-   ;; MAJRMS          FLOAT           12.5996  ## RMS velocity along major axis. Unit is MAJRMS_UNIT. 
-   ;; MAJRMS_EXTRAP   FLOAT           16.4793  ## RMS size along major axis from curve of growth extrapolation. Unit is MAJRMS_UNIT.
-   ;; MAJRMS_EXTRAP_DECONV                     ## RMS size along major axis from curve of growht extrapolation with beam deconvolved. Unit is MAJRMS_UNIT.
+   ;; MAJRMS          FLOAT           12.5996  ## RMS size along major axis in MAJRMS_UNIT. 
+   ;; MAJRMS_EXTRAP   FLOAT           16.4793  ## RMS size along major axis from curve-of-growth extrapolation in MAJRMS_UNIT.
+   ;; MAJRMS_EXTRAP_DECONV                     ## RMS size along major axis from curve-of-growth extrapolation with 2D beam deconvolution in MAJRMS_UNIT.
    ;;                 FLOAT           12.7459   
-   ;; MAJRMS_GCORR    FLOAT           16.3755  ## RMS size along major axis from Gaussian fit. Unit is MAJRMS_UNIT.
-   ;; MAJRMS_GCORR_DECONV                      ## RMS size along major axis from Gaussian fit with beam deconvolved. Unit is MAJRMS_UNIT.
+   ;; MAJRMS_GCORR    FLOAT           16.3755  ## RMS size along major axis from Gaussian extrapolation in MAJRMS_UNIT.
+   ;; MAJRMS_GCORR_DECONV                      ## RMS size along major axis from Gaussian extrapolation with 2D beam deconvolution in MAJRMS_UNIT.
    ;;                 FLOAT           12.6567
-   ;; MAJRMS_UNIT     STRING    'pc'           ## Unit for RMS size along major axis (MAJRMS_UNIT).
-   ;; MASS            FLOAT           100917.  ## Mass of clump in unit MASS_UNIT. Calculated by multiplying LUM by ALPHA. 
-   ;; MASS_EXTRAP     FLOAT           156495.  ## Extrapolated mass of clump in unit MASS_UNIT. Calculated by multiplying LUM_EXTRAP by ALPHA. 
-   ;; MASS_GCORR      FLOAT           137721.  ## Guassian fit mass of clump in unit MASS_UNIT. Calculated by multiplying LUM_GCORR by ALPHA.
-   ;; MASS_UNIT       STRING    'Msun'         ## Unit for masses.
-   ;; MAXVAL          FLOAT           2.79141  ## Maximum value for clump in unit MAXVAL_UNIT.
+   ;; MAJRMS_UNIT     STRING    'pc'           ## Unit for MAJRMS*
+   ;; MASS            FLOAT           100917.  ## Mass of region in MASS_UNIT. Calculated by multiplying LUM by ALPHA. 
+   ;; MASS_EXTRAP     FLOAT           156495.  ## Mass from curve-of-growth extrapolation in MASS_UNIT.
+   ;; MASS_GCORR      FLOAT           137721.  ## Mass from Gaussioan extrapolation in MASS_UNIT.
+   ;; MASS_UNIT       STRING    'Msun'         ## Unit for MASS*
+   ;; MAXVAL          FLOAT           2.79141  ## Maximum pixel intensity ("peak") in region in MAXVAL_UNIT.
    ;; MAXVAL_UNIT     STRING    'K'            ## Unit for MAXVAL.
-   ;; MINRMS          FLOAT           11.6019  ## RMS size along minor axis. Unit is MINRMS_UNIT.
-   ;; MINRMS_EXTRAP   FLOAT           13.5740  ## RMS size along minor axis from curve of growth extrapolation. Unit is MINRMS_UNIT.
-   ;; MINRMS_EXTRAP_DECONV                     ## RMS size along minro axis from curve of growth extrapolation with beam deconvolved. Unit is MINRMS_UNIT.
+   ;; MINRMS          FLOAT           11.6019  ## RMS size along minor axis in MINRMS_UNIT.
+   ;; MINRMS_EXTRAP   FLOAT           13.5740  ## RMS size along minor axis from curve-of-growth extrapolation in MINRMS_UNIT.
+   ;; MINRMS_EXTRAP_DECONV                     ## RMS size along minor axis from curve-of-growth extrapolation with 2D beam deconvolution in MINRMS_UNIT.
    ;;                 FLOAT           8.23611
-   ;; MINRMS_GCORR    FLOAT           15.0788  ## RMS size along minor axis from Gaussian fit. Unit is MINRMS_UNIT.
-   ;; MINRMS_GCORR_DECONV                      ## RMS size along minor axis from Gaussian fit with beam deconvolved. Unit is MINRMS_UNIT.
+   ;; MINRMS_GCORR    FLOAT           15.0788  ## RMS size along minor axis from Gaussian extrapolation in MINRMS_UNIT.
+   ;; MINRMS_GCORR_DECONV                      ## RMS size along minor axis from Gaussian extrapolation with 2D beam deconvolution in MINRMS_UNIT.
    ;;                 FLOAT           10.4787
-   ;; MINRMS_UNIT     STRING    'pc'           ## Unit for MINRMS* values.
-   ;; MINVAL          FLOAT          0.411439  ## Minimum value in region in MINVAL_UNIT. [xxx what does this really mean? Is this just the lowest contour it goes down to.]
-   ;; MINVAL_UNIT     STRING    'K'            ## Unit for minimum value (MINVAL).
-   ;; MOM0            FLOAT           1974.05  ## Integrated flux in image units (MOM0_UNIT).
-   ;; MOM0_EXTRAP     FLOAT           3061.20  ## Integrated flux extrapolated along the curve of growth in MOM0_UNIT.
-   ;; MOM0_GCORR      FLOAT           2693.96  ## Integrated flux from Gaussian fit in MOM0_UNIT.
-   ;; MOM0_UNIT       STRING    'K*pix^3'      ## Integrated flux units (in image units).
-   ;; MOM1V           FLOAT           48.3746  ## Moment one of the velocity axis, i.e., the mean velocity of the pixels in the clump, in units of MOM1V_UNIT.
+   ;; MINRMS_UNIT     STRING    'pc'           ## Unit for MINRMS*
+   ;; MINVAL          FLOAT          0.411439  ## Minimum pixel intensity ("edge") in region in MINVAL_UNIT.
+   ;; MINVAL_UNIT     STRING    'K'            ## Unit for MINVAL.
+   ;; MOM0            FLOAT           1974.05  ## Integrated flux of region in MOM0_UNIT.
+   ;; MOM0_EXTRAP     FLOAT           3061.20  ## Integrated flux from curve-of-growth extrapolation in MOM0_UNIT.
+   ;; MOM0_GCORR      FLOAT           2693.96  ## Integrated flux from Gaussian extrapolation in MOM0_UNIT.
+   ;; MOM0_UNIT       STRING    'K*pix^3'      ## Units for MOM0*
+   ;; MOM1V           FLOAT           48.3746  ## Moment one of velocity axis in region (ie, mean velocity of the pixels) in MOM1V_UNIT.
    ;; MOM1V_UNIT      STRING    'pix'          ## Unit for MOM1V.
-   ;; MOM1X           FLOAT           241.883  ## Moment one of the X axis, i.e., the mean position of the pixels in the clump in the X direction, in units of MOM1X_UNIT. 
+   ;; MOM1X           FLOAT           241.883  ## Moment one of X axis (ie, mean X position of the pixels) in MOM1X_UNIT. 
    ;; MOM1X_UNIT      STRING    'pix'          ## Unit for MOM1X
-   ;; MOM1Y           FLOAT           255.340  ## Moment one of the Y axis, i.e., the mean position of the pixels in the clump in the Y direction, in units of MOM1Y_UNIT.
+   ;; MOM1Y           FLOAT           255.340  ## Moment one of Y axis (ie, mean Y position of the pixels) in MOM1Y_UNIT.
    ;; MOM1Y_UNIT      STRING    'pix'          ## Unit for MOM1Y
-   ;; MOM2MAJ         FLOAT           5.19771  ## Moment two along major axis of clump (i.e., RMS size [xxx is this a correct characterization of this parameter?]) in units of MOM2MAJ_UNIT.
-   ;; MOM2MAJ_EXTRAP  FLOAT           6.79819  ## Moment two along major axis of clump (i.e., RMS size) from curve of growth extrapolation in units of MOM2MAJ_UNIT.
-   ;; MOM2MAJ_GCORR   FLOAT           6.75536
-   ;; MOM2MAJ_UNIT    STRING    'pix'          ## Moment two along major axis (i.e., RMS size) from Gaussian fit in units of MOM2MAJ_UNIT.
-   ;; MOM2MIN         FLOAT           4.78614  ## Moment two along minor axis (i.e., RMS size)  in units of MOM2MIN_UNIT.
-   ;; MOM2MIN_EXTRAP  FLOAT           5.59968  ## Moment two along minor axis (i.e., RMS size) from curve of growth extrapolation in units of MOM2MIN_UNIT.
-   ;; MOM2MIN_GCORR   FLOAT           6.22045  ## Moment two along minor axis (i.e., RMS size) from Gaussian fit in units of MOM2MIN_UNIT.
+   ;; MOM2MAJ         FLOAT           5.19771  ## Moment two along major axis (ie, RMS size) in units of MOM2MAJ_UNIT.
+   ;; MOM2MAJ_EXTRAP  FLOAT           6.79819  ## Moment two along major axis (ie, RMS size) from curve-of-growth extrapolation in MOM2MAJ_UNIT.
+   ;; MOM2MAJ_GCORR   FLOAT           6.75536  ## Moment two along major axis (ie, RMS size) from Gaussian extrapolation in MOM2MAJ_UNIT.
+   ;; MOM2MAJ_UNIT    STRING    'pix'          ## Units for MOM2MAJ_*
+   ;; MOM2MIN         FLOAT           4.78614  ## Moment two along minor axis (ie, RMS size) in units of MOM2MIN_UNIT.
+   ;; MOM2MIN_EXTRAP  FLOAT           5.59968  ## Moment two along minor axis (ie, RMS size) from curve-of-growth extrapolation in MOM2MIN_UNIT.
+   ;; MOM2MIN_GCORR   FLOAT           6.22045  ## Moment two along minor axis (ie, RMS size) from Gaussian extrapolation in MOM2MIN_UNIT.
    ;; MOM2MIN_UNIT    STRING    'pix'          ## Unit for MOM2MIN*
-   ;; MOM2V           FLOAT           2.57977  ## Moment two along velocity axis (i.e., RMS velocity)
-   ;; MOM2V_EXTRAP    FLOAT           3.23670  ## Moment two along velocity axis (i.e., RMS velocity) from curve of growth extrapolation in units of MOM2V_UNIT.
-   ;; MOM2V_GCORR     FLOAT           3.35288  ## Moment two along velocity axis (i.e., RMS velocity) from Gaussian fit in units of MOM2V_UNIT.
+   ;; MOM2V           FLOAT           2.57977  ## Moment two along velocity axis (ie, RMS velocity)
+   ;; MOM2V_EXTRAP    FLOAT           3.23670  ## Moment two along velocity axis (ie, RMS velocity) from curve-of-growth extrapolation in MOM2V_UNIT.
+   ;; MOM2V_GCORR     FLOAT           3.35288  ## Moment two along velocity axis (ie, RMS velocity) from Gaussian extrapolation in MOM2V_UNIT.
    ;; MOM2V_UNIT      STRING    'pix'          ## Unit for MOM2V*
-   ;; MOM2X           FLOAT           5.13468  ## Moment two along x axis (i.e., RMS size) in units of MOM2X_UNIT.
-   ;; MOM2X_EXTRAP    FLOAT           6.72150  ## Moment two along x axis (i.e., RMS size) from curve of growth extrapolation in units of MOM2X_UNIT.
-   ;; MOM2X_GCORR     FLOAT           6.67344  ## Moment two along x axis (i.e., RMS size) from Gaussian fit in units of MOM2X_UNIT.
+   ;; MOM2X           FLOAT           5.13468  ## Moment two along x axis (ie, RMS size) in MOM2X_UNIT.
+   ;; MOM2X_EXTRAP    FLOAT           6.72150  ## Moment two along x axis (ie, RMS size) from curve-of-growth extrapolation in MOM2X_UNIT.
+   ;; MOM2X_GCORR     FLOAT           6.67344  ## Moment two along x axis (ie, RMS size) from Gaussian extrapolation in MOM2X_UNIT.
    ;; MOM2X_UNIT      STRING    'pix'          ## Unit for MOM2X*
-   ;; MOM2Y           FLOAT           4.85370  ## Moment two along y axis (i.e., RMS size) in units of MOM2Y_UNIT.
-   ;; MOM2Y_EXTRAP    FLOAT           5.69351  ## Moment two along y axis (i.e., RMS size) from curve of growth extrapolation in units of MOM2Y_UNIT.
-   ;; MOM2Y_GCORR     FLOAT           6.30826  ## Moment two along y axis (i.e., RMS size) from Gaussian fit in units of MOM2Y_UNIT.
-   ;; MOM2Y_UNIT      STRING    'pix'          ## Unit for MOM2Y*.
-   ;; MOMPOSANG       FLOAT           2.73213  ## Position angle for major and minor axis of clump: MOM2MAJ and MOM2MIN. [xxx check this]
+   ;; MOM2Y           FLOAT           4.85370  ## Moment two along y axis (ie, RMS size) in MOM2Y_UNIT.
+   ;; MOM2Y_EXTRAP    FLOAT           5.69351  ## Moment two along y axis (ie, RMS size) from curve-of-growth extrapolation in MOM2Y_UNIT.
+   ;; MOM2Y_GCORR     FLOAT           6.30826  ## Moment two along y axis (ie, RMS size) from Gaussian extrapolation in MOM2Y_UNIT.
+   ;; MOM2Y_UNIT      STRING    'pix'          ## Unit for MOM2Y*
+   ;; MOMPOSANG       FLOAT           2.73213  ## Position angle for major/minor axis from weighted ellipse fit.
    ;; MOMPOSANG_UNIT  STRING    'rad'          ## Unit for MOMPOSANG.
    ;; NOISE           FLOAT               NaN  ## xxx
    ;; NOISE_UNIT      STRING    'K'            ## Unit for NOISE.
    ;; NPIX            LONG              2116   ## Number of pixels in region.
-   ;; PC2PERBEAM      FLOAT           704.699  ## area in parcsec^2 per beam.
-   ;; PCPERPIX        FLOAT           2.42407  ## size of pixel in parcsecs.
-   ;; PEAKNUM         LONG                 1   ## label for peak.
-   ;; PEAK_TO_EDGE    FLOAT           6.78451  ## xxx
+   ;; PC2PERBEAM      FLOAT           704.699  ## Area in parcsec^2 per beam.
+   ;; PCPERPIX        FLOAT           2.42407  ## Size of pixel in parcsecs.
+   ;; PEAKNUM         LONG                 1   ## Label for peak.
+   ;; PEAK_TO_EDGE    FLOAT           6.78451  ## Intensity ratio of brightest ("peak") to dimmest ("edge") pixel in region.
    ;; PIXPERBEAM      FLOAT           119.926  ## Number of pixels per beam.
-   ;; POSANG_EXTRAP_DECONV                     ## Position angle for clump from curve of growth extrapolation with beam deconvolution in units of POSANG_UNIT. Major and minor axes are MAJRMS_EXTRAP_DECONV and MINRMS_EXTRAP_DECONV. [xxx check this]
+   ;; POSANG_EXTRAP_DECONV                     ## Position angle for major / minor axes from curve-of-growth extrapolation (eg, MAJRMS_EXTRAP_DECONV) from 2D beam deconvolution in units of POSANG_UNIT.
    ;;                 FLOAT         -0.522936
-   ;; POSANG_GCORR_DECONV                      ## Position angle for clump from Gaussian fit with beam deconvolution in units of POSANG_UNIT. Major and minor axes are MAJRMS_GCORR_DECONV and MINRMS_GCORR_DECONV.
+   ;; POSANG_GCORR_DECONV                      ## Position angle for major / minor axes from Gaussian extrapolation (eg, MAJRMS_GCORR_DECONV) from 2D beam deconvolution in units of POSANG_UNIT.
    ;;                 FLOAT         -0.627581
    ;; POSANG_UNIT     STRING    'rad'          ## Unit for POSANG_*
-   ;; RADAREA_DECONV  FLOAT           15.1946  ## Radius derived from beam-deconvolved area down to half-max intensity in physical units of pc.
-   ;; RADELL_DECONV   FLOAT           13.0472  ## Radius derived from beam-deconvolved area down to half-max intensity from ellipse fit in physical units (ELLMAJ_UNIT).
-   ;; RADRMS_EXTRAP_DECONV                     ## Radius derived from beam-deconvolved RMS size from curve of growth extrapolation. In units of RADRMS_UNIT. The conversion factor for RMS to radius is given by RMSTORAD.
+   ;; RADAREA_DECONV  FLOAT           15.1946  ## Radius derived from area above half-max intensity with 1D beam deconvolution in physical units of pc.
+   ;; RADELL_DECONV   FLOAT           13.0472  ## Radius derived from ellipse fit to area above half-max intensity with 2D beam deconvolution in physical units (ELLMAJ_UNIT).
+   ;; RADRMS_EXTRAP_DECONV                     ## Radius derived from RMS size from curve-of-growth extrapolation and 2D beam deconvolution in RADRMS_UNIT. The conversion factor for RMS to radius is given by RMSTORAD.
    ;;                 FLOAT           19.5695   
-   ;; RADRMS_GCORR_DECONV                      ## Radius derived from beam-deconvolved RMS size from Gaussian fit. In units of RADRMS_UNIT. The conversion factor for RMS to radius is given by RMSTORAD.
+   ;; RADRMS_GCORR_DECONV                      ## Radius derived from RMS size from Gaussian extrapolation and 2D beam deconvoution in RADRMS_UNIT. The conversion factor for RMS to radius is given by RMSTORAD.
    ;;                 FLOAT           21.9962
    ;; RADRMS_UNIT     STRING    'pc'           ## Unit for RADRMS*
-   ;; RESOLVED_ELLFIT BYTE         1           ## Is clump resolved by elliptical method?
-   ;; RESOLVED_EXTRAP BYTE         1           ## Is clump resolved by extrapolated method?
-   ;; RESOLVED_GCORR  BYTE         1           ## Is clump resolved by gaussian method?
+   ;; RESOLVED_ELLFIT BYTE         1           ## Is region resolved by elliptical fitting method?
+   ;; RESOLVED_EXTRAP BYTE         1           ## Is region resolved by curve-of-growth extrapolated method?
+   ;; RESOLVED_GCORR  BYTE         1           ## Is region resolved by Gaussian extrapolation method?
    ;; RMSTORAD        FLOAT           1.91000  ## Conversion between RMS and radius. The empirical Solomon+ 1987 value is 1.91.
-   ;; SIG_TO_FWHM     FLOAT           2.35400  ## Conversion between sigma and full-width half max of Gaussian.
-   ;; SRPERBEAM       FLOAT       7.04699e-12  ## Steradians per beam
+   ;; SIG_TO_FWHM     FLOAT           2.35400  ## Conversion between sigma and full-width half-max of Gaussian.
+   ;; SRPERBEAM       FLOAT       7.04699e-12  ## Steradians per beam.
    ;; TAG             STRING    ''             ## xxx 
-   ;; VIRCOEFF        FLOAT           1040.00  ## Coefficient for converting to virial mass. [ xxx Not quite sure how 1040 was arrived at.]
-   ;; VIRMASS_EXTRAP_DECONV                    ## Virial mass using the extrapolated curve of growth radius with the beam deconvolved. In units of VIRMASS_UNIT. [xxx what velocity parameter do these estimates use? DELTAV?]
+   ;; VIRCOEFF        FLOAT           1040.00  ## Virial mass coefficient. [ xxx Not quite sure how 1040 was arrived at.]
+   ;; VIRMASS_EXTRAP_DECONV                    ## Virial mass from curve-of-growth extrapolated and (2D) beam-deconvolved radius (RADRMS_EXTRAP_DECONV) and velocity dispersion (VRMS_EXTRAP_DECONV) in VIRMASS_UNIT.
    ;;                 FLOAT           839901.
-   ;; VIRMASS_GCORR_DECONV                     ## Virial mass using the Gaussian fit  radius with the beam  deconvolved. In units of VIRMASS_UNIT.[xxx what velocity parameter do these estimates use? DELTAV?]
+   ;; VIRMASS_GCORR_DECONV                     ## Virial mass from Gaussian-extrapolated and (2D) beam-deconvolved radius (RADRMS_GCORR_DECONV) and velocity dispersion (VRMS_GCORR_EXTRAP) in VIRMASS_UNIT.
    ;;                 FLOAT       1.01411e+06   
-   ;; VIRMASS_RADAREA_DECONV                   ## Virial mass using the radius (RADAREA_DECONV) from the area above half-max intensity with the beam deconvolved and using DELTAV_PHYS_HALFMAX_DECONV. In units of VIRMASS_UNIT.
+   ;; VIRMASS_RADAREA_DECONV                   ## Virial mass from 1D-beam-deconvolved radius (RADAREA_DECONV) of area above half-max intensity and velocity dispersion (DELTAV_PHYS_HALFMAX_DECONV) in VIRMASS_UNIT.
    ;;                 FLOAT       1.57018e+06   
-   ;; VIRMASS_RADELL_DECONV                    ## Virial mass using the radius (RADELL_DECONV) from the area above half-max intensity from ellipse fitting with the beam deconvolved and using VRMS_GCORR_DECONV. In units of VIRMASS_UNIT.
+   ;; VIRMASS_RADELL_DECONV                    ## Virial mass from 2D-beam-deconvolved radius (RADELL_DECONV) of area above half-max intensity using ellipse fitting and velocity dispersion (VRMS_GCORR_DECONV) in VIRMASS_UNIT.
    ;;                 FLOAT               NaN
-   ;; VIRMASS_UNIT    STRING    'msun'         ## xxx This should be Msun. Should probably file a bug report on this.
-   ;; VPOS            FLOAT           746.749  ## Mean velocity of clump in units of VPOS_UNIT
-   ;; VPOS_UNIT       STRING    'km/s'         ## Unit for VPOS
-   ;; VRMS            FLOAT           5.15954  ## RMS velocity of clump in units of VRMS_UNIT.
-   ;; VRMS_EXTRAP     FLOAT           6.47340  ## RMS velocity from curve of growth extrapolation in units of VRMS_UNIT.
-   ;; VRMS_EXTRAP_DECONV                       ## RMS velocity from curve of growth extrapolation with channel width deconvolved in units of VRMS_UNIT.
+   ;; VIRMASS_UNIT    STRING    'Msun'         ## Units of VIRMASS*
+   ;; VPOS            FLOAT           746.749  ## Mean velocity of region in VPOS_UNIT
+   ;; VPOS_UNIT       STRING    'km/s'         ## Unit for VPOS.
+   ;; VRMS            FLOAT           5.15954  ## RMS velocity of region in VRMS_UNIT.
+   ;; VRMS_EXTRAP     FLOAT           6.47340  ## RMS velocity from curve-of-growth extrapolation in VRMS_UNIT.
+   ;; VRMS_EXTRAP_DECONV                       ## RMS velocity from curve-of-growth extrapolation with channel width deconvolved in VRMS_UNIT.
    ;;                 FLOAT           6.42404   
-   ;; VRMS_GCORR      FLOAT           6.70575  ## RMS velocity from Gaussian fit in units of VRMS_UNIT.
-   ;; VRMS_GCORR_DECONV                        ## RMS velocity from Gaussian fit with the channel size deconolved in units of VRMS_UNIT
+   ;; VRMS_GCORR      FLOAT           6.70575  ## RMS velocity from Gaussian extrapolation in units of VRMS_UNIT.
+   ;; VRMS_GCORR_DECONV                        ## RMS velocity from Gaussian extrapolation with the channel width deconolved in VRMS_UNIT.
    ;;                 FLOAT           6.65812    
    ;; VRMS_UNIT       STRING    'km/s'         ## Unit for VRMS*
-   ;; XPOS            FLOAT           88.9278  ## Mean position of clump in units of XPOS_UNIT. This value is an intensity-weighted, so it will not correspond to the peaks of the emission.
-   ;; XPOS_UNIT       STRING    'deg'          ## Unit for XPOS_UNIT
-   ;; XRMS            FLOAT           12.4468  ## RMS size in the X direction in units of XRMS_UNIT.
-   ;; XRMS_EXTRAP     FLOAT           16.2934  ## RMS size in the X direction from curve of growth extrapolation in units of XRMS_UNIT.
-   ;; XRMS_EXTRAP_DECONV                       ## RMS size in the X direction from curve of growth extrapolation with the beam deconvolved in units of XRMS_UNIT.
+   ;; XPOS            FLOAT           88.9278  ## Mean position in X direction in XPOS_UNIT. This value is intensity-weighted, so it will not correspond to the brightest pixel of the region.
+   ;; XPOS_UNIT       STRING    'deg'          ## Unit for XPOS_UNIT.
+   ;; XRMS            FLOAT           12.4468  ## RMS size in X direction in units of XRMS_UNIT.
+   ;; XRMS_EXTRAP     FLOAT           16.2934  ## RMS size in X direction from curve-of-growth extrapolation in XRMS_UNIT.
+   ;; XRMS_EXTRAP_DECONV                       ## RMS size in X direction from curve-of-growth extrapolation with the beam deconvolved in XRMS_UNIT.
    ;;                 FLOAT           12.3790
-   ;; XRMS_GCORR      FLOAT           16.1769  ## RMS size in the X direction from Gaussian fit in units of XRMS_UNIT.
-   ;; XRMS_GCORR_DECONV                        ## RMS size in the X direction from Gaussian fit with the beam deconvolved in units of XRMS_UNIT.
+   ;; XRMS_GCORR      FLOAT           16.1769  ## RMS size in X direction from Gaussian extrapolation in units of XRMS_UNIT.
+   ;; XRMS_GCORR_DECONV                        ## RMS size in X direction from Gaussian extrapolation with the beam deconvolved in XRMS_UNIT.
    ;;                 FLOAT           12.2253
-   ;; XRMS_UNIT       STRING    'pc'           ## Unit for XRMS* parameters.
-   ;; YPOS            FLOAT           3.39236  ## Mean Position in Y direction in units of YPOS_UNIT. This value is an intensity-weighted, so it will not correspond to the peaks of the emission.
-   ;; YPOS_UNIT       STRING    'deg'          ## Unit for YPOS
-   ;; YRMS            FLOAT           11.7657  ## RMS size in the Y direction in units of YRMS_UNIT.
-   ;; YRMS_EXTRAP     FLOAT           13.8015  ## RMS size in the Y direction from curve of growth extrapolation in units of YRMS_UNIT.
-   ;; YRMS_EXTRAP_DECONV                       ## RMS size in the Y direction from curve of growth extrapolation with the beam deconvolved in units of YRMS_UNIT.
+   ;; XRMS_UNIT       STRING    'pc'           ## Unit for XRMS*
+   ;; YPOS            FLOAT           3.39236  ## Mean Position in Y direction in YPOS_UNIT. This value is intensity-weighted, so it will not correspond to the brightest pixel of the region.
+   ;; YPOS_UNIT       STRING    'deg'          ## Unit for YPOS.
+   ;; YRMS            FLOAT           11.7657  ## RMS size in Y direction in YRMS_UNIT.
+   ;; YRMS_EXTRAP     FLOAT           13.8015  ## RMS size in Y direction from curve-of-growth extrapolation in YRMS_UNIT.
+   ;; YRMS_EXTRAP_DECONV                       ## RMS size in Y direction from curve-of-growth extrapolation with the beam deconvolved in YRMS_UNIT.
    ;;                 FLOAT           8.84565
-   ;; YRMS_GCORR      FLOAT           15.2916  ## RMS size in the Y direction from Gaussian fit in units of YRMS_UNIT.
-   ;; YRMS_GCORR_DECONV                        ## RMS size in the X direction from Gaussian fit with the beam deconvolved in units of XRMS_UNIT.
+   ;; YRMS_GCORR      FLOAT           15.2916  ## RMS size in Y direction from Gaussian extrapolation in YRMS_UNIT.
+   ;; YRMS_GCORR_DECONV                        ## RMS size in X direction from Gaussian extrapolation with the beam deconvolved in XRMS_UNIT.
    ;;                 FLOAT           11.0272
-   ;; YRMS_UNIT       STRING    'pc'           ## Unit for YPOS
+   ;; YRMS_UNIT       STRING    'pc'           ## Unit for YPOS*
