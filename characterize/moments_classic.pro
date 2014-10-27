@@ -149,7 +149,7 @@ function moments_classic $
         props = create_struct(props, "radrms_unit", "pc")
 
         props = create_struct(props, "virmass_extrap_deconv", nan)
-        props = create_struct(props, "virmass_unit", "msun")
+        props = create_struct(props, "virmass_unit", "Msun")
 
         return, props
 
