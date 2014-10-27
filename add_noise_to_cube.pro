@@ -9,7 +9,9 @@ pro add_noise_to_cube $
    , addnoise = addnoise $
    , addgain = addgain $
    , noise_file = noise_file $
-   , psf = psf
+   , noise_cube = noise $
+   , psf = psf $
+   , save_seed = save_seed
 
 
 ;+
@@ -95,7 +97,7 @@ pro add_noise_to_cube $
 
      sd = seed
      noise = randomn(sd, sz[1],sz[2],sz[3],/normal)
-    
+
      if n_elements(psf) EQ 0 then begin 
         bmaj = sxpar(hdr, "BMAJ")
         bmin = sxpar(hdr, "BMIN")
@@ -130,12 +132,15 @@ pro add_noise_to_cube $
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
 
-sxaddpar, hdr, 'RSEED', seed, 'Random seed value'
+;sxaddpar, hdr, 'RSEED', seed, 'Random seed value'
 if n_elements(out_file) GT 0 then $
    writefits, out_file, out_cube, hdr
 
-if keyword_set(noise_file) then $
-   writefits, noise_file, noise_cube
+if n_elements(noise_file) GT 0 then $
+   writefits, noise_file, noise, hdr
 
+if n_elements(save_seed) gt 0 then begin
+   seed=sd
+endif
 
 end
