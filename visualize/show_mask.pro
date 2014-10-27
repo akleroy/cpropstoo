@@ -1,6 +1,6 @@
 pro show_mask $
    , infile = infile $
-   , indata = cube $
+   , indata = data $
    , mask = mask $
    , inmask = inmask $
    , rms = rms
