@@ -3,9 +3,9 @@ pro extract_spectra $
    , infile=infile $
    , assign=assign $
    , inassign=inassign $
-   , spectra=spectra $
+   , inprops=inprops $
    , hdr=hdr $
-   , vel=vaxis
+   , idl_file=idl_file 
 
 ;+
 ; Purpose: extract spectra from regions in an assignment cube
@@ -19,21 +19,27 @@ pro extract_spectra $
 ;
 ;       inassign: assignment cube
 ;
+;       inprops: idl save file with input props structure
+;
 ;       hdr: header for cube.
 ;
-;       vel: velocity axis
+;       doaverage: average the spectra together. Otherwise, the sum of
+;       the spectra are returned.
 ;
 ; Output:
 ;
-;       IDL save file with spectra in it as an array
+;       idl_file: IDL save file with spectra added to props structure
 ;
 ; Date          Programmer              Description of Changes
 ;----------------------------------------------------------------------
 ; 10/16/2014    A.A. Kepley             Original Code
+; 10/29/2014    A.A. Kepley             double-check on code + added
+;                                       spectra to props structure.
 ;
 ;     
 ;-
 
+; read in files or cubes
   if n_elements(infile) gt 0 then begin
      file_data = file_search(infile, count=file_ct)
      if file_ct eq 0 then begin
@@ -54,16 +60,35 @@ pro extract_spectra $
      endelse
   endif
 
+; read in old props
+  if n_elements(inprops) eq 0 then begin
+     message,/info,"need input props structure (inprops=)"
+     return
+  endif else begin
+     restore,inprops,/verb
+  endelse
+
+; average spectra or total spectra
+  if n_elements(doaverage) eq 0 then doaverage = 0
+
 ; get velocity information
   make_axes,hdr, vaxis=vaxis,/vonly
+  nchan = n_elements(vaxis)
+
+; initialize the output structure
+  nassign = max(assign)
+  for i = 0, nassign - 1 do begin
+     this_props_spectra = add_spectra_fields(props[i],nchan)    
+     this_props_spectra = alphabetize_struct(this_props_spectra)
+     if i eq 0 then  begin
+        props_spectra = this_props_spectra
+     endif else begin
+        props_spectra = [props_spectra,this_props_spectra]
+     endelse
+  endfor
 
 ; loop through the clumps, extract data from clump, and sum the clump to get spectra
-  max_assign = max(assign)
-  spectra = replicate({peaknum:0,$
-                       vel:dblarr(n_elements(vaxis)),$
-                       t:dblarr(n_elements(vaxis))},max_assign)
-
-  for i = 0, max_assign - 1 do begin
+  for i = 0, nassign - 1 do begin
 
      idx = where(assign eq i+1, count)
 
@@ -71,13 +96,16 @@ pro extract_spectra $
      mask[idx] = 1.0
 
      xx_sum = total(mask*data,1,/double,/nan)
-     myspec = total(xx_sum,1,/double,/nan)/count
+     this_spec = total(xx_sum,1,/double,/nan)
 
-     spectra[i].peaknum = i+1
-     spectra[i].t = myspec 
-     spectra[i].vel = vaxis
+     if doaverage ge 1 then this_spec = this_spec/props_spectra[i].area 
+
+     props_spectra[i].spectra = this_spec
+     props_spectra[i].velocity = vaxis
 
   endfor
 
+  ; write out the spectra structure
+  save, /verb, props_spectra,filename=idl_file
 
 end
