@@ -1,8 +1,9 @@
 pro mc_mom_errors $
    , in_file = in_file $
    , in_assign = in_assign $
+   , in_noise = in_noise $
    , n_sim = n_sim  $
-   , out_props = out_props $
+   , out_props_sim = out_props_sim $
    , dist = dist
 
 
@@ -12,15 +13,17 @@ pro mc_mom_errors $
 ; Purpose: monte carlo errors for moment 
 ;
 ; Input: 
-;       in_file: input cube (noise cube)
+;       in_file: input data cube
 ;
 ;       in_assign: assignment cube for calculating moments
+;
+;       in_noise: input noise cube
 ;
 ;       n_sim: number of simulations to run
 ;
 ; Output:
 ;
-;       out_props: idl save file with props from each simulation
+;       out_props_sim: idl save file with props from each simulation
 ;
 ; Notes:
 ;       
@@ -34,6 +37,8 @@ pro mc_mom_errors $
 ; Date          Programmer              Description of Changes
 ; ----------------------------------------------------------------------
 ; 10/6/2014     A.A. Kepley             Original Code
+; 10/29/2014    A.A. Kepley             Modified for new
+;                                       add_noise_to_cube.pro 
 ;-
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
@@ -59,6 +64,14 @@ pro mc_mom_errors $
      assign = readfits(in_assign, assign_hdr)
   endif
 
+  if n_elements(in_noise) gt 0 then begin
+     if not file_test(in_noise,/read) then begin
+        message, in_noise+' is not accessible.', /con
+        return
+     endif
+     noise = readfits(in_noise,noise_hdr)
+  endif
+
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; Run MONTE CARLOs
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%  
@@ -71,14 +84,12 @@ pro mc_mom_errors $
      add_noise_to_cube $
         , cube = cube $
         , hdr = hdr $
-        , noise_cube = noise_cube $
+        , out_file = out_file $
         , out_cube = out_cube $
-        , /addnoise $
         , seed = seed $
-        , /save_seed
+        , noise = noise
      
      cube_to_moments $
-;        , data = noise_cube $
         , data = out_cube $
         , assign = assign $
         , hdr = hdr $
@@ -91,20 +102,20 @@ pro mc_mom_errors $
         , dist = dist $  
         , /verbose
 
+     ; add simulation to array of props structures
      if i eq 0 then begin
         props_sim = props
      endif else begin
         props_sim = [[props_sim],[props]]
      endelse
       
-; get rid of variables, so don't reuse  values
   endfor
 
 ;&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; Save structure for future calculations
 ;&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-  save, props_sim, filename=out_props
+  save, props_sim, filename=out_props_sim
 
 end
    
