@@ -4,7 +4,7 @@ pro conv_with_gauss $
    , start_beam=start_beam $
    , pix_deg=pix_deg $
    , target_beam=target_beam $
-   , out_file=outfile $
+   , out_file=out_file $
    , out_data = data $
    , out_hdr = hdr $
    , no_ft=no_ft $
@@ -30,7 +30,7 @@ pro conv_with_gauss $
 ;
 ; CALLING SEQUENCE:
 ;
-; conv_with_gauss, infile='input.fits', outfile='output.fits' $
+; conv_with_gauss, infile='input.fits', out_file='output.fits' $
 ;                , target_beam=target_beam, start_beam=start_beam $
 ;                , quiet=quiet, cube=cube
 ;
@@ -53,7 +53,7 @@ pro conv_with_gauss $
 ; keywords in the header. Set this to 0 if you want to force
 ; convolution with the target_beam size.
 ;
-; outfile: name of the output file (FITS). Only works if a header is
+; out_file: name of the output file (FITS). Only works if a header is
 ; also supplied, in which case the header is updated to reflect the
 ; new beam size.
 ;
@@ -81,7 +81,7 @@ pro conv_with_gauss $
 ;
 ; OUTPUTS:
 ;
-; a fits file written to 'outfile' if that parameter is specified and
+; a fits file written to 'out_file' if that parameter is specified and
 ; a header is supplied
 ;
 ; out_data: the convolved data as a variable
@@ -340,8 +340,8 @@ pro conv_with_gauss $
      sxaddpar,hdr,'HISTORY' $
               ,'IDL CONV_WITH_GAUSS: treated as an uncertainty map'
 
-  if n_elements(outfile) gt 0 then begin
-     writefits, outfile, map, hdr
+  if n_elements(out_file) gt 0 then begin
+     writefits, out_file, data, hdr
   endif
 
 end
