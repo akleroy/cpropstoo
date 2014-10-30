@@ -23,13 +23,13 @@ pro test_convolve
 
   conv_with_gauss $
      , data=test_out_1 $
-     , start_beam=[50,25,45] $
+     , start_beam=[20,10,45] $
      , pix_deg = 1./3600. $,
      , target_beam=[22,22,0] $
      , out_data = test_out_2
 
 
-  !p.multi=[0,2,1]
+  !p.multi=[0,3,1]
   disp, test, /sq
   disp, test_out_1, /sq
   disp, test_out_2, /sq
