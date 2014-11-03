@@ -57,7 +57,7 @@ pro find_local_max $
 ;                  specfriends=1
 ;
 ; OUTPUTS: 
-;   KENELS -- Array of local maxima.
+;   KERNELS -- Array of local maxima.
 
 ; MODIFICATION HISTORY:
 ;      Originally written by Adam Leroy and Erik Rosolowsky.
@@ -212,7 +212,8 @@ pro find_local_max $
   if n_elements(text_out) eq 0 then $
      text_out = "lmax.txt"
 
-  if n_elements(idl_out) eq 0 then $
+;  if n_elements(idl_out) eq 0 then $
+  if n_elements(idl_out_wmm) eq 0 then $
      idl_out = "lmax.idl"
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
@@ -230,7 +231,8 @@ pro find_local_max $
 
   cubify, x=x, y=y, v=v, t=t $
           , cube = minicube $
-          , pad = (friends > specfriends) $
+ ;         , pad = (friends > specfriends) $
+          , pad = 3 $
           , dim_2d = (szdata[0] eq 2) $
           , indvec = cubeindex $
           , indcube = indcube
@@ -249,11 +251,13 @@ pro find_local_max $
                              , verbose = verbose)
   endif
 
-; This step runs as long as the "nodecimate" flag is not step. The
-; subrouting rejects all but significant kernels, defined by a set of
-; use-tunable quantities.
+; This step runs unless the "nodecimate" flag is set. The
+; subroutine rejects all but significant kernels, defined by a set of
+; user-tunable quantities.
 
   if keyword_set(nodecimate) eq 0 then begin
+     sigma=mad(data,/finite) ; estimate here, since RMS of masked cube may be different
+;     print,"Calling decimate_kernels with sigma value: ",sigma
      sub_kernels = $
         decimate_kernels(sub_kernels $
                          , minicube $
@@ -283,7 +287,8 @@ pro find_local_max $
      , text_file = text_out $
      , idl_file = idl_out $
      , merger = merger_matrix
-  
+ 
+ 
   return
 
 end

@@ -4,7 +4,7 @@ pro conv_with_gauss $
    , start_beam=start_beam $
    , pix_deg=pix_deg $
    , target_beam=target_beam $
-   , out_file=outfile $
+   , out_file=out_file $
    , out_data = data $
    , out_hdr = hdr $
    , no_ft=no_ft $
@@ -30,7 +30,7 @@ pro conv_with_gauss $
 ;
 ; CALLING SEQUENCE:
 ;
-; conv_with_gauss, infile='input.fits', outfile='output.fits' $
+; conv_with_gauss, infile='input.fits', out_file='output.fits' $
 ;                , target_beam=target_beam, start_beam=start_beam $
 ;                , quiet=quiet, cube=cube
 ;
@@ -53,7 +53,7 @@ pro conv_with_gauss $
 ; keywords in the header. Set this to 0 if you want to force
 ; convolution with the target_beam size.
 ;
-; outfile: name of the output file (FITS). Only works if a header is
+; out_file: name of the output file (FITS). Only works if a header is
 ; also supplied, in which case the header is updated to reflect the
 ; new beam size.
 ;
@@ -81,7 +81,7 @@ pro conv_with_gauss $
 ;
 ; OUTPUTS:
 ;
-; a fits file written to 'outfile' if that parameter is specified and
+; a fits file written to 'out_file' if that parameter is specified and
 ; a header is supplied
 ;
 ; out_data: the convolved data as a variable
@@ -108,7 +108,8 @@ pro conv_with_gauss $
      fits_read, fname, data, hdr
   endif else begin
      data = in_data     
-     hdr = in_hdr
+     if n_elements(in_hdr) gt 0 then $
+        hdr = in_hdr
   endelse
 
   if n_elements(hdr) eq 0 then begin
@@ -194,6 +195,14 @@ pro conv_with_gauss $
      kern_size = minsize+1 $
   else $
      kern_size = minsize
+
+; You get problems if the PSF is bigger than the image if you are
+; using the IDLAstro convolve. Set to the minimum dimension
+  sz = size(data)
+  if kern_size gt sz[1] or kern_size gt sz[2] then begin
+     message, "Warning! PSF is very big compared to image.", /info
+     kern_size = foor((sz[1] < sz[2])/2-2)*2 + 1
+  endif 
   
 ; Build the PSF based on the kernel calculation. Note that the units
 ; are pixels and the rotation associated with the position is taken to
@@ -202,10 +211,12 @@ pro conv_with_gauss $
 
   my_gauss2d $
      , npix=kern_size $
-     , a = [0., 1., kernel_bmaj/as_per_pix, kernel_bmaj/as_per_pix, 0., 0., !pi/2.+kernel_bpa] $
+     , a = [0., 1., kernel_bmaj/as_per_pix, kernel_bmin/as_per_pix, 0., 0. $
+            , !pi/2.+kernel_bpa*!dtor] $ ; note my_gauss2d wants radians - fix?
      , /center $
      , /normalize $
      , output=kernel  
+
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; DO THE CONVOLUTION
@@ -225,7 +236,7 @@ pro conv_with_gauss $
                  , kernel $
                  , no_ft=no_ft $
                  , FT_PSF=psf_ft $
-                 , /no_pad)
+                 , no_pad=no_pad)
      data = new_data
   endif else begin
      data = convolve(data, kernel, no_ft=no_ft)
@@ -329,8 +340,8 @@ pro conv_with_gauss $
      sxaddpar,hdr,'HISTORY' $
               ,'IDL CONV_WITH_GAUSS: treated as an uncertainty map'
 
-  if n_elements(outfile) gt 0 then begin
-     writefits, outfile, map, hdr
+  if n_elements(out_file) gt 0 then begin
+     writefits, out_file, data, hdr
   endif
 
 end
