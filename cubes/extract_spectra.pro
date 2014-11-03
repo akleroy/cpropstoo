@@ -5,6 +5,7 @@ pro extract_spectra $
    , inassign=inassign $
    , inprops=inprops $
    , hdr=hdr $
+   , doaverage = doaverage $
    , idl_file=idl_file 
 
 ;+
@@ -106,6 +107,7 @@ pro extract_spectra $
   endfor
 
   ; write out the spectra structure
-  save, /verb, props_spectra,filename=idl_file
+  props = props_spectra 
+  save, /verb, props, filename=idl_file
 
 end

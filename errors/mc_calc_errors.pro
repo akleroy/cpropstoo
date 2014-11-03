@@ -43,7 +43,7 @@ pro mc_calc_errors $
      return
   endif
   
-; read in the original cprops structure
+; Read in the original cprops structure
   restore,/verb,filename=in_file
 
   props_size = size(props)
@@ -54,6 +54,8 @@ pro mc_calc_errors $
   props_sim_size = size(props_sim)
   nassign = props_sim_size[1]
   nsim = props_sim_size[2]
+
+  
  
 ; initialize the output structure
   for i = 0, nassign - 1 do begin
@@ -73,7 +75,7 @@ pro mc_calc_errors $
      props_err[i].majrms_extrap_err = stddev(props_sim[i,*].majrms_extrap,/double)
      props_err[i].majrms_extrap_deconv_err = stddev(props_sim[i,*].majrms_extrap_deconv,/double)
      props_err[i].majrms_gcorr_err = stddev(props_sim[i,*].majrms_gcorr,/double)
-     props_err[i].majrms_gcorr _deconv_err = stddev(props_sim[i,*].majrms_gcorr_deconv,/double)
+     props_err[i].majrms_gcorr_deconv_err = stddev(props_sim[i,*].majrms_gcorr_deconv,/double)
 
      props_err[i].minrms_err = stddev(props_sim[i,*].minrms,/double)
      props_err[i].minrms_extrap_err = stddev(props_sim[i,*].minrms_extrap,/double)
@@ -123,6 +125,8 @@ endfor
 
 ; write out the error structure
 
-  save, /verb, props_err,filename=idl_file
+  props = props_err
+
+  save, /verb, props, filename=idl_file
 
 end
