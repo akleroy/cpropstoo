@@ -211,8 +211,7 @@ pro find_local_max $
   if n_elements(text_out) eq 0 then $
      text_out = "lmax.txt"
 
-;  if n_elements(idl_out) eq 0 then $
-  if n_elements(idl_out_wmm) eq 0 then $
+  if n_elements(idl_out) eq 0 then $
      idl_out = "lmax.idl"
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
