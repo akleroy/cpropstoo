@@ -43,7 +43,7 @@ function alllocmax $
 ;       Documented -- Fri Sep 2 15:48:17 2005, Erik Rosolowsky
 ;                     <erosolow@asgard.cfa.harvard.edu>
 ;       Fixed bug concering NaNs in 'quick' dilate kernel search
-:                     Oct 5 2014, Andreas Schruba <schruba@mpe.mpg.de>
+;                     Oct 5 2014, Andreas Schruba <schruba@mpe.mpg.de>
 ; 
 ;-
 
