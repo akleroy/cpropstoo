@@ -76,7 +76,7 @@ pro find_local_max $
 ;
 ; - proper island handling in the decimation
 ; - default mask creation call? debateable
-; - noise assumed homogeneous?
+; - noise assumed homogeneous if rmsfile unassigned
 ;
 ;-
 
@@ -147,7 +147,7 @@ pro find_local_max $
 
 ; DEFINE UNITS OF DELTA (S/N OR REAL)
   if n_elements(delta_is_snr) eq 0 then $
-     delta_is_snr = 1B
+     delta_is_snr = 0B
 
   if n_elements(rmsfile) gt 0 then begin
      file_rms = file_search(rmsfile, count=file_ct)
@@ -231,7 +231,7 @@ pro find_local_max $
 
   cubify, x=x, y=y, v=v, t=t $
           , cube = minicube $
- ;         , pad = (friends > specfriends) $
+;         , pad = (friends > specfriends) $
           , pad = 3 $
           , dim_2d = (szdata[0] eq 2) $
           , indvec = cubeindex $
@@ -251,12 +251,12 @@ pro find_local_max $
                              , verbose = verbose)
   endif
 
-; This step runs unless the "nodecimate" flag is set. The
-; subroutine rejects all but significant kernels, defined by a set of
+; This step runs unless the "nodecimate" flag is set. The subroutine
+; rejects all but significant kernels that are defined by a set of
 ; user-tunable quantities.
 
   if keyword_set(nodecimate) eq 0 then begin
-     sigma=mad(data,/finite) ; estimate here, since RMS of masked cube may be different
+     sigma = mad(data,/finite) ; estimate here, since RMS of masked cube may be different
 ;     print,"Calling decimate_kernels with sigma value: ",sigma
      sub_kernels = $
         decimate_kernels(sub_kernels $
