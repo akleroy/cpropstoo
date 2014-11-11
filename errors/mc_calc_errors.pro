@@ -23,7 +23,28 @@ pro mc_calc_errors $
 ;       more completely and put NaNs for values that don't have
 ;       errors from the monte carlo (e.g., ellfit, etc).
 ;
-;       I'm also just using the standard variation to calculate the errors.
+;       I'm also just using the standard variation to calculate
+;       the errors.
+;       
+; To Do:
+;
+;       The code below isn't particularly elegant. It could be
+;       streamlined by having a list of tags to calculate errors for
+;       and then iterating through the tags in a structure to
+;       calculate the error. See below for some example code.
+; 
+;       test = tag_names(props); gets tag names
+;       oneval = where(test eq 'R31',count)
+;       print, oneval
+;       ; 122
+;       print, props.(oneval)
+;       ;  0.72532135      0.77387296      0.85183351      0.51256225
+;       ;  0.64801760      0.85686070      0.35557888  NaN
+;       print, props.R31
+;       ;    0.72532135      0.77387296      0.85183351      0.51256225    
+;       ;    0.64801760      0.85686070      0.35557888 NaN
+
+;
 ;
 ; Date          Programmer              Description of Changes
 ; ----------------------------------------------------------------------
@@ -71,56 +92,56 @@ pro mc_calc_errors $
 ; calculate the errors
   for i = 0, nassign - 1 do begin
 
-     props_err[i].majrms_err = stddev(props_sim[i,*].majrms,/double)
-     props_err[i].majrms_extrap_err = stddev(props_sim[i,*].majrms_extrap,/double)
-     props_err[i].majrms_extrap_deconv_err = stddev(props_sim[i,*].majrms_extrap_deconv,/double)
-     props_err[i].majrms_gcorr_err = stddev(props_sim[i,*].majrms_gcorr,/double)
-     props_err[i].majrms_gcorr_deconv_err = stddev(props_sim[i,*].majrms_gcorr_deconv,/double)
+     props_err[i].majrms_err = stddev(props_sim[i,*].majrms,/double,/nan)
+     props_err[i].majrms_extrap_err = stddev(props_sim[i,*].majrms_extrap,/double,/nan)
+     props_err[i].majrms_extrap_deconv_err = stddev(props_sim[i,*].majrms_extrap_deconv,/double,/nan)
+     props_err[i].majrms_gcorr_err = stddev(props_sim[i,*].majrms_gcorr,/double,/nan)
+     props_err[i].majrms_gcorr_deconv_err = stddev(props_sim[i,*].majrms_gcorr_deconv,/double,/nan)
 
-     props_err[i].minrms_err = stddev(props_sim[i,*].minrms,/double)
-     props_err[i].minrms_extrap_err = stddev(props_sim[i,*].minrms_extrap,/double)
-     props_err[i].minrms_extrap_deconv_err = stddev(props_sim[i,*].minrms_extrap_deconv,/double)
-     props_err[i].minrms_gcorr_err = stddev(props_sim[i,*].minrms_gcorr,/double)
-     props_err[i].minrms_gcorr_deconv_err = stddev(props_sim[i,*].minrms_gcorr_deconv,/double)
+     props_err[i].minrms_err = stddev(props_sim[i,*].minrms,/double,/nan)
+     props_err[i].minrms_extrap_err = stddev(props_sim[i,*].minrms_extrap,/double,/nan)
+     props_err[i].minrms_extrap_deconv_err = stddev(props_sim[i,*].minrms_extrap_deconv,/double,/nan)
+     props_err[i].minrms_gcorr_err = stddev(props_sim[i,*].minrms_gcorr,/double,/nan)
+     props_err[i].minrms_gcorr_deconv_err = stddev(props_sim[i,*].minrms_gcorr_deconv,/double,/nan)
 
-     props_err[i].posang_extrap_deconv_err = stddev(props_sim[i,*].posang_extrap_deconv,/double)
-     props_err[i].posang_gcorr_deconv_err = stddev(props_sim[i,*].posang_gcorr_deconv,/double)
+     props_err[i].posang_extrap_deconv_err = stddev(props_sim[i,*].posang_extrap_deconv,/double,/nan)
+     props_err[i].posang_gcorr_deconv_err = stddev(props_sim[i,*].posang_gcorr_deconv,/double,/nan)
 
-     props_err[i].flux_err = stddev(props_sim[i,*].flux,/double)
-     props_err[i].flux_extrap_err = stddev(props_sim[i,*].flux_extrap,/double)
-     props_err[i].flux_gcorr_err = stddev(props_sim[i,*].flux_gcorr,/double)
+     props_err[i].flux_err = stddev(props_sim[i,*].flux,/double,/nan)
+     props_err[i].flux_extrap_err = stddev(props_sim[i,*].flux_extrap,/double,/nan)
+     props_err[i].flux_gcorr_err = stddev(props_sim[i,*].flux_gcorr,/double,/nan)
 
-     props_err[i].mass_err = stddev(props_sim[i,*].mass,/double)
-     props_err[i].mass_extrap_err = stddev(props_sim[i,*].mass_extrap,/double)
-     props_err[i].mass_gcorr_err = stddev(props_sim[i,*].mass_gcorr,/double)
+     props_err[i].mass_err = stddev(props_sim[i,*].mass,/double,/nan)
+     props_err[i].mass_extrap_err = stddev(props_sim[i,*].mass_extrap,/double,/nan)
+     props_err[i].mass_gcorr_err = stddev(props_sim[i,*].mass_gcorr,/double,/nan)
 
-     props_err[i].lum_err = stddev(props_sim[i,*].lum,/double)
-     props_err[i].lum_extrap_err = stddev(props_sim[i,*].lum_extrap,/double)
-     props_err[i].lum_gcorr_err = stddev(props_sim[i,*].lum_gcorr,/double)
+     props_err[i].lum_err = stddev(props_sim[i,*].lum,/double,/nan)
+     props_err[i].lum_extrap_err = stddev(props_sim[i,*].lum_extrap,/double,/nan)
+     props_err[i].lum_gcorr_err = stddev(props_sim[i,*].lum_gcorr,/double,/nan)
     
-     props_err[i].radrms_extrap_deconv_err = stddev(props_sim[i,*].radrms_extrap_deconv,/double)
-     props_err[i].radrms_gcorr_deconv_err = stddev(props_sim[i,*].radrms_gcorr_deconv,/double)
+     props_err[i].radrms_extrap_deconv_err = stddev(props_sim[i,*].radrms_extrap_deconv,/double,/nan)
+     props_err[i].radrms_gcorr_deconv_err = stddev(props_sim[i,*].radrms_gcorr_deconv,/double,/nan)
 
-     props_err[i].virmass_extrap_deconv_err = stddev(props_sim[i,*].virmass_extrap_deconv,/double)
-     props_err[i].virmass_gcorr_deconv_err = stddev(props_sim[i,*].virmass_gcorr_deconv,/double)
+     props_err[i].virmass_extrap_deconv_err = stddev(props_sim[i,*].virmass_extrap_deconv,/double,/nan)
+     props_err[i].virmass_gcorr_deconv_err = stddev(props_sim[i,*].virmass_gcorr_deconv,/double,/nan)
 
-     props_err[i].vrms_err =  stddev(props_sim[i,*].vrms,/double)
-     props_err[i].vrms_extrap_err =  stddev(props_sim[i,*].vrms_extrap,/double)
-     props_err[i].vrms_extrap_deconv_err =  stddev(props_sim[i,*].vrms_extrap_deconv,/double)
-     props_err[i].vrms_gcorr_err =  stddev(props_sim[i,*].vrms_gcorr,/double)
-     props_err[i].vrms_gcorr_deconv_err =  stddev(props_sim[i,*].vrms_gcorr_deconv,/double)
+     props_err[i].vrms_err =  stddev(props_sim[i,*].vrms,/double,/nan)
+     props_err[i].vrms_extrap_err =  stddev(props_sim[i,*].vrms_extrap,/double,/nan)
+     props_err[i].vrms_extrap_deconv_err =  stddev(props_sim[i,*].vrms_extrap_deconv,/double,/nan)
+     props_err[i].vrms_gcorr_err =  stddev(props_sim[i,*].vrms_gcorr,/double,/nan)
+     props_err[i].vrms_gcorr_deconv_err =  stddev(props_sim[i,*].vrms_gcorr_deconv,/double,/nan)
    
-     props_err[i].xrms_err =  stddev(props_sim[i,*].xrms,/double)
-     props_err[i].xrms_extrap_err =  stddev(props_sim[i,*].xrms_extrap,/double)
-     props_err[i].xrms_extrap_deconv_err =  stddev(props_sim[i,*].xrms_extrap_deconv,/double)
-     props_err[i].xrms_gcorr_err =  stddev(props_sim[i,*].xrms_gcorr,/double)
-     props_err[i].xrms_gcorr_deconv_err =  stddev(props_sim[i,*].xrms_gcorr_deconv,/double)
+     props_err[i].xrms_err =  stddev(props_sim[i,*].xrms,/double,/nan)
+     props_err[i].xrms_extrap_err =  stddev(props_sim[i,*].xrms_extrap,/double,/nan)
+     props_err[i].xrms_extrap_deconv_err =  stddev(props_sim[i,*].xrms_extrap_deconv,/double,/nan)
+     props_err[i].xrms_gcorr_err =  stddev(props_sim[i,*].xrms_gcorr,/double,/nan)
+     props_err[i].xrms_gcorr_deconv_err =  stddev(props_sim[i,*].xrms_gcorr_deconv,/double,/nan)
 
-     props_err[i].yrms_err =  stddev(props_sim[i,*].yrms,/double)
-     props_err[i].yrms_extrap_err =  stddev(props_sim[i,*].yrms_extrap,/double)
-     props_err[i].yrms_extrap_deconv_err =  stddev(props_sim[i,*].yrms_extrap_deconv,/double)
-     props_err[i].yrms_gcorr_err =  stddev(props_sim[i,*].yrms_gcorr,/double)
-     props_err[i].yrms_gcorr_deconv_err =  stddev(props_sim[i,*].yrms_gcorr_deconv,/double)
+     props_err[i].yrms_err =  stddev(props_sim[i,*].yrms,/double,/nan)
+     props_err[i].yrms_extrap_err =  stddev(props_sim[i,*].yrms_extrap,/double,/nan)
+     props_err[i].yrms_extrap_deconv_err =  stddev(props_sim[i,*].yrms_extrap_deconv,/double,/nan)
+     props_err[i].yrms_gcorr_err =  stddev(props_sim[i,*].yrms_gcorr,/double,/nan)
+     props_err[i].yrms_gcorr_deconv_err =  stddev(props_sim[i,*].yrms_gcorr_deconv,/double,/nan)
 endfor
 
 ; write out the error structure

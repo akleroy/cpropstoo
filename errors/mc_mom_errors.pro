@@ -88,7 +88,7 @@ pro mc_mom_errors $
         , out_cube = out_cube $
         , seed = seed $
         , noise = noise
-     
+
      cube_to_moments $
         , data = out_cube $
         , assign = assign $
