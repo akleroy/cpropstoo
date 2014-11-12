@@ -31,9 +31,9 @@ pro find_local_max $
 ;   FIND_LOCAL_MAX
 ;
 ; PURPOSE:
-;   Generates a set of kernels (local maxima) from a CO data cube and
-;   initial max. Kernels are found using the brightest point in a
-;   search box with size friends by friends by specfiends.    
+;   Generates a set of kernels (local maxima) from a CO data cube
+;   and initial max. Kernels are found using the brightest point
+;   in a search box with size friends by friends by specfiends.    
 ;
 ; CALLING SEQUENCE:
 ;    
@@ -50,18 +50,17 @@ pro find_local_max $
 ;              locations in IDL format (variable name = kernel_ind).
 ;             
 ; KEYWORD PARAMETERS:
-;   FRIENDS -- (optional) Pixels to search over in the x-y plane. Total search
-;              box length is 2*Friends+1. Default is friends=3
-;   SPECFRIENDS -- (optional) Pixels to search over in the v plane. Total search
-;                  box length is 2*Specfriends+1. Default is
-;                  specfriends=1
+;   FRIENDS -- (optional) Pixels to search over in the x-y plane. Total
+;              search box length is 2*Friends+1. Default is Friends=3
+;   SPECFRIENDS -- (optional) Pixels to search over in the v plane.
+;              Total search box length is 2*Specfriends+1. Default is
+;              Specfriends=1
 ;
 ; OUTPUTS: 
 ;   KERNELS -- Array of local maxima.
 
 ; MODIFICATION HISTORY:
 ;      Originally written by Adam Leroy and Erik Rosolowsky.
-;
 ;
 ;      Some documentation -- Mon Nov 25, 2013  Stephen Pardy 
 ;                     <spardy@astro.wisc.edu>
@@ -76,7 +75,7 @@ pro find_local_max $
 ;
 ; - proper island handling in the decimation
 ; - default mask creation call? debateable
-; - noise assumed homogeneous?
+; - noise assumed homogeneous if rmsfile unassigned
 ;
 ;-
 
@@ -147,7 +146,7 @@ pro find_local_max $
 
 ; DEFINE UNITS OF DELTA (S/N OR REAL)
   if n_elements(delta_is_snr) eq 0 then $
-     delta_is_snr = 1B
+     delta_is_snr = 0B
 
   if n_elements(rmsfile) gt 0 then begin
      file_rms = file_search(rmsfile, count=file_ct)
@@ -212,8 +211,7 @@ pro find_local_max $
   if n_elements(text_out) eq 0 then $
      text_out = "lmax.txt"
 
-;  if n_elements(idl_out) eq 0 then $
-  if n_elements(idl_out_wmm) eq 0 then $
+  if n_elements(idl_out) eq 0 then $
      idl_out = "lmax.idl"
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
@@ -231,7 +229,7 @@ pro find_local_max $
 
   cubify, x=x, y=y, v=v, t=t $
           , cube = minicube $
- ;         , pad = (friends > specfriends) $
+;         , pad = (friends > specfriends) $
           , pad = 3 $
           , dim_2d = (szdata[0] eq 2) $
           , indvec = cubeindex $
@@ -251,13 +249,13 @@ pro find_local_max $
                              , verbose = verbose)
   endif
 
-; This step runs unless the "nodecimate" flag is set. The
-; subroutine rejects all but significant kernels, defined by a set of
-; user-tunable quantities.
+; This step runs unless the "nodecimate" flag is set. The subroutine
+; rejects all but significant kernels that are defined by a set of
+; user-tunable quantities: delta, minval, minpix, minarea, minvchan.
 
   if keyword_set(nodecimate) eq 0 then begin
-     sigma=mad(data,/finite) ; estimate here, since RMS of masked cube may be different
-;     print,"Calling decimate_kernels with sigma value: ",sigma
+     sigma = mad(data,/finite) ; estimate here, since RMS of masked cube may be different
+;    print,"Calling decimate_kernels with sigma value: ", sigma
      sub_kernels = $
         decimate_kernels(sub_kernels $
                          , minicube $

@@ -19,12 +19,6 @@ pro moments_to_props $
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 ; DEFAULTS & DEFINITIONS
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
-  
-; DISTANCE
-  if n_elements(dist) eq 0 then begin
-     message, "Need a distance to derive properties.", /info
-     return
-  endif
 
 ; INPUT MOMENT DATA
   if n_elements(indata) eq 0 then begin
@@ -47,10 +41,19 @@ pro moments_to_props $
      endif else begin
         message, "Need input header data or file to extract header.", /info
      endelse
-
   endif else begin
      hdr = inhdr
   endelse
+  
+; DISTANCE
+  if n_elements(dist) eq 0 then begin
+     dist = sxpar(hdr, 'DIST', count=dist_found)
+     if dist_found eq 0 then begin
+        message, "Need a distance to derive properties.", /info
+        return
+     endif
+  endif
+
 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 ; LOOP OVER MOMENTS
