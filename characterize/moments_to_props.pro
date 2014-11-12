@@ -1,5 +1,5 @@
 pro moments_to_props $
-   , indata = indata $
+   , indata = indata $ ; AAK: This appears not to do anything.  Adding moments explicitly below.
    , infile = infile $
    , hdrfile = hdrfile $
    , inhdr = inhdr $
@@ -11,7 +11,8 @@ pro moments_to_props $
    , verbose = verbose $
    , text_file = text_file $
    , idl_file = idl_file $
-   , fits_file = fits_file
+   , fits_file = fits_file $
+   , props = props
 
   compile_opt idl2
 
@@ -28,7 +29,9 @@ pro moments_to_props $
         message, "Need input moments data or file", /info
      endelse
 
-  endif  
+  endif  else begin
+     moments = indata
+  endelse
 
 ; INPUT HEADER FILE
   if n_elements(inhdr) eq 0 then begin
@@ -38,8 +41,9 @@ pro moments_to_props $
      endif else begin
         message, "Need input header data or file to extract header.", /info
      endelse
-
-  endif  
+  endif else begin
+     hdr = inhdr
+  endelse
   
 ; DISTANCE
   if n_elements(dist) eq 0 then begin
@@ -50,6 +54,7 @@ pro moments_to_props $
      endif
   endif
 
+
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 ; LOOP OVER MOMENTS
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
@@ -57,7 +62,7 @@ pro moments_to_props $
   sz = size(moments)
 
   n_mom = n_elements(moments)
-  
+
   for i = 0, n_mom-1 do begin
        
      if keyword_set(verbose) then begin
@@ -116,5 +121,6 @@ pro moments_to_props $
   if n_elements(fits_file) gt 0 then begin 
      mwrfits, props, fits_file, /create
   endif 
+
 
 end                             ; OF MOMENTS_TO_PROPS

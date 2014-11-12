@@ -6,7 +6,8 @@ pro cube_to_moments $
    , hdr=hdr $
    , outfile=outfile $
    , verbose=verbose $
-   , cloudlist=cloudlist
+   , cloudlist=cloudlist $
+   , moments=moments
 
   compile_opt idl2
    
@@ -100,7 +101,9 @@ pro cube_to_moments $
 
      this_mom.peaknum = cloudlist[i]
 
-     if n_elements(moments) eq 0 then begin
+     ;; AAK this may remove a feature
+     ;;if n_elements(moments) eq 0 then begin 
+     if i eq 0 then begin
         moments = [this_mom]        
      endif else begin
         moments = [moments, this_mom]
@@ -112,6 +115,6 @@ pro cube_to_moments $
 ; SAVE TO DISK
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-  save, file=outfile, moments
+  if n_elements(outfile) gt 0 then save, file=outfile, moments
 
 end                             ; OF CUBE_TO_MOMENTS

@@ -46,7 +46,7 @@ function realize_noise $
 ; Return here if convolution is unwanted
   if keyword_set(noconvolve) then $
      return, this_noise
-  
+
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; CONVOLVE WITH THE BEAM
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
@@ -60,19 +60,31 @@ function realize_noise $
      , hdr = hdr $
      , out_data = this_noise $
      , target_beam=[bmaj*3600.,bmin*3600.,bpa] $
-     , start_beam=[0,0,0]
+     , start_beam=[0,0,0] 
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
-; RESCALE SO THAT THE AMPLITUDE IS RIGHT
+; RESCALE SO THAT THE VARIANCE IS RIGHT
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-  want_noise = median(noise)
-  have_noise = mad(this_noise)
-  rescale_value = want_noise/have_noise
+; I'm not rescaling the mean because the noise cube gets added to the
+; signal cube. This should automatically adjust the mean. The noise
+; cube variance does need to be adjusted to match the input noise cube
+; characteristics.
 
-  print, "I want to rescale by a factor of ", rescale_value
-  this_noise = rescale_value * this_noise
+if sz[0] eq 3 then begin ; cube case
+   for i = 0, n_elements(sz[3]) - 1 do begin
+      want_noise = stddev(noise[*,*,i],/double,/nan)
+      have_noise = stddev(this_noise[*,*,i],/double,/nan)
+      rescale_value = want_noise/have_noise
+      this_noise[*,*,i] = rescale_value * this_noise[*,*,i]
+   endfor
+endif else begin ; image case
+   want_noise = stddev(noise,/double,/nan)
+   have_noise = stddev(this_noise,/double,/nan)
+   rescale_value = want_noise/have_noise
+   this_noise = rescale_value * this_noise
+endelse
 
-  return, this_noise
+return, this_noise
 
 end
