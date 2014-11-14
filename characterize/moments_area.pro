@@ -233,8 +233,11 @@ function moments_area $
 
 
 ;    CHANNEL WIDTH DECONVOLUTION
+;    props.deltav_phys_halfmax_deconv = $
+;       sqrt(props.deltav_halfmax^2 - (1.0*props.chantosig)^2) * $
+;       props.chanwidth_kms
      props.deltav_phys_halfmax_deconv = $
-        sqrt(props.deltav_halfmax^2 - (1.0*props.chantosig)^2)* $
+        sqrt(props.deltav_halfmax^2 - 1.0) * $
         props.chanwidth_kms
 
 ;    DO THE TWO-D DECONVOLUTION (FACTORS MATCH SIGMA TO FWHM)
