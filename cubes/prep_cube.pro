@@ -103,12 +103,12 @@ pro prep_cube $
         sxaddpar, hdr, 'CDELT3', cdelt3/1e3        
         crval3 = sxpar(hdr, 'CRVAL3')
         sxaddpar, hdr, 'CRVAL3', crval3/1e3        
-        sxaddpar, hdr, 'CTYPE3', 'KM/S' ; non-standard definition
+        sxaddpar, hdr, 'CTYPE3', 'VRAD' ; assume radio velocity
         sxaddpar, hdr, 'CUNIT3', 'KM/S', after='CTYPE3'
-        ;ctype3 = strupcase(strcompress(sxpar(hdr, 'CTYPE3'), /rem))
-        ;if ctype3 eq 'M/S' then begin
-        ;   sxaddpar, hdr, 'CTYPE3', 'KM/S'
-        ;endif
+        ; ctype3 = strupcase(strcompress(sxpar(hdr, 'CTYPE3'), /rem))
+        ; if ctype3 eq 'M/S' then begin
+        ;    sxaddpar, hdr, 'CTYPE3', 'KM/S'
+        ; endif
      endif
 
      if n_elements(new_ctype3) gt 0 then begin

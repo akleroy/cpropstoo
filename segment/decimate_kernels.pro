@@ -15,7 +15,7 @@ function decimate_kernels $
    , ignore_islands = ignore_islands
 
 ; - explore the ability to work on a S/N cube
-; - there are issues with NMIN right now... hard coded/not used
+; - there are issues with NMIN right now... currently hard coded
 
 ;+
 ; NAME:
@@ -24,8 +24,9 @@ function decimate_kernels $
 ;
 ; PURPOSE:
 ;
-;   To eliminate kernels based on area uniquely associated with them
-;   and their contrast with the remainder of the emission.
+;   To eliminate kernels based on pixels and area uniquely associated
+;   with them, minimal extent in velocity direction, and their contrast
+;   with the remainder of the emission (in absolute intensity units).
 ;
 ; CALLING SEQUENCE:
 ;
@@ -55,10 +56,10 @@ function decimate_kernels $
 ; DEFAULTS AND DEFINITIONS
 ; &$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$
 
-; COPY KERNELS TO ALLOW EDITTING/AVOID UNFORTUNATE ACCIDENTS
+; COPY KERNELS TO ALLOW EDITING/AVOID UNFORTUNATE ACCIDENTS
   kernels = kernels_in
 
-; IS THE CONTRAST CUT IN REAL OR SNR UNITS?
+; IS THE CONTRAST CUTOFF IN REAL OR SNR UNITS?
   if keyword_set(delta_is_snr) then $
      delta_is_snr = 1B $
   else $
@@ -72,19 +73,19 @@ function decimate_kernels $
   if n_elements(minval) eq 0 then $
      minval = 0.0
 
-; MINIMUM NUMBER OF LEVELS IN THE CUBE
+; MINIMUM NUMBER OF LEVELS IN THE CUBE (*HARDCODED*)
   if n_elements(nmin) eq 0 then $
      nmin = 100
 
 ; CONTRAST CRITERIA
   if n_elements(delta) eq 0 then begin
-     if delta_is_snr eq 1 then $
+     if delta_is_snr then $
         delta = 2. $
      else $
         delta = 2.*sigma
   endif
 
-; IF NEEDED, CONVERT THE DELTA CUTOFF INTO A REAL INTENSITY CUTOFF
+; CONVERT THE DELTA CUTOFF INTO A REAL INTENSITY CUTOFF (NECESSARY ATM)
   if delta_is_snr then $
      cutoff = sigma*delta $
   else $
@@ -131,7 +132,7 @@ function decimate_kernels $
      cube $
      , /linspace $
      , spacing=0.2*sigma $
-     , nmin=100)                ; HACK?
+     , nmin=nmin) ; HARDCODED ABOVE
 
   merger_matrix =  $
      mergefind_approx(cube $
@@ -143,7 +144,7 @@ function decimate_kernels $
   sz_merge = size(merger_matrix)
   ind = lindgen(sz_merge[1])
   merger_matrix_nodiag[ind,ind] = !values.f_nan
-  
+
 ; &$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$
 ; LOOP AND REJECT
 ; &$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$  
@@ -152,10 +153,10 @@ function decimate_kernels $
 ; WORKING TO HIGHEST
   kernel_value = cube[kernels]
   order = sort(kernel_value)
-  nkern = n_elements(order)
 
 ; DEFINE A MASK WHICH FLAGS KERNELS AS GOOD (1) OR BAD (0)
-  valid_kernel = intarr(n_elements(kernels))+1
+  nkern = n_elements(kernels)
+  valid_kernel = intarr(nkern)+1
 
 ; LOOP OVER KERNELS IN ORDER OF INTENSITY
   for i = 0, nkern-1 do begin
@@ -178,11 +179,11 @@ function decimate_kernels $
 
         merges = merger_matrix_nodiag[order[i], valid_kernel_ind]
         merge_level = max(merges,/nan)
-        if finite(merge_level) eq 0 then $
-           mask = cube gt 0.0 $
-        else begin
+        if finite(merge_level) eq 0 then begin
+           mask = cube gt 0.0
+        endif else begin
            unique_lev = min(levels[where(levels gt merge_level)],/nan)
-;           mask = cube gt merge_level
+;          mask = cube gt merge_level
            mask = cube gt unique_lev
         endelse
         asgn = label_region(mask)

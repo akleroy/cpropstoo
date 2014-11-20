@@ -14,9 +14,9 @@ function alllocmax $
 ;   ALLLOCMAX()
 ;
 ; PURPOSE:
-;   To establish a candidate set of local maxima within a data cube by
-;   searching over a F by F by S box of pixels for a point
-;   that's larger than all others in the box.  F and S default to 1
+;   To establish a candidate set of local maxima within a data cube
+;   by searching over a 2F+1 by 2F+1 by 2S+1 box of pixels for a point
+;   that's larger than all others in the box.  F and S default to 1.
 ;
 ; CALLING SEQUENCE:
 ;   local_maxima = ALLLOCMAX(cube, [friends = friends, specfriends =
@@ -27,11 +27,12 @@ function alllocmax $
 ;             
 ; KEYWORD PARAMETERS:
 ;   INDCUBE -- (optional) if supplied, then the indices returned are
-; drawn from this cube instead of indexing the supplied cube itself.
-;   FRIENDS -- Sets the search region in the position dimensions to be
-;              2*FRIENDS+1 in size.  
-;   SPECFRIENDS -- Sets the search region in the velocity dimensions to be
-;              2*SPECFRIENDS+1 in size.  
+;              drawn from this cube instead of indexing the supplied
+;              cube itself.
+;   FRIENDS -- Sets the search region in the position dimensions to
+;              be 2*FRIENDS+1 in size.  
+;   SPECFRIENDS -- Sets the search region in the velocity dimensions
+;              to be 2*SPECFRIENDS+1 in size.  
 ;
 ; OUTPUTS:
 ;   LOCAL_MAXIMA -- indices in CUBE (or in INDCUBE if set) that are
@@ -41,6 +42,8 @@ function alllocmax $
 ;
 ;       Documented -- Fri Sep 2 15:48:17 2005, Erik Rosolowsky
 ;                     <erosolow@asgard.cfa.harvard.edu>
+;       Fixed bug concering NaNs in 'quick' dilate kernel search
+;                     Oct 5 2014, Andreas Schruba <schruba@mpe.mpg.de>
 ; 
 ;-
 
@@ -117,7 +120,7 @@ function alllocmax $
      cube = ulong((cubein - minval)/(maxval - minval)*nquant)
      
 ;    MAY NOT BE NECESSARY... BUT AVOID NANS
-     bad_ind = where(finite(cube) eq 0, bad_ct)
+     bad_ind = where(finite(cubein) eq 0, bad_ct)
      if bad_ct gt 0 then $
         cube[bad_ind] = 0
 
