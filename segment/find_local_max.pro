@@ -152,7 +152,7 @@ pro find_local_max $
   if n_elements(rmsfile) gt 0 then begin
      file_rms = file_search(rmsfile, count=file_ct)
      if file_ct eq 0 then begin
-        message, "Noise not found.", /info
+        message, "Noise file not found.", /info
         return
      endif else begin
         rms = readfits(file_rms, rms_hdr)
@@ -220,12 +220,25 @@ pro find_local_max $
 ; PARE CUBE TO MINIMUM SIZE
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
   
-; Convert the data inside the mask to a vector
+; Convert the data inside the mask to a vector. Do the same for the
+; noise if we have a cube.
 
   vectorify, data $
              , mask = mask $
              , x = x, y = y, v = v, t = t $
              , ind = cubeindex
+
+  if n_elements(rms) eq n_elements(data) then begin
+     vectorify, rms $
+                , mask = mask $
+                , x = x, y = y, v = v, t = e_t $
+                , ind = cubeindex     
+  endif else begin
+     if n_elements(rms) ne 1 then begin
+        message, "Size of rms is unexpected.", /info
+        return
+     endif
+  endif
 
 ; Rebuild a minimum-sized cube from the vectorized data.
 
