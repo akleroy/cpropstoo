@@ -1,12 +1,14 @@
 pro cube_to_moments $
-   , data=data $
-   , infile=infile $
-   , assign=assign $
-   , inassign=inassign $
-   , hdr=hdr $
-   , outfile=outfile $
-   , verbose=verbose $
-   , cloudlist=cloudlist
+   , data = data $
+   , infile = infile $
+   , assign = assign $
+   , inassign = inassign $
+   , rms = rms $
+   , inrms = inrms $
+   , hdr = hdr $
+   , outfile = outfile $
+   , verbose = verbose $
+   , cloudlist = cloudlist
 
   compile_opt idl2
    
@@ -16,9 +18,9 @@ pro cube_to_moments $
 
 ; Each modules adds fields and calculations to the moment structure.
 
-  modules = ["classic" $
-             , "gausscorr" $
-             , "area"]
+  modules = [ "classic" $
+            , "gausscorr" $
+            , "area" ]
 
   if n_elements(extra_modules) gt 0 then begin
      modules = [modules, extra_modules]
@@ -46,6 +48,17 @@ pro cube_to_moments $
         return
      endif else begin
         assign = readfits(file_assign, assign_hdr, /silent)
+     endelse
+  endif
+  
+  if n_elements(rms) eq 0 then begin
+     file_ct  = 0
+     if n_elements(inrms) gt 0 then $
+       file_rms = file_search(inrms, count=file_ct)
+     if file_ct eq 0 then begin
+        message, "Noise cube not found. Not critical.", /info
+     endif else begin
+        rms = readfits(file_rms, rms_hdr, /silent)
      endelse
   endif
   
@@ -94,9 +107,9 @@ pro cube_to_moments $
      this_v = v[ind]
      
      this_mom = $
-        measure_moments(x=this_x, y=this_y, v=this_v, t=this_t $
-                        , /extrap, extarg=0 $
-                        , empty_props = empty_props)
+        measure_moments( x=this_x, y=this_y, v=this_v, t=this_t $
+                       , /extrap, extarg=0 $
+                       , empty_props = empty_props, rms = rms )
 
      this_mom.peaknum = cloudlist[i]
 
