@@ -8,6 +8,7 @@ function measure_moments $
    , do_clip = do_clip $
    , clipval = clipval $
    , just_empty = just_empty $
+   , rms = rms $
    , _extra = extra
 
 ;+
@@ -22,9 +23,9 @@ function measure_moments $
 
 ; Each modules adds fields and calculations to the moment structure.
 
-  modules = ["classic" $
-             , "gausscorr" $
-             , "area"]
+  modules = [ "classic" $
+            , "gausscorr" $
+            , "area" ]
 
   if n_elements(extra_modules) gt 0 then begin
      modules = [modules, extra_modules]
@@ -97,6 +98,16 @@ function measure_moments $
      props.minval_meas = min(t)
      props.maxval_meas = max(t)
   endif
+
+; SAVE RMS NOISE VALUE AT PEAK LOCATION
+if n_elements(rms) gt 0 then begin
+   if n_elements(rms) eq 1 then begin
+      props.noise = rms
+      endif else begin
+         dummy = max(t, ind)
+            props.noise = rms[x[ind],y[ind],v[ind]]
+      endelse
+endif
   
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 ; LOOP OVER THE MODULES REQUESTED
