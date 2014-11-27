@@ -92,7 +92,9 @@ pro conv_with_gauss $
 ;
 ; documented - leroy@mpia.de 17 nov 08
 ; modified to do elliptical gaussians - karin 26 jun 11
-; AKL - cleaned up and folded in to cprops. May have broken PA convention.
+; AKL - cleaned up and folded in to cprops. May have broken PA
+;       convention.
+; caught asymmetric kernel bug - dec 14
 ;
 ;-
 
@@ -111,6 +113,12 @@ pro conv_with_gauss $
      if n_elements(in_hdr) gt 0 then $
         hdr = in_hdr
   endelse
+
+  if n_elements(target_beam) eq 1 then begin
+     target_beam = [target_beam, target_beam, 0.0]     
+  endif else if n_elements(target_beam) eq 2 then begin
+     target_beam = [target_beam[0], target_beam[1], 0.0]
+  endif
 
   if n_elements(hdr) eq 0 then begin
      if n_elements(pix_deg) eq 0 or n_elements(start_beam) eq 0 then begin
@@ -190,11 +198,8 @@ pro conv_with_gauss $
   endif
 
 ; Figure out an appropriate size for the convolution kernel (forcing odd)
-  minsize = 6.*kernel_bmaj/as_per_pix + 1.
-  if minsize mod 2 eq 0 then $
-     kern_size = minsize+1 $
-  else $
-     kern_size = minsize
+  minsize = long(6.*round(kernel_bmaj/as_per_pix) + 1.)
+  kern_size = minsize
 
 ; You get problems if the PSF is bigger than the image if you are
 ; using the IDLAstro convolve. Set to the minimum dimension
@@ -203,6 +208,12 @@ pro conv_with_gauss $
      message, "Warning! PSF is very big compared to image.", /info
      kern_size = foor((sz[1] < sz[2])/2-2)*2 + 1
   endif 
+
+; Check that the kernel is odd. You can make a symmetric kernel.
+  if kern_size mod 2 eq 0 then begin
+     message, "Kernel has even dimensions. Program needs to be tweaked to work in this case. You got here first, so...", /info
+     stop
+  endif
   
 ; Build the PSF based on the kernel calculation. Note that the units
 ; are pixels and the rotation associated with the position is taken to
@@ -216,7 +227,6 @@ pro conv_with_gauss $
      , /center $
      , /normalize $
      , output=kernel  
-
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; DO THE CONVOLUTION
@@ -239,7 +249,7 @@ pro conv_with_gauss $
                  , no_pad=no_pad)
      data = new_data
   endif else begin
-     data = convolve(data, kernel, no_ft=no_ft)
+     data = convolve(data, kernel, no_ft=no_ft,no_pad=no_pad)
   endelse
   
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
