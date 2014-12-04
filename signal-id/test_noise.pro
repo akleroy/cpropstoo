@@ -42,13 +42,22 @@ pro test_noise
                    , /twod
 
   ind = lindgen(n_elements(noise_cube)/10)*10
-  plot, fit_noise[ind], noise_cube[ind], ps=3
+  plot, noise_cube[ind], fit_noise[ind], ps=3
   equality
 
   print, "realize_noise + make_noise_cube has this median accuracy reproducing an input map:"  $
          , median(fit_noise/noise_cube)
   print, "realize_noise + make_noise_cube has this rms multiplicative scatter reproducing an input map:" $
          , 10.^stddev(alog10(fit_noise/noise_cube),/nan)-1.
+
+  make_noise_cube, cube_in = realization $
+                   , out_cube = box_noise $
+                   , box = 21 $
+                   , /twod
+
+  ind = lindgen(n_elements(noise_cube)/10)*10
+  plot, noise_cube[ind], box_noise[ind], ps=3
+  equality
 
   print, "---- one-d noise spectrum test ----"
 

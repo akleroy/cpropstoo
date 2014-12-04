@@ -30,7 +30,7 @@ pro conv_with_gauss $
 ;
 ; CALLING SEQUENCE:
 ;
-; conv_with_gauss, infile='input.fits', out_file='output.fits' $
+; conv_with_gauss, data='input.fits', out_file='output.fits' $
 ;                , target_beam=target_beam, start_beam=start_beam $
 ;                , quiet=quiet, cube=cube
 ;

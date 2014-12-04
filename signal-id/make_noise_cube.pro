@@ -31,7 +31,7 @@ pro make_noise_cube $
 ;
 ; Bootstrap the noise from empty regions of a data cube and produce a
 ; matched-astrometry "noise cube" containing the pixelwise noise
-; estimates. 
+; estimates.
 ;
 ; The calculation assumes that the spectral and spatial dimensions are
 ; separable and can operate in 0, 1, 2, or 3 dimensions. By default,
