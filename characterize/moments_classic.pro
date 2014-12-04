@@ -336,7 +336,8 @@ function moments_classic $
         , x=x, y=y, v=v, t=t $
         , cube = minicube $
         , pad = 1 $
-        , location = location
+        , location = location $
+        , /silent
 
      l3d = array_indices(minicube, location)
 
@@ -360,6 +361,7 @@ function moments_classic $
      if (keyword_set(robust)) then begin  
         fitmap = ROB_MAPFIT(mom1, 1, coef, resid)
      endif else begin
+        if total(finite(wt)) lt 10 then continue ; safty first
         mom1vec = reform(mom1[l3d[0,*],l3d[1,*]])
         weights = 1.0/(mom1err^2)
         wt = reform(weights[l3d[0,*],l3d[1,*]])
