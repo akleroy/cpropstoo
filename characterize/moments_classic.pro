@@ -376,11 +376,11 @@ function moments_classic $
 
 ;    SAVE RESULTS
      props.velgrad = velgrad
-     props.velgrad_units = 'km/s/pc'
+     props.velgrad_unit = 'km/s/pc'
      props.velposang = velposang
-     props.velposang_units = 'rad'
+     props.velposang_unit = 'rad'
      props.veldisp = resid
-     props.veldisp_units = 'km/s'
+     props.veldisp_unit = 'km/s'
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; BE DONE
