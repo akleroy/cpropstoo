@@ -361,12 +361,16 @@ function moments_classic $
      if (keyword_set(robust)) then begin  
         fitmap = ROB_MAPFIT(mom1, 1, coef, resid)
      endif else begin
-        if total(finite(wt)) lt 10 then continue ; safty first
         mom1vec = reform(mom1[l3d[0,*],l3d[1,*]])
         weights = 1.0/(mom1err^2)
         wt = reform(weights[l3d[0,*],l3d[1,*]])
-        coef = PLANEFIT(x, y, mom1vec, wt, vfit)
-        resid = stddev(vfit - mom1vec)
+        if total(finite(wt)) ge 10 then begin
+           coef = PLANEFIT(x, y, mom1vec, wt, vfit)
+           resid = stddev(vfit - mom1vec)
+        endif else begin
+           coef = fltarr(4) * !values.f_nan
+           resid = !values.f_nan
+        endelse
      endelse
 
 ;    CALCULATE GRADIENT AND POSITION ANGLE
