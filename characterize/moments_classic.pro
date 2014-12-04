@@ -81,6 +81,14 @@ function moments_classic $
         props = create_struct(props, "momposang_unit", "rad")
 
         props = create_struct(props, "covar_xy", nan)
+        
+;       VELOCITY GRADIENT CALCULATION (ADDED DEC 4, 2014)
+        props = create_struct(props, "velgrad", nan)
+        props = create_struct(props, "velgrad_unit", "km/s/pc")
+        props = create_struct(props, "velposang", nan)
+        props = create_struct(props, "velposang_unit", "rad")
+        props = create_struct(props, "veldisp", nan)
+        props = create_struct(props, "veldisp_unit", "km/s")
 
         return, props
 
@@ -319,6 +327,64 @@ function moments_classic $
         props.mom2min_extrap = ex_mom2yrot
 
      endif
+
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+; VELOCITY GRADIENT AXIS (added on Dec 4, 2014 by schruba@mpe.mpg.de)
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+     cubify $
+        , x=x, y=y, v=v, t=t $
+        , cube = minicube $
+        , pad = 1 $
+        , location = location
+
+     l3d = array_indices(minicube, location)
+
+     sz = size(minicube)
+     xaxis = (indgen(sz[1])+min(x)-1)
+     yaxis = (indgen(sz[2])+min(y)-1)
+     vaxis = (indgen(sz[3])+min(v)-1)
+     xmap = (intarr(sz[2])+1) ## xaxis
+     ymap = yaxis ## (intarr(sz[1])+1)
+     vcube = rebin(reform(vaxis,1,1,sz[3]), sz[1:3])
+
+     mom0 = total(minicube,3,/nan)
+     mom1 = total(vcube*minicube,3,/nan) / mom0
+
+;    ESTIMATE UNCERTAINTY IN VELOCITY FIELD
+     errcube = (vcube - rebin(mom1, sz[1:3]))^2
+     mom1err = props.noise/mom0 * sqrt(total(errcube,3,/nan))
+
+;    FIT A PLANE TO THE MOMENT MAP (REQ FREUDENREICH ROUTINES)
+;    resid : cloud velocity dispersion after gradient correction
+     if (keyword_set(robust)) then begin  
+        fitmap = ROB_MAPFIT(mom1, 1, coef, resid)
+     endif else begin
+        mom1vec = reform(mom1[l3d[0,*],l3d[1,*]])
+        weights = 1.0/(mom1err^2)
+        wt = reform(weights[l3d[0,*],l3d[1,*]])
+        coef = PLANEFIT(x, y, mom1vec, wt, vfit)
+        resid = stddev(vfit - mom1vec)
+     endelse
+
+;    CALCULATE GRADIENT AND POSITION ANGLE
+     velgrad = sqrt(coef[1]^2+coef[2]^2) ; gradient in pixel units
+;    velgrad *= props[i].chanwidth_kms / props[i].pcperpix ; km/s/pc
+
+     velposang = atan(coef[2],coef[1])
+     velposang = velposang+!pi*(velposang lt 0)
+
+;    SAVE RESULTS
+     props.velgrad = velgrad
+     props.velgrad_units = 'km/s/pc'
+     props.velposang = velposang
+     props.velposang_units = 'rad'
+     props.veldisp = resid
+     props.veldisp_units = 'km/s'
+
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+; BE DONE
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
      return, props
 
