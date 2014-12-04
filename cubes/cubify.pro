@@ -11,7 +11,8 @@ pro cubify $
    , mask = mask $
    , indcube = indcube $
    , location = location $
-   , dim_2d = twod
+   , dim_2d = twod $
+   , silent = silent
 
 ;+
 ; NAME:
@@ -137,7 +138,8 @@ pro cubify $
 
 ;    IF SIZE IS NOT SUPPLIED FORM THE CUBE TO SPAN THE MINIMUM RANGE
 ;    OF X, Y, V PLUS ANY PADDING
-     message, 'No size information.  Assuming minimum size.', /con
+     if keyword_set(silent) eq 0 then $
+        message, 'No size information. Assuming minimum size.', /con
 
 ;    FIGURE OUT THE MINIMUM SIZE OF THE (POSSIBLY PADDED) CUBE
      if keyword_set(pad) eq 0 then $
