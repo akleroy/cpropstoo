@@ -375,7 +375,7 @@ function moments_classic $
 
 ;    CALCULATE GRADIENT AND POSITION ANGLE
      velgrad = sqrt(coef[1]^2+coef[2]^2) ; gradient in pixel units
-;    velgrad *= props[i].chanwidth_kms / props[i].pcperpix ; km/s/pc
+     velgrad *= props[i].chanwidth_kms / props[i].pcperpix ; km/s/pc
 
      velposang = atan(coef[2],coef[1])
      velposang = velposang+!pi*(velposang lt 0)
