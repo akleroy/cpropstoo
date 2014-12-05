@@ -6,7 +6,9 @@ This is an IDL package to aid in the analysis of emission line data
 cubes. It expands and modularizes the CPROPS package introduced by
 Rosolowsky & Leroy (2006). It provides utilities to estimate noise and
 mask cubes, identify local maxima, partition cubes into object
-assignments, and derive properties from object assignments.
+assignments, and derive properties from object assignments. It also
+increasingly acts as a "cube library" for IDL work focused on radio
+data cubes.
 
 If you use this version, please reference Rosolowsky & Leroy
 (2006). An additional updated reference is forthcoming in 2014 or
@@ -47,12 +49,13 @@ CPROPS.
 
 ###### Units and Book Keeping
 
-* cprops_check_header : verify that a cube is appropriate for
-  analysis: units are K, km/s, and has beam info in header.
+* cprops_check_header : verify that a cube is appropriate for cprops
+  analysis: units are K, km/s, and has beam info in header. Note that
+  failing this check does not indicate a poorly-formed cube.
 
-* prep_cube : attempt to place a cube in correct units. This can be
-  hit-or-miss but will save you some annoying work if it fires off
-  correctly.
+* prep_cube : attempt to place a cube in correct units for
+  cprops. This can be hit-or-miss but will save you some annoying work
+  if it fires off correctly.
 
 ###### Signal Identification
 
@@ -99,7 +102,7 @@ which are more physical values (e.g., deconvolved angular or linear
 sizes).
 
 * cube_to_moments : extract moment measurements for a list of clouds
-  given an assignment cube and a data cube
+  given an assignment cube and a data cube.
 
 * cube_to_level_moments : measure moments for each kernel plus contour
   combination in a cube. Feeds dendrogram analysis or other multiscale
@@ -120,6 +123,21 @@ sizes).
 
 * realize_noise : take a noise estimate and produce a realistic cube of noise
 (convolved with the beam) for use in Monte Carlo calculations. 
+
+###### Cube Manipulation
+
+* A variety of the IDLAstro astrometric routines are wrapped with to
+work with cubes instead of only two dimensional images. The general
+methodology is to simply loop plane by plane. These include
+cube_hastrom (alignment), cube_hextract (extraction), cube_hreverse
+(reverse direction of an axis), cube_hrot (rotate a cube). See the
+IDLAstro documentation for more details.
+
+* conv_with_gauss : convolve a cube to a target resolution. Accepts
+  elliptical aussian beams and works on cubes and images.
+
+* extract_planes : extract a subset of planes from a cube as a new
+  cube or FITS file.
 
 ### Lower Level Routines
 
