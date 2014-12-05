@@ -84,11 +84,11 @@ function moments_classic $
         
 ;       VELOCITY GRADIENT CALCULATION (ADDED DEC 4, 2014)
         props = create_struct(props, "velgrad", nan)
-        props = create_struct(props, "velgrad_unit", "km/s/pc")
+        props = create_struct(props, "velgrad_unit", "pix/pix")
         props = create_struct(props, "velposang", nan)
         props = create_struct(props, "velposang_unit", "rad")
         props = create_struct(props, "veldisp", nan)
-        props = create_struct(props, "veldisp_unit", "km/s")
+        props = create_struct(props, "veldisp_unit", "pix")
 
         return, props
 
@@ -375,18 +375,16 @@ function moments_classic $
 
 ;    CALCULATE GRADIENT AND POSITION ANGLE
      velgrad = sqrt(coef[1]^2+coef[2]^2) ; gradient in pixel units
-     velgrad *= props[i].chanwidth_kms / props[i].pcperpix ; km/s/pc
-
      velposang = atan(coef[2],coef[1])
      velposang = velposang+!pi*(velposang lt 0)
 
 ;    SAVE RESULTS
      props.velgrad = velgrad
-     props.velgrad_unit = 'km/s/pc'
+     props.velgrad_unit = 'pix/pix'
      props.velposang = velposang
      props.velposang_unit = 'rad'
      props.veldisp = resid
-     props.veldisp_unit = 'km/s'
+     props.veldisp_unit = 'pix'
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; BE DONE
@@ -491,6 +489,15 @@ function moments_classic $
      endif else begin
         props.resolved_extrap = 0B
      endelse
+
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+; VELOCITY GRADIENT AXIS IN PHYSICAL UNITS
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+   props.velgrad *= props.chanwidth_kms / props.pcperpix
+   props.veldisp *= props.chanwidth_kms
+   props.velgrad_unit = 'km/s/pc'
+   props.veldisp_unit = 'km/s'
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; PHYSICAL QUANTITIES
