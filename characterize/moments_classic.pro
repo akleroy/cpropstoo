@@ -375,8 +375,8 @@ function moments_classic $
 
 ;    CALCULATE GRADIENT AND POSITION ANGLE
      velgrad = sqrt(coef[1]^2+coef[2]^2) ; gradient in pixel units
-     velposang = atan(coef[2],coef[1])
-     velposang = velposang+!pi*(velposang lt 0)
+     velposang = atan(coef[2],coef[1])   ; angle from x-axis (increasing R.A.)
+                                         ; to y-axis (increasing DEC)
 
 ;    SAVE RESULTS
      props.velgrad = velgrad
