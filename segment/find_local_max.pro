@@ -236,7 +236,7 @@ pro find_local_max $
         message, "Size of rms is unexpected.", /info
         return
      endif
-  endif
+  endelse
 
 ; Rebuild a minimum-sized cube from the vectorized data.
 
