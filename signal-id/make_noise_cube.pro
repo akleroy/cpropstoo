@@ -15,6 +15,7 @@ pro make_noise_cube $
    , twod_only = twod_only $
    , collapse = collapse $
    , show = show
+   
 
 ; --- CHECK ON NORMALIZATION OF SPECTRAL AXIS
 ; --- CHECK ON HANDLING OF EDGES IN CASE OF "BOX"

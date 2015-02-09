@@ -83,17 +83,17 @@ function struct_round $
 ; This step gives us a ball-like structuring element in either two or
 ; three dimensions. We will prune it further below.
 
-  for ii = -npix, npix do begin
-     for jj = -npix, npix do begin
+  for ii = -rad, rad do begin
+     for jj = -rad, rad do begin
         if ndim eq 2 then begin       
            if ii*ii+jj*jj le rad*rad then begin
-              struct[ii+npix,jj+npix] = 1B
+              struct[ii+rad,jj+rad] = 1B
            endif
         endif
         if ndim eq 3 then begin
-           for kk = -npix, npix do begin
+           for kk = -rad, rad do begin
               if ii*ii+jj*jj+kk*kk le rad*rad then begin
-                 struct[ii+npix,jj+npix,kk+npix] = 1B
+                 struct[ii+rad,jj+rad,kk+rad] = 1B
               endif
            endfor
         endif
@@ -115,17 +115,17 @@ function struct_round $
 
 ; Suppress all xy-connectivity (not super sensible, but valid)
   if keyword_set(z_only) and ndim eq 3 then begin
-     for ii = -npix, npix do $
-        for jj = -npix, npix do $
+     for ii = -rad, rad do $
+        for jj = -rad, rad do $
            if ii ne 0 or jj ne 0 then $
-              struct[ii+npix,jj+npix,*] = 0B     
+              struct[ii+rad,jj+rad,*] = 0B     
   endif
   
 ; Implement a cylinder (all planes resemble the midplane) instead of a
 ; ball by copying the midplane to the rest of the cube.
   if keyword_set(cylinder) and ndim eq 3 then begin
-     for kk = -npix, npix do begin
-        struct[*,*,kk] = struct[*,*,npix]
+     for kk = -rad, rad do begin
+        struct[*,*,kk] = struct[*,*,0]
      endfor
   endif
   
