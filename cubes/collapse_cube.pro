@@ -153,7 +153,7 @@ pro collapse_cube $
   outside_mask = where(mask eq 0, outside_ct)
   if outside_ct gt 0 then $
      cube_copy[outside_mask] = !values.f_nan
-  tpeak = max(cube_copy, dim=3)
+  tpeak = max(cube_copy, dim=3,/nan)
 
 ; ... TBD: UNCERTAINTY / PEAK VEL
 
