@@ -4,6 +4,7 @@ function cube_hastrom, file_in = file_in $
                        , hdr_in = orig_hdr $
                        , hdr_out = hdr_out $
                        , target_hdr = target_hdr $
+                       , verbose = verbose $
                        , quiet=quiet $
                        , noreturn=noreturn $
                        , cubic=cubic $
@@ -26,7 +27,7 @@ function cube_hastrom, file_in = file_in $
 ; CALLING SEQUENCE:
 ;
 ; dummy = cube_hastrom(file_in = file_in, file_out=file_out 
-;                      , target_hdr=target_hdr, /quiet, /noreturn)
+;                      , target_hdr=target_hdr, /quiet, /verbose, /noreturn)
 ;
 ; -or-
 ;
@@ -118,7 +119,7 @@ function cube_hastrom, file_in = file_in $
 ; CHANGES UNDERNEATH IT
 
   for k = 0, nz-1 do begin
-      if not keyword_set(quiet) then $
+     if keyword_set(verbose) then $
         counter, k+1, nz, 'CUBE_HASTROM: plane '
       new_copy = hdr_copy
       plane = input[*,*,k]
