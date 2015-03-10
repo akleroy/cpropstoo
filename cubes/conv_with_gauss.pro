@@ -207,7 +207,7 @@ pro conv_with_gauss $
   sz = size(data)
   if kern_size gt sz[1] or kern_size gt sz[2] then begin
      message, "Warning! PSF is very big compared to image.", /info
-     kern_size = foor((sz[1] < sz[2])/2-2)*2 + 1
+     kern_size = floor((sz[1] < sz[2])/2-2)*2 + 1
   endif 
 
 ; Check that the kernel is odd. You can make a symmetric kernel.
