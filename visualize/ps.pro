@@ -1,7 +1,13 @@
-pro ps, xwin = xwin, ps = ps, _extra = ex, $
-        defaults = defaults, toggle = toggle, $
-        verbose = verbose $
-        , xsize=xsize, ysize=ysize
+pro ps $
+   , xwin = xwin $
+   , ps = ps $
+   , _extra = ex $
+   , defaults = defaults $
+   , toggle = toggle $
+   , verbose = verbose $
+   , xsize=xsize $
+   , ysize=ysize
+
 ;+
 ; NAME:
 ;   PS
@@ -32,18 +38,20 @@ pro ps, xwin = xwin, ps = ps, _extra = ex, $
 ;       Sun Feb 16 14:54:33 2003, Erik Rosolowsky <eros@cosmic>
 ;-
 
-  if keyword_set(defaults)  then begin
-     if n_elements(xsize) eq 0 then xsize = 8
-     if n_elements(ysize) eq 0 then ysize = 8
+  if keyword_set(defaults) then begin
+     if n_elements(xsize) eq 0 then $
+        xsize = 8
+     if n_elements(ysize) eq 0 then $
+        ysize = 8
      inches = 1b
-     color = color
+     color = 1b
      bits_per_pixel = 8
      yoffset = 1
   endif
 
   name = !d.name
 
-  if (keyword_set(ps) and keyword_set(x)) or keyword_set(toggle) then begin 
+  if (keyword_set(ps) and keyword_set(xwin)) or keyword_set(toggle) then begin 
     if stregex(name, 'X', /bool) then begin
       set_plot, 'ps'
       device, _extra = ex, xsize = xsize, ysize = ysize, $
@@ -62,7 +70,7 @@ pro ps, xwin = xwin, ps = ps, _extra = ex, $
         inches = inches, color = color, bits_per_pixel = bits_per_pixel, $
         yoffset = yoffset
     endif
-    if keyword_set(x) then begin
+    if keyword_set(xwin) then begin
       if stregex(name, 'PS', /bool) then device, /close
       set_plot, 'X', _extra = ex
     endif
