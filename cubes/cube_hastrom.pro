@@ -1,14 +1,16 @@
-function cube_hastrom, file_in = file_in $
-                       , file_out = file_out $
-                       , cube_in = input $
-                       , hdr_in = orig_hdr $
-                       , hdr_out = hdr_out $
-                       , target_hdr = target_hdr $
-                       , verbose = verbose $
-                       , quiet=quiet $
-                       , noreturn=noreturn $
-                       , cubic=cubic $
-                       , _extra = _extra
+function cube_hastrom $
+   , file_in = file_in $
+   , file_out = file_out $
+   , cube_in = input $
+   , hdr_in = orig_hdr $
+   , hdr_out = hdr_out $
+   , target_hdr = target_hdr $
+   , verbose = verbose $
+   , quiet=quiet $
+   , noreturn=noreturn $
+   , cubic=cubic $
+   , _extra = _extra
+
 ;+
 ; NAME:
 ;
@@ -18,7 +20,8 @@ function cube_hastrom, file_in = file_in $
 ;
 ; Accept a file name or a cube + header and a target header containing
 ; WCS astrometry. Align the input cube to the target astrometry and either
-; return the cube or write it to a new file.
+; return the cube or write it to a new file. Frequency/velocity
+; alignment comes from another program.
 ;
 ; CATEGORY:
 ;
