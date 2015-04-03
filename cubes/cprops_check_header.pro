@@ -78,6 +78,7 @@ function cprops_check_header $
 
   valid_veltypes = $
      ["KM/S", $
+      "VRAD", $
       "VELO-LSR", $
       "VELOCITY", $
       "FELO-HEL"]
@@ -89,7 +90,7 @@ function cprops_check_header $
      comments = [comments, "... MAJOR: no CTYPE3 keyword"]
   endif else begin
      if total(strcompress(strupcase(ctype3),/rem) eq valid_veltypes) eq 0 then begin
-        comments = [comments, "... MAJOR: CTYPE3 keyword does not match valid vel (km/s)"]     
+        comments = [comments, "... MAJOR: CTYPE3 keyword does not match a value that I know."]     
      endif
   endelse
 
