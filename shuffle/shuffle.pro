@@ -76,9 +76,9 @@ function shuffle $
      zero = 0.0
   endif
   if sz[0] eq 2 then begin
-     n_spec = sz[1]     
+     n_spec = sz[2]     
      if n_elements(zero) ne 1 and $
-        n_elements(zero) ne sz[1] then begin
+        n_elements(zero) ne n_spec then begin
         message, 'The zero point vector should have either 1 or n_spec elements. Returning.', /info
         return, !values.f_nan
      endif
@@ -106,7 +106,7 @@ function shuffle $
   if n_spec eq 1 then begin
      output = fltarr(n_chan)*!values.f_nan
   endif else begin
-     output = fltarr(n_spec, n_chan)*!values.f_nan
+     output = fltarr(n_chan, n_spec)*!values.f_nan
   endelse
 
 ; AXIS OF CHANNEL NUMBER FOR THE ORIGINAL VELOCITY AXIS
@@ -127,7 +127,7 @@ function shuffle $
      if n_spec eq 1 then begin
         this_spec = spec
      endif else begin
-        this_spec = reform(spec[ii,*])
+        this_spec = reform(spec[*,ii])
      endelse
 
 ;    ... RECENTER THE ORIGINAL VELOCITY AXIS AT THE NEW ZERO POINT
@@ -177,9 +177,9 @@ function shuffle $
 
 ;    ... INITIALIZE THE NEW SPECTRUM
      if n_spec eq 1 then begin
-        new_spec = spec
+        new_spec = fltarr(n_chan)*!values.f_nan
      endif else begin
-        new_spec = spec[ii,*]
+        new_spec = fltarr(n_chan)*!values.f_nan
      endelse
 
 ;    ... FIGURE OUT THE CHANNEL JUST ABOVE EACH NEW SPEC CHANNEL IN
@@ -217,7 +217,7 @@ function shuffle $
      if n_spec eq 1 then begin
         output = new_spec
      endif else begin
-        output[ii,*] = new_spec
+        output[*,ii] = new_spec
      endelse
      
   endfor
