@@ -6,8 +6,8 @@ function shuffle $
    , new_hdr = new_hdr $
    , new_crval = new_crval $
    , new_crpix = new_crpix $
-   , new_cdelt = new_cdelt
-
+   , new_cdelt = new_cdelt $
+   , fft = fft
 ;+
 ;
 ; SHUFFLE 
@@ -22,6 +22,8 @@ function shuffle $
 ; TO BE DONE:
 ;
 ;-
+
+
 
 ; &$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$
 ; ERROR CHECKING
@@ -164,9 +166,8 @@ function shuffle $
         
 ;    ... NOTE WHICH CASES ACTUALLY LIE IN A RANGE WHERE WE HAVE DATA
      interp_ind = where((sample_chan ge 0) and $
-                        (sample_chan le (n_chan-1)) $
+                        (sample_chan le (orig_n_chan-1)) $ ; Should this be orig_n_chan not n_chan
                         , interp_ct)
-     
 ;    ... KEEP LOOPING IF THERE'S NOTHING TO DO
      if interp_ct eq 0 then $
         continue
@@ -176,6 +177,7 @@ function shuffle $
 ;    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 ;    ... INITIALIZE THE NEW SPECTRUM
+;    Why is there an if then else block here?
      if n_spec eq 1 then begin
         new_spec = fltarr(n_chan)*!values.f_nan
      endif else begin
@@ -201,15 +203,28 @@ function shuffle $
      
 ;    3) NOTE THE ORIGINAL SPECTRUM VALUE AT THE AT LOW CHANNEL
      orig = this_spec[chan_lo]
-
+     if keyword_set(fft) then begin 
+        results = poly_fit((findgen(n_chan))[interp_ind],sample_chan[interp_ind],1,chisq=chisq)
+        if chisq gt 1e-2 then begin
+           message,'Requested velocity axis is non-linear.  FFT method cannot be used.',/con
+           new_spec[interp_ind] = !value.f_nan
+           continue
+        endif
+        meanshift = results[0]-min(chan_lo)
+        scalefac = results[1]
+        fftspec = fft(orig)
+        frequency = shift(findgen(n_elements(fftspec))-n_elements(fftspec)/2.0,n_elements(fftspec)/2.0)/n_elements(fftspec) 
+; Phase sampling needs to be shifted to the new frequencies
+        phase = exp(2*!pi*frequency*complex(0,1)*(meanshift))
+        new_spec[interp_ind] = scalefac*float(fft(fftspec*phase/scalefac,/inverse))
+     endif else begin
 ;    ... DO THE INTERPOLATION
-     new_spec[interp_ind] = orig + slope * voffset
-           
+        new_spec[interp_ind] = orig + slope * voffset
 ;    CATCH THE CASE WHERE WE ARE RIGHT ON A SAMPLING POINT
-     eq_ind = where(chan_hi eq chan_lo, eq_ct)
-     if eq_ct gt 0 then $
-        new_spec[interp_ind[eq_ind]] = this_spec[chan_lo[eq_ind]]
-
+        eq_ind = where(chan_hi eq chan_lo, eq_ct)
+        if eq_ct gt 0 then $
+           new_spec[interp_ind[eq_ind]] = this_spec[chan_lo[eq_ind]]
+     endelse
 ;    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=     
 ;    SAVE THE RESULT IN THE OUTPUT ARRAY
 ;    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
