@@ -200,19 +200,19 @@ function shuffle $
 ;    3) NOTE THE ORIGINAL SPECTRUM VALUE AT THE AT LOW CHANNEL
      orig = this_spec[chan_lo]
      if keyword_set(fft) then begin 
-        results = poly_fit((findgen(n_chan))[interp_ind],sample_chan[interp_ind],1,chisq=chisq)
+        results = poly_fit((findgen(orig_n_chan))[interp_ind],sample_chan[interp_ind],1,chisq=chisq)
         if chisq gt 1e-2 then begin
            message,'Requested velocity axis is non-linear.  FFT method cannot be used.',/con
            new_spec[interp_ind] = !value.f_nan
            continue
         endif
-        meanshift = results[0]-min(chan_lo)
-        scalefac = results[1]
+        meanshift = -results[0]/results[1]
+        scalefac = 1/results[1]
         fftspec = fft(orig)
-        frequency = shift(findgen(n_elements(fftspec))-n_elements(fftspec)/2.0,n_elements(fftspec)/2.0)/n_elements(fftspec) 
+        frequency = shift(findgen(n_elements(fftspec))-n_elements(fftspec)/2.0,n_elements(fftspec)/2.0);/n_elements(fftspec) 
 ; Phase sampling needs to be shifted to the new frequencies
         phase = exp(2*!pi*frequency*complex(0,1)*(meanshift))
-        new_spec[interp_ind] = scalefac*float(fft(fftspec*phase/scalefac,/inverse))
+        new_spec[interp_ind] = ((float(fft(fftspec*phase/scalefac,/inverse)))*abs(scalefac))
      endif else begin
 ;    ... DO THE INTERPOLATION
         new_spec[interp_ind] = orig + slope * voffset
