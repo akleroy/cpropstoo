@@ -178,11 +178,7 @@ function shuffle $
 
 ;    ... INITIALIZE THE NEW SPECTRUM
 ;    Why is there an if then else block here?
-     if n_spec eq 1 then begin
-        new_spec = fltarr(n_chan)*!values.f_nan
-     endif else begin
-        new_spec = fltarr(n_chan)*!values.f_nan
-     endelse
+     new_spec = fltarr(n_chan)*!values.f_nan
 
 ;    ... FIGURE OUT THE CHANNEL JUST ABOVE EACH NEW SPEC CHANNEL IN
 ;    THE OLD SPECTRUM (e.g. 38.25 BECOMES 39)
