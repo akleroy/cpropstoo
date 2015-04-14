@@ -122,7 +122,9 @@ pro deconvolve_gauss $
 
 ;    ... NOTE THAT IT DIDN'T WORK
      worked = 0B
-
+     if keyword_set(verbose) then $
+         message, "Illegal alpha, beta, or s value.", /info     
+ 
 ;    ... CLOSE TO A POINT SOURCE
      if (0.5*(s-t) lt limit and $
          alpha gt -1*limit and $
