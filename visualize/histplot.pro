@@ -23,11 +23,12 @@ pro histplot $
 ;
 ; PURPOSE:
 ;
-; Plotting program.
+; Plot histograms with options to fill the histogram, draw the
+; outline, and/or outline individual bars.
 ;
 ; CATEGORY:
 ;
-;
+; Display program.
 ;
 ; CALLING SEQUENCE:
 ;
@@ -35,14 +36,34 @@ pro histplot $
 ;
 ; INPUTS:
 ;
+; x : the x values of the bins. Ideally as the edges of the bins, in
+; which case there are nbins+1 values. If instead there are nbins
+; values, the program will assume regular spacing.
 ;
+; y : the values of the histogram in the bin.
 ;
 ; OPTIONAL INPUTS:
 ;
+; basey : the y value from which the histogram is drawn, either a
+; single value (default 0.0) or a per-bin value.
 ;
+; lstyle, lcolor, lthick : line plotting parameters for the outline
+; and the bar
+;
+; fcolor, fline, fspacing, fpattern, forientation : plotting
+; parameters for the polygon fill
 ;
 ; KEYWORD PARAMETERS:
 ;
+; *** Note that all extra parameters are passed to the plot call ***
+;
+; overplot : do not frame the plot
+;
+; outline : draw the outline of the histogram
+;
+; fill : fill the histogram
+;
+; nobars : suppress outlining individual bars
 ;
 ;
 ; OUTPUTS:
