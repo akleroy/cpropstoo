@@ -233,7 +233,7 @@ function shuffle $
 ;    Recenter the current spectrum (this may be trivial for
 ;    regridding)
 
-     this_vaxis = orig_vaxis - zero
+     this_vaxis = orig_vaxis - this_zero
 
 ;    Check overlap of the recentered spectrum
 
