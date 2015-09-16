@@ -4,6 +4,7 @@ function shuffle $
    , zero = zero $
    , target_vaxis = new_vaxis $
    , target_hdr = new_hdr $
+   , target_naxis = new_naxis $
    , target_crval = new_crval $
    , target_crpix = new_crpix $
    , target_cdelt = new_cdelt $
