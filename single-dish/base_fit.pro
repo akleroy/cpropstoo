@@ -131,7 +131,7 @@ function base_fit $
         yfit = 0.0 * yaxis
      endif else begin
         coefs = $
-           ROBUST_POLY_FIT(xaxis,yaxis,degree,yfit,status=fit_status)
+           ROBUST_POLY_FIT(xaxis,yaxis,degree,yfit)
      endelse
      yaxis += median_y
      coefs[0] += median_y
