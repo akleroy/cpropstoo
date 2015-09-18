@@ -4,6 +4,7 @@ function shuffle $
    , zero = zero $
    , target_vaxis = new_vaxis $
    , target_hdr = new_hdr $
+   , target_naxis = new_naxis $
    , target_crval = new_crval $
    , target_crpix = new_crpix $
    , target_cdelt = new_cdelt $
@@ -85,19 +86,19 @@ function shuffle $
         
         if n_elements(new_cdelt) eq 0 then begin
            message, '... defaulting to original channel width.', /info
-           new_cdelt = vaxis[1] - vaxis[0]
+           new_cdelt = orig_vaxis[1] - orig_vaxis[0]
         endif
 
         if n_elements(new_crval) eq 0 or $
            n_elements(new_crpix) eq 0 then begin
            message, '... defaulting to original reference value.', /info
-           new_crval = vaxis[0]
+           new_crval = orig_vaxis[0]
            new_crpix = 1
         endif
 
         if n_elements(new_naxis) eq 0 then begin
            message, '... defaulting to original axis length.', /info
-           new_naxis = n_elements(vaxis)
+           new_naxis = n_elements(orig_vaxis)
         endif        
 
         new_vaxis = (findgen(new_naxis) - (new_crpix-1.))*new_cdelt + new_crval
@@ -233,7 +234,7 @@ function shuffle $
 ;    Recenter the current spectrum (this may be trivial for
 ;    regridding)
 
-     this_vaxis = orig_vaxis - zero
+     this_vaxis = orig_vaxis - this_zero
 
 ;    Check overlap of the recentered spectrum
 
