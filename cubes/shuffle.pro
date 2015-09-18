@@ -193,15 +193,15 @@ function shuffle $
 ; &$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$
 
   if sz[0] eq 1 then begin
-     output = fltarr(n_chan)*!values.f_nan
+     output = fltarr(n_chan)+missing
   endif
 
   if sz[0] eq 2 then begin
-     output = fltarr(sz[1], n_chan)*!values.f_nan
+     output = fltarr(sz[1], n_chan)+missing
   endif
 
   if sz[0] eq 3 then begin
-     output = fltarr(sz[1], sz[2], n_chan)*!values.f_nan
+     output = fltarr(sz[1], sz[2], n_chan)+missing
   endif
 
 ; &$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$
