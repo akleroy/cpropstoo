@@ -349,30 +349,33 @@ pro grid_otf $
 
   message, 'Searching for duplicate spectra locations.', /info
   
-  twod_ind = long(x_pix_big) + long(y_pix_big)*long(nx)
+  twod_ind = long(x_pix_big) + long(y_pix_big)*long(nx_big)
   ind_hist = histogram(twod_ind, reverse=ri)
   mult_ind = where(ind_hist ge 2, multi_ct)
-  
+
   if multi_ct gt 0 then begin
+
      message, "Found some multi-valued pixels. Consolidating.", /info
 
      for ii = 0L, multi_ct-1 do begin
         counter, ii, multi_ct, " Duplicate "
 
-        first = ri[ri[mult_ind[ii]]]
-        ind = ri[ri[mult_ind[ii]]:(ri[mult_ind[ii]+1]-1)]
+        first = ri[mult_ind[ii]]
+        last = ri[mult_ind[ii]+1]-1
+        ind = ri[first:last]
 
         this_data = data[ind,*]
         this_wt = weight[ind,*]
 
-        data[first,*] = total(this_data*this_wt,1,/nan)/total(this_wt,1,/nan)
+        data[ri[first],*] = total(this_data*this_wt,1,/nan)/total(this_wt,1,/nan)
         
         weight[ind,*] = 0.0
-        weight[first,*] = total(this_wt,1)
+        weight[ri[first],*] = total(this_wt,1)
+
      endfor
      
   endif
-
+  
 ; Remove double values
   ind = where(total(weight,2) ne 0.0)
 
