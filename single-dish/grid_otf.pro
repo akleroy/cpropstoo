@@ -384,7 +384,7 @@ pro grid_otf $
   x_pix_big = x_pix_big[ind]
   y_pix_big = y_pix_big[ind]
 
-  twod_ind = long(x_pix_big) + y_pix_big*long(nx)
+  twod_ind = long(x_pix_big) + y_pix_big*long(nx_big)
   ind_hist = histogram(twod_ind, reverse=ri)
   if total(ind_hist gt 1) ne 0 then begin
      message, "Duplicates persist. Stopping for diagnosis.", /info
