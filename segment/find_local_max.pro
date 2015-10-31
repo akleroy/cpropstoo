@@ -155,6 +155,11 @@ pro find_local_max $
         return
      endif else begin
         rms = readfits(file_rms, rms_hdr)
+      ; In this case RMS has to be a CUBE
+        sz_rms  = size(rms)
+        sz_data = size(data)
+        if sz_rms[0] eq 2 and sz_data[0] eq 3 then $
+           rms = rebin(reform(rms,sz_rms[1],sz_rms[2],1),sz_data[1:3])
      endelse
   endif else begin
      if n_elements(rms) eq 0 then begin        
