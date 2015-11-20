@@ -193,15 +193,15 @@ function shuffle $
 ; &$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$
 
   if sz[0] eq 1 then begin
-     output = fltarr(n_chan)*!values.f_nan
+     output = fltarr(n_chan)+missing
   endif
 
   if sz[0] eq 2 then begin
-     output = fltarr(sz[1], n_chan)*!values.f_nan
+     output = fltarr(sz[1], n_chan)+missing
   endif
 
   if sz[0] eq 3 then begin
-     output = fltarr(sz[1], sz[2], n_chan)*!values.f_nan
+     output = fltarr(sz[1], sz[2], n_chan)+missing
   endif
 
 ; &$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$&$
@@ -224,11 +224,13 @@ function shuffle $
         xx = ii mod sz[1]
         this_spec = reform(spec[xx, yy, *])
         if n_elements(zero) gt 1 then $
-           this_zero = zero[xx,yy]
+           this_zero = zero[xx,yy] $
+        else this_zero = zero
      endif else begin
         this_spec = reform(spec[ii,*])
         if n_elements(zero) gt 1 then $
-           this_zero = zero[ii]
+           this_zero = zero[ii] $
+        else this_zero = zero
      endelse
 
 ;    Recenter the current spectrum (this may be trivial for

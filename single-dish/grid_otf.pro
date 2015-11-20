@@ -1,8 +1,8 @@
 pro grid_otf $
-   , data = data $
+   , data = data_in $
    , ra = ra $
    , dec = dec $
-   , weight = weight $
+   , weight = weight_in $
    , target_hdr = target_hdr $
    , out_root = out_root $
    , out_cube = out_cube $
@@ -139,8 +139,16 @@ pro grid_otf $
 ;
 ; IF YOU USE THIS AND FIND ERRORS:
 ;
-; email to aleroy@nrao.edu (no promises, but I want to know)
+; email to leroy.42@osu.edu (no promises, but I want to know)
 ; 
+; TO DO:
+;
+; Apodization - implement creation of a smoother version of the cube
+;               to round out poorly covered edges or missing patches.
+;
+; Mangum kernel - currently the generation of Mangum kernel has a bug
+;                 near the center. Fix this.
+;
 ;-
 
 ;  on_error, 2
@@ -152,10 +160,13 @@ pro grid_otf $
   message, 'Error checking.', /info
 
 ; Check that we have out basic input 
-  if ((n_elements(data) eq 0) or $
+  if ((n_elements(data_in) eq 0) or $
       (n_elements(ra) eq 0) or $
       (n_elements(dec) eq 0)) then $
          message, 'Requires data, ra, and dec vectors.'
+
+; Copy the input data
+  data = data_in
 
 ; Require a target header
   if (n_elements(target_hdr) eq 0) then $
@@ -301,9 +312,11 @@ pro grid_otf $
   message, 'Sanitizing weighting.', /info
 
 ; IF THERE IS NO WEIGHTING ARRAY, MAKE A DEFAULT (ALL 1s) VERSION
-  if n_elements(weight) eq 0 then begin
+  if n_elements(weight_in) eq 0 then begin
      weight = fltarr(nspec) + 1.0
-  endif
+  endif else begin
+     weight = weight_in
+  endelse
 
 ; IF WEIGHTS ARE FED IN AS A ONE-D ARRAY MAKE THEM TWO-D
   if (size(weight))[0] eq 1 then begin
@@ -336,30 +349,33 @@ pro grid_otf $
 
   message, 'Searching for duplicate spectra locations.', /info
   
-  twod_ind = long(x_pix_big) + long(y_pix_big)*long(nx)
+  twod_ind = long(x_pix_big) + long(y_pix_big)*long(nx_big)
   ind_hist = histogram(twod_ind, reverse=ri)
   mult_ind = where(ind_hist ge 2, multi_ct)
-  
+
   if multi_ct gt 0 then begin
+
      message, "Found some multi-valued pixels. Consolidating.", /info
 
      for ii = 0L, multi_ct-1 do begin
         counter, ii, multi_ct, " Duplicate "
 
-        first = ri[ri[mult_ind[ii]]]
-        ind = ri[ri[mult_ind[ii]]:(ri[mult_ind[ii]+1]-1)]
+        first = ri[mult_ind[ii]]
+        last = ri[mult_ind[ii]+1]-1
+        ind = ri[first:last]
 
         this_data = data[ind,*]
         this_wt = weight[ind,*]
 
-        data[first,*] = total(this_data*this_wt,1,/nan)/total(this_wt,1,/nan)
+        data[ri[first],*] = total(this_data*this_wt,1,/nan)/total(this_wt,1,/nan)
         
         weight[ind,*] = 0.0
-        weight[first,*] = total(this_wt,1)
+        weight[ri[first],*] = total(this_wt,1)
+
      endfor
      
   endif
-
+  
 ; Remove double values
   ind = where(total(weight,2) ne 0.0)
 
@@ -368,7 +384,7 @@ pro grid_otf $
   x_pix_big = x_pix_big[ind]
   y_pix_big = y_pix_big[ind]
 
-  twod_ind = long(x_pix_big) + y_pix_big*long(nx)
+  twod_ind = long(x_pix_big) + y_pix_big*long(nx_big)
   ind_hist = histogram(twod_ind, reverse=ri)
   if total(ind_hist gt 1) ne 0 then begin
      message, "Duplicates persist. Stopping for diagnosis.", /info
@@ -381,10 +397,11 @@ pro grid_otf $
 
   message, 'Building cube.', /info
 
-; MAKE THREE EMPTY CUBES: DATA, COVERAGE, SPECTRA THAT CONTRIBUTE
+; MAKE TWO EMPTY CUBES: (1) DATA, (2) COVERAGE
+
   data_cube = fltarr(nx, ny, nchan)
   weight_cube = fltarr(nx,ny,nchan)
-
+    
   for cc = 0L, nchan-1 do begin
 
      counter, cc, nchan, " Plane "
@@ -410,8 +427,9 @@ pro grid_otf $
 ;     hastrom, data_conv, big_hdr, 
 ;     hrebin, dummy_image, twod_head(target_hdr), big_dummy, big_hdr, nx_big, ny_big
 
-     if keyword_set(show) then $
-        disp, data_cube[*,*,cc]
+     if keyword_set(show) then begin
+        disp, data_cube[*,*,cc], /sq
+     endif
 
   endfor
 
@@ -441,7 +459,7 @@ pro grid_otf $
   endif
   
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
-; APODIZATION (OPTIONAL)
+; APODIZATION
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
@@ -492,4 +510,4 @@ pro grid_otf $
      out_cube = data_cube
   endelse
   
-end                             ; of grid_otf_2
+end                             ; of grid_otf
