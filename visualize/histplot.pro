@@ -1,6 +1,6 @@
 pro histplot $
    , x_in $
-   , y $
+   , y_in $
    , basey = basey $
    , outline = outline $
    , nobars = nobars $
@@ -102,7 +102,7 @@ pro histplot $
 ; DEFAULTS AND SETUP
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-  nbin = n_elements(y)
+  nbin = n_elements(y_in)
 
   if n_elements(x_in) ne nbin+1 then begin
      if n_elements(x_in) eq nbin then begin
@@ -116,16 +116,24 @@ pro histplot $
   endif else begin
      x = x_in
   endelse
-
+  
 ; Default to a histogram centered at 0
   
   if n_elements(basey) eq 0 then $
      basey = 0.0
 
   if n_elements(basey) ne n_elements(y) then begin
-     basey = basey[0] + y*0.0
+     basey = basey[0]*(fltarr(nbin)+1.0)
   endif
 
+; Deal with not-a-numbers
+
+  y = y_in  
+  nan_ind = where(finite(y_in) eq 0, nan_ct)
+  if nan_ct ne 0 then begin
+     y[nan_ind] = basey[nan_ind]
+  endif
+  
 ; Default to drawing the outline
   if n_elements(outline) eq 0 then $
      outline = 1B
@@ -164,7 +172,8 @@ pro histplot $
      outline_y[2*ii+1:2*ii+2] = [y[ii], y[ii]]
   endfor
 
-; ... draws the bottoms of the histogram - this won't necessarily be plotted.
+; ... draws the bottoms of the histogram. This won't necessarily be
+; plotted but is needed for the polygon plotting.
   for ii = 0, nbin-1 do begin
      outline_x[2*nbin+2*ii+1:2*nbin+2*ii+2] = [x[nbin-1-ii+1], x[nbin-1-ii]]
      outline_y[2*nbin+2*ii+1:2*nbin+2*ii+2] = [basey[nbin-1-ii], basey[nbin-1-ii]]
