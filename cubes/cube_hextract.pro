@@ -79,7 +79,7 @@ function cube_hextract, file_in = file_in $
   nz = (size(input))[3]
 
   plane_0 = input[*,*,0]
-  hextract, plane_0, hdr_copy, new_plane, new_hdr, x0, x1, y0, y1
+  hextract, plane_0, hdr_copy, new_plane, new_hdr, x0, x1, y0, y1, /silent
 
   nx_out = sxpar(new_hdr, 'NAXIS1')
   ny_out = sxpar(new_hdr, 'NAXIS2')
@@ -104,7 +104,7 @@ function cube_hextract, file_in = file_in $
 ; KEYWORDS BACK IN...
 
   hdr_out = new_copy
-  sxaddpar, hdr_out, 'NAXIS',sxpar(orig_hdr,'NAXIS')
+  sxaddpar, hdr_out, 'NAXIS', sxpar(orig_hdr,'NAXIS')
   n3 = sxpar(orig_hdr,'NAXIS3',count=ct)
   if (ct gt 0) then sxaddpar,hdr_out,'NAXIS3',n3,after='NAXIS2'
   n4 = sxpar(orig_hdr,'NAXIS4',count=ct)
