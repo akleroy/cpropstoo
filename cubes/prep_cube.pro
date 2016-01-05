@@ -242,8 +242,7 @@ pro prep_cube $
 ; WRITE TO DISK
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-  sxaddpar, hdr, 'CPROCESS', 1.0, 'process_cube applied.'
-  
+  sxaddhist, hdr, 'CPROCESS v1.0 prep_cube applied.'
   writefits, out_file, cube, hdr
 
 end
