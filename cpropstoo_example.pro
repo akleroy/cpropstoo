@@ -73,7 +73,7 @@ pro cpropstoo_example
 
 ; Rerun the masking with the cube "inverted" (flipped to negative) in
 ; order to check the stringency of the mask. The number of pixels in
-; the mask here give an estimate of the flase positive rate.
+; the mask here give an estimate of the false positive rate.
 
   make_cprops_mask $
      , infile = "../data/co32_correct.fits" $
@@ -178,6 +178,7 @@ pro cpropstoo_example
      , infile="../data/co32_correct_pbcorr.fits" $
      , inassign="../data/co32_assign_cprops.fits" $
      , outfile="../measurements/co32_moments_cprops.idl" $
+     , rmsfile = "../data/co32_noise.fits" $
      , /verbose           
 
 ; THE CLUMPFIND CASE
@@ -185,6 +186,7 @@ pro cpropstoo_example
      , infile="../data/co32_correct_pbcorr.fits" $
      , inassign="../data/co32_assign_clfind.fits" $
      , outfile="../measurements/co32_moments_clfind.idl" $
+     , rmsfile = "../data/co32_noise.fits" $
      , /verbose           
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
