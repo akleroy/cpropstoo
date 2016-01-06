@@ -201,7 +201,7 @@ pro cpropstoo_example
   moments_to_props $
      , hdrfile="../data/co32_correct_pbcorr.fits" $
      , infile="../measurements/co32_moments_cprops.idl" $
-     , outfile="../measurements/co32_props_cprops.idl" $
+     , idl_file="../measurements/co32_props_cprops.idl" $
      , dist=11.9d6 $
      , /verbose
 
@@ -209,7 +209,7 @@ pro cpropstoo_example
   moments_to_props $
      , hdrfile="../data/co32_correct_pbcorr.fits" $
      , infile="../measurements/co32_moments_clfind.idl" $
-     , outfile="../measurements/co32_props_clfind.idl" $
+     , idl_file="../measurements/co32_props_clfind.idl" $
      , dist=11.9d6 $
      , /verbose
 
