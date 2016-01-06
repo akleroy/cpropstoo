@@ -180,7 +180,7 @@ pro prep_cube $
               str = strsplit(str, /ext)
               bmaj_deg = float(str[3])/3600
               bmin_deg = float(str[5])/3600
-              bpa_deg = float(str[9])/3600
+              bpa_deg = float(str[9])
               sxaddpar, hdr, "BMAJ", bmaj_deg
               sxaddpar, hdr, "BMIN", bmin_deg
               sxaddpar, hdr, "BPA", bpa_deg
