@@ -4,7 +4,7 @@ pro cube_to_moments $
    , assign = assign $
    , inassign = inassign $
    , rms = rms $
-   , inrms = inrms $
+   , rmsfile = rmsfile $
    , hdr = hdr $
    , outfile = outfile $
    , verbose = verbose $
@@ -53,8 +53,8 @@ pro cube_to_moments $
   
   if n_elements(rms) eq 0 then begin
      file_ct  = 0
-     if n_elements(inrms) gt 0 then $
-       file_rms = file_search(inrms, count=file_ct)
+     if n_elements(rmsfile) gt 0 then $
+       file_rms = file_search(rmsfile, count=file_ct)
      if file_ct eq 0 then begin
         message, "Noise cube not found. Not critical.", /info
      endif else begin

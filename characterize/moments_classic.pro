@@ -280,7 +280,7 @@ function moments_classic $
 
      props.mom2maj = mom2xrot[n_elements(mom2xrot)-1]
      props.mom2min = mom2yrot[n_elements(mom2yrot)-1]
-     stop
+
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; CURVE OF GROWTH EXTRAPOLATION
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
