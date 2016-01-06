@@ -41,7 +41,6 @@ function calc_props_from_moments $
   if n_elements(empty_props) eq 0 then begin
 
      empty_props = add_props_fields(moments)
-
      for i = 0, n_mod-1 do begin
         empty_props = $
            call_function("moments_"+modules[i] $
@@ -169,6 +168,7 @@ function calc_props_from_moments $
                       , astr=astr $
                       , vaxis=vaxis $                      
                       , _extra=extra)
+     
   endfor
 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
