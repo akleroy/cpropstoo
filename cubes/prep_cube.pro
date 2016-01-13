@@ -243,6 +243,8 @@ pro prep_cube $
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
   sxaddhist, 'CPROCESS v1.0 prep_cube applied.', hdr
-  writefits, out_file, cube, hdr
+  if sxpar(hdr,'BITPIX') eq -32 then  $
+     writefits, out_file, float(cube), hdr else $
+        writefits, out_file, cube, hdr
 
 end
