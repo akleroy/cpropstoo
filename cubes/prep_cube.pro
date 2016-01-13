@@ -215,8 +215,8 @@ pro prep_cube $
      if units eq "JY" then begin
 ;       Factor for JY/BEAM
         jtok = calc_jtok(hdr = hdr,pixels_per_beam = ppbeam)
-;       Divide by pixels per beam to get JY/PIX
-        jtok /= ppbeam
+;       Multiply by pixels per beam to get JY/PIX conversion fac.
+        jtok *= ppbeam
         cube *= jtok
         sxaddpar, hdr, "BUNIT", "K"
      endif
