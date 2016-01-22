@@ -54,8 +54,12 @@ function calc_jtok, hdr=hdr $
         if n_elements(bmin) eq 0 then $
            bmin = sxpar(hdr, 'BMIN')
      endelse
-     if n_elements(restfreq) eq 0 then $
-        restfreq = sxpar(hdr, 'RESTFRQ')
+     if n_elements(restfreq) eq 0 then begin
+        restfreq = sxpar(hdr, 'RESTFRQ', count=rf_count)
+        if rf_count eq 0 then begin
+           restfreq = sxpar(hdr, 'RESTFREQ', count=rf_count)
+        endif
+     endif
   endif
   
   res_deg = sqrt(bmaj*bmin)
