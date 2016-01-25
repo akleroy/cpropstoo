@@ -7,7 +7,11 @@ pro collapse_cube $
    , mom0 = mom0 $
    , e_mom0 = e_mom0 $
    , mom1 = mom1 $
+   , e_mom1 = e_mom1 $
    , mom2 = mom2 $
+   , e_mom2 = e_mom2 $
+   , var = var $
+   , e_var = e_var $
    , tpeak = tpeak
 
 ;+
@@ -100,7 +104,8 @@ pro collapse_cube $
      mask = finite(cube)
   endif
 
-; WORK OUT A NOISE IF NOT SUPPLIED
+; WORK OUT A NOISE IF NOT SUPPLIED. WOULD LIKE TO USE THE MASK, BUT
+; DOESN'T WORK IN THE DEFAULT CASE
   if n_elements(noise) eq 0 then begin
      noise = mad(cube)
   endif
@@ -137,16 +142,27 @@ pro collapse_cube $
 ; MAKE THE MOMENT 1 MAP
   vcube = cube*!values.f_nan
   for i = 0, sz[3]-1 do vcube[*,*,i] = vaxis[i]
-  mom1 = total(vcube*mask*cube,3,/nan)/total(mask*cube,3,/nan)
+  term1 = total(vcube*mask*cube,3,/nan)
+  mom1 = term1/mom0
 
-; ... TBD: UNCERTAINTY
+; UNCERTAINTY
+  e_term1 = sqrt(total((vcube*mask*noise)^2,3,/nan))
+;  e_mom1 = mom1*sqrt((e_term1/term1)^2+(e_mom0/mom0)^2)
+  e_mom1 = 0.5*e_term1/term1*mom1 ; the O.5 is a total kluge
 
 ; MAKE THE MOMENT 2 MAP
   dvcube = cube*!values.f_nan
+  evcube = cube*!values.f_nan
   for i = 0, sz[3]-1 do dvcube[*,*,i] = vcube[*,*,i] - mom1
-  mom2 = sqrt(total(dvcube^2*mask*cube,3,/nan)/total(mask*cube,3,/nan))
+  for i = 0, sz[3]-1 do evcube[*,*,i] = e_mom1
+  var = total(dvcube^2*mask*cube,3,/nan)
+  mom2 = sqrt(var/total(mask*cube,3,/nan))
 
-; ... TBD: UNCERTAINTY
+; UNCERTAINTY ... WITHIN ABOUT 10% RIGHT NOW, COME BACK AND FIX THIS
+; UP LATER.
+  e_var = sqrt(total((dvcube^2*mask*noise)^2,3,/nan) + $
+               total((evcube^2*mask*cube)^2,3,/nan))
+  e_mom2 = mom2*(e_var/var)*0.5
 
 ; PEAK VALUE MAP
   cube_copy = cube
