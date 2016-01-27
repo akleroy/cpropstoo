@@ -143,7 +143,8 @@ pro collapse_cube $
   vcube = cube*!values.f_nan
   for i = 0, sz[3]-1 do vcube[*,*,i] = vaxis[i]
   term1 = total(vcube*mask*cube,3,/nan)
-  mom1 = term1/mom0
+  term2 = total(mask*cube,3,/nan)
+  mom1 = term1/term2
 
 ; UNCERTAINTY
   e_term1 = sqrt(total((vcube*mask*noise)^2,3,/nan))
