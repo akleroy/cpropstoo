@@ -315,6 +315,11 @@ pro grid_otf $
   if n_elements(weight_in) eq 0 then begin
      weight = fltarr(nspec) + 1.0
   endif else begin
+     if (n_elements(weight_in) ne long(nspec)) and $
+        (n_elements(weight_in) ne long(nspec)*long(nchan)) $
+     then begin
+        message, 'Weights in do not match number of spectra or number of spectra*channels.', /info
+     endif
      weight = weight_in
   endelse
 
@@ -375,16 +380,16 @@ pro grid_otf $
      endfor
      
   endif
-  
+    
 ; Remove double values
-  ind = where(total(weight,2) ne 0.0)
+  ind = where(total(weight,2) gt 0.0)
 
   data = data[ind,*]
   weight = weight[ind,*]
   x_pix_big = x_pix_big[ind]
   y_pix_big = y_pix_big[ind]
 
-  twod_ind = long(x_pix_big) + y_pix_big*long(nx_big)
+  twod_ind = long(x_pix_big) + long(y_pix_big)*long(nx_big)
   ind_hist = histogram(twod_ind, reverse=ri)
   if total(ind_hist gt 1) ne 0 then begin
      message, "Duplicates persist. Stopping for diagnosis.", /info

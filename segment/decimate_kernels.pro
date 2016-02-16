@@ -186,7 +186,7 @@ function decimate_kernels $
 ;          mask = cube gt merge_level
            mask = cube gt unique_lev
         endelse
-        asgn = label_region(mask)
+        asgn = label_region(mask, /ULONG)
         stat_mask, asgn eq asgn[kernels[order[i]]] $
                    , volume=npixels, area=area, vwidth=vwidth
 
