@@ -68,7 +68,7 @@ function moments_classic $
         props = create_struct(props, "mom2v_extrap", nan)
         props = create_struct(props, "mom2v_unit", "pix")
 
-;       PRINCIPLE AXES CALCULATION
+;       PRINCIPAL AXES CALCULATION
         props = create_struct(props, "mom2maj", nan)
         props = create_struct(props, "mom2maj_extrap", nan)
         props = create_struct(props, "mom2maj_unit", "pix")
@@ -136,7 +136,7 @@ function moments_classic $
         props = create_struct(props, "vrms_extrap_deconv", nan)
         props = create_struct(props, "vrms_unit", "km/s")
 
-;       PRINCIPLE AXIS QUANTITIES
+;       PRINCIPAL AXIS QUANTITIES
         props = create_struct(props, "majrms", nan)
         props = create_struct(props, "majrms_extrap", nan)
         props = create_struct(props, "majrms_extrap_deconv", nan)
@@ -245,10 +245,10 @@ function moments_classic $
      props.mom2v = mom2v[n_elements(mom2v)-1]
      
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-; PRINCIPLE AXES
+; PRINCIPAL AXES
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-; Perform the principle axes decomposition and record those values.
+; Perform the principal axes decomposition and record those values.
 
      ellfit, x=x, y=y, wt=t, posang=posang
 
@@ -280,7 +280,7 @@ function moments_classic $
 
      props.mom2maj = mom2xrot[n_elements(mom2xrot)-1]
      props.mom2min = mom2yrot[n_elements(mom2yrot)-1]
-     
+
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; CURVE OF GROWTH EXTRAPOLATION
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -457,7 +457,7 @@ function moments_classic $
         sqrt(props.mom2v_extrap^2 - (1.0*props.chantosig)^2)*props.chanwidth_kms
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-; PRINCIPLE AXIS QUANTITIES
+; PRINCIPAL AXIS QUANTITIES
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
      props.majrms = props.mom2maj*props.pcperpix
