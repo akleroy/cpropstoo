@@ -149,8 +149,11 @@ function bin_data $
      , xmean: nan $
      , xmed: nan $
      , counts: nan $
-     , ymean: nan $
+     , ysum: 0.0 $
+     , e_ysum: nan $
+     , yvary: nan $
      , e_yvary: nan $     
+     , ymean: nan $
      , e_ymean: nan $
      , ymed: nan $
      , e_ymed: nan $
@@ -170,9 +173,7 @@ function bin_data $
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; CONSTRUCT THE BINS
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
-
   
-
   if n_elements(xmax_in) eq 0 then begin
       xmax = max(x, /nan)
   endif else begin
@@ -229,7 +230,12 @@ function bin_data $
   for ii = 0L, nbins-1 do begin
 
      this_bin = empty_bin
-     
+          this_bin.xmin = xmin_bin[ii]
+     this_bin.xmax = xmax_bin[ii]
+     this_bin.xmid = (xmax_bin[ii]+xmin_bin[ii])*0.5
+     this_bin.xwidth = (this_bin.xmax - this_bin.xmin)
+     this_bin.xgeo = sqrt(xmax_bin[ii]*xmin_bin[ii])
+
 ;    Find the pixels in the present bin. Use a greater than or equal
 ;    value for the lower edge and a less than for the upper edge.
      
@@ -257,16 +263,12 @@ function bin_data $
 
 ;    Record the properties of the bin in the independent variable
      
-     this_bin.xmin = xmin_bin[ii]
-     this_bin.xmax = xmax_bin[ii]
-     this_bin.xmid = (xmax_bin[ii]+xmin_bin[ii])*0.5
-     this_bin.xwidth = (this_bin.xmax - this_bin.xmin)
-     this_bin.xgeo = sqrt(xmax_bin[ii]*xmin_bin[ii])
      this_bin.xmean = mean(this_x)
      this_bin.xmed = median(this_x,/even)
      
 ;    Record the properties of the bin in the dependent values
-
+     
+     this_bin.ysum = total(this_y)
      this_bin.ymean = mean(this_y)
      this_bin.ymed = median(this_y, /even)
      this_bin.ymin = min(this_y)
