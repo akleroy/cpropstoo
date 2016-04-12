@@ -2,7 +2,8 @@ function calc_jtok, hdr=hdr $
                     , bmaj=bmaj $
                     , bmin=bmin $
                     , restfreq=restfreq $
-                    , aips=aips
+                    , aips=aips $
+                    , pixels_per_beam = pixels_per_beam
 
 
 ;+
@@ -54,14 +55,12 @@ function calc_jtok, hdr=hdr $
         if n_elements(bmin) eq 0 then $
            bmin = sxpar(hdr, 'BMIN')
      endelse
-     if n_elements(restfreq) eq 0 then begin
-        restfreq = sxpar(hdr, 'RESTFRQ', count=rf_count)
-        if rf_count eq 0 then begin
-           restfreq = sxpar(hdr, 'RESTFREQ', count=rf_count)
-        endif
-     endif
+     if n_elements(restfreq) eq 0 then $
+        restfreq = sxpar(hdr, 'RESTFRQ')
+     getrot,hdr,rotation,cdelt
+     pixels_per_beam = 2*!pi*bmaj*bmin/(8*alog(2)) / abs(cdelt[0]*cdelt[1])
   endif
-  
+
   res_deg = sqrt(bmaj*bmin)
   beaminster = !pi*(res_deg*!dtor/2.)^2/alog(2.)
   jtok = c^2/beaminster/1.d23/(2.*kb*restfreq^2.)

@@ -67,9 +67,9 @@ pro prep_cube $
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
 ;    PUT IN A USER SUPPLIED LINE NAME
-     if n_elements(line_name) gt 0 then begin
-        sxaddpar, hdr, 'LINE', line_name, after='OBJECT'
-     endif
+  if n_elements(line_name) gt 0 then begin
+     sxaddpar, hdr, 'LINE', line_name, after='OBJECT'
+  endif
 
   if keyword_set(skip_vel) eq 0 then begin
 
@@ -99,22 +99,32 @@ pro prep_cube $
 
 ;    TRY TO ENFORCE KM/S
      cdelt3 = sxpar(hdr, 'CDELT3')
-     if keyword_set(ms_to_kms) or abs(cdelt3) gt 1e2 then begin
-        sxaddpar, hdr, 'CDELT3', cdelt3/1e3        
-        crval3 = sxpar(hdr, 'CRVAL3')
-        sxaddpar, hdr, 'CRVAL3', crval3/1e3        
-        sxaddpar, hdr, 'CTYPE3', 'VRAD' ; assume radio velocity
-        sxaddpar, hdr, 'CUNIT3', 'KM/S', after='CTYPE3'
-        ; ctype3 = strupcase(strcompress(sxpar(hdr, 'CTYPE3'), /rem))
-        ; if ctype3 eq 'M/S' then begin
-        ;    sxaddpar, hdr, 'CTYPE3', 'KM/S'
-        ; endif
-     endif
-
-     if n_elements(new_ctype3) gt 0 then begin
-        sxaddpar, hdr, 'CTYPE3', new_ctype3
-     endif
-     
+     ctype3 = strupcase(strcompress(sxpar(hdr, 'CTYPE3'),/rem))
+     if ctype3 eq "FREQ" then begin
+        message,'Original cube in frequency units... attempting conversion.',/con
+        c_kms = 2.99792458d5
+        center_velocity = (sxpar(hdr,'RESTFRQ')-sxpar(hdr,'CRVAL3'))/sxpar(hdr,'RESTFRQ')*c_kms
+        deltav_kms = sxpar(hdr,'CDELT3')/sxpar(hdr,'RESTFRQ')*c_kms
+        sxaddpar,hdr,'CRVAL3',center_velocity
+        sxaddpar,hdr,'CDELT3',deltav_kms
+        sxaddpar,hdr,'CTYPE3','VRAD-F2V'
+        sxaddpar,hdr,'CUNIT3','KM/S',after='CTYPE3'
+     endif else begin
+        if keyword_set(ms_to_kms) or abs(cdelt3) gt 1e2 then begin
+           sxaddpar, hdr, 'CDELT3', cdelt3/1e3        
+           crval3 = sxpar(hdr, 'CRVAL3')
+           sxaddpar, hdr, 'CRVAL3', crval3/1e3        
+           sxaddpar, hdr, 'CTYPE3', 'VRAD' ; assume radio velocity
+           sxaddpar, hdr, 'CUNIT3', 'KM/S', after='CTYPE3'
+                                ; ctype3 = strupcase(strcompress(sxpar(hdr, 'CTYPE3'), /rem))
+                                ; if ctype3 eq 'M/S' then begin
+                                ;    sxaddpar, hdr, 'CTYPE3', 'KM/S'
+                                ; endif
+        endif
+        if n_elements(new_ctype3) gt 0 then begin
+           sxaddpar, hdr, 'CTYPE3', new_ctype3
+        endif
+     endelse 
   endif
   
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
@@ -154,14 +164,28 @@ pro prep_cube $
            if ct gt 0 then begin
               str = hdr[max(ind)]
               str = strsplit(str, /ext)
-              bmaj_deg = float(str[4])*3600
-              bmin_deg = float(str[6])*3600
+              bmaj_deg = float(str[4])/3600
+              bmin_deg = float(str[6])/3600
               bpa_deg = float(str[8])
               
               sxaddpar, hdr, "BMAJ", bmaj_deg
-              sxaddpar, hdr, "BPA", bmin_deg
-              sxaddpar, hdr, "BMIN", bpa_deg
+              sxaddpar, hdr, "BMIN", bmin_deg
+              sxaddpar, hdr, "BPA", bpa_deg
            endif
+;          TRAP SOME FLAVORS OF ALMA HEADERS
+           ind = where(strpos(hdr,'restoration:') gt 0 and $
+                       strpos(hdr,'(arcsec)') gt 0, ct)
+           if ct gt 0 then begin
+              str = hdr[max(ind)]
+              str = strsplit(str, /ext)
+              bmaj_deg = float(str[3])/3600
+              bmin_deg = float(str[5])/3600
+              bpa_deg = float(str[9])
+              sxaddpar, hdr, "BMAJ", bmaj_deg
+              sxaddpar, hdr, "BMIN", bmin_deg
+              sxaddpar, hdr, "BPA", bpa_deg
+           endif
+
         endif else begin
 
 ;          TRAP CASE WHERE ONLY BMAJ IS SPECIFIED
@@ -188,6 +212,14 @@ pro prep_cube $
         cube *= jtok
         sxaddpar, hdr, "BUNIT", "K"
      endif
+     if units eq "JY" then begin
+;       Factor for JY/BEAM
+        jtok = calc_jtok(hdr = hdr,pixels_per_beam = ppbeam)
+;       Multiply by pixels per beam to get JY/PIX conversion fac.
+        jtok *= ppbeam
+        cube *= jtok
+        sxaddpar, hdr, "BUNIT", "K"
+     endif
   endif
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
@@ -210,8 +242,9 @@ pro prep_cube $
 ; WRITE TO DISK
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-  sxaddpar, hdr, 'CPROCESS', 1.0, 'process_cube applied.'
-  
-  writefits, out_file, cube, hdr
+  sxaddhist, 'CPROCESS v1.0 prep_cube applied.', hdr
+  if sxpar(hdr,'BITPIX') eq -32 then  $
+     writefits, out_file, float(cube), hdr else $
+        writefits, out_file, cube, hdr
 
 end
