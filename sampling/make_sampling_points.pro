@@ -10,12 +10,68 @@ pro make_sampling_points $
    , show = show $
    , samp_ra = samp_ra $
    , samp_dec = samp_dec
-  
+
 ;+
+; NAME:
 ;
-; Still being written/tested.
+; make_sampling_points
 ;
-;- 
+; PURPOSE:
+;
+; Generates a set of {ra, dec} points on a hex grid given a center, a
+; spacing, and subject to existing inside of some mask or within some
+; radius. Optionally shows them on an image.
+;
+; CATEGORY:
+;
+; science tool
+;
+; CALLING SEQUENCE:
+;
+; make_sampling_points $
+;   , ra_ctr = ra_ctr $
+;  , dec_ctr = dec_ctr $
+;   , max_rad = max_rad $
+;   , spacing = spacing $
+;   , mask = in_mask $
+;   , mask_hdr = in_mask_hdr $
+;   , overlay = in_overlay $
+;   , overlay_hdr = in_overlay_hdr $
+;   , show = show $
+;   , samp_ra = samp_ra $
+;   , samp_dec = samp_dec
+;
+; INPUTS:
+;
+; ra_ctr, dec_ctr - center of the grid
+; 
+; max_rad - maximum extent of grid in degrees. Default 1 degree.
+;
+; spacing - hex grid spacing.
+;
+; mask - string or image holding a 1s and 0s mask. Only points that
+;        sample a pixel with a 1 are valid and kept. Points outside
+;        the mask are also dropped. Three dimensional data are
+;        collapsed with "or" (i.e., any 1 along the third axis is a 1
+;        in the image).
+;
+; mask_hdr - if a file is not supplied, this holds a header that
+;            supplies the mask astrometry.
+;
+; overlay, overlay_hdr - similar to mask but an image used only to
+;                        display the data. Peak intensity is used for
+;                        three dimensional data.
+;
+; show - flag that sets whether an image with the points is displayed.
+;
+; OUTPUTS:
+;
+; samp_ra, samp_dec - return arrays of RA, Dec sampling
+;                     points. Returns not-a-number if it fails.
+;
+; MODIFICATION HISTORY:
+;
+;-
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; DEFAULTS AND DEFINITIONS
