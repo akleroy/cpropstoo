@@ -45,10 +45,10 @@ pro hex_grid $
   if keep_ct eq 0 then return
 
 ; CREATE OUTPUT ARRAYS
-  yout = y[keep] + ctr_y
+  yout = y[keep] + ctr_y[0]
   if keyword_set(radec) then $
-     xout = (x[keep] / cos(!dtor*yout) + ctr_x) $
+     xout = (x[keep] / cos(!dtor*yout) + ctr_x[0]) $
   else $
-     xout = (x[keep] + ctr_x)      
+     xout = (x[keep] + ctr_x[0])      
 
 end

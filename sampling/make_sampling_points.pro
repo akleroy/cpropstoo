@@ -4,9 +4,9 @@ pro make_sampling_points $
    , max_rad = max_rad $
    , spacing = spacing $
    , mask = in_mask $
-   , mask_hdr = in_mask_hdr $
+   , hdr_mask = in_mask_hdr $
    , overlay = in_overlay $
-   , overlay_hdr = in_overlay_hdr $
+   , hdr_overlay = in_overlay_hdr $
    , show = show $
    , samp_ra = samp_ra $
    , samp_dec = samp_dec
@@ -34,9 +34,9 @@ pro make_sampling_points $
 ;   , max_rad = max_rad $
 ;   , spacing = spacing $
 ;   , mask = in_mask $
-;   , mask_hdr = in_mask_hdr $
+;   , hdr_mask = in_mask_hdr $
 ;   , overlay = in_overlay $
-;   , overlay_hdr = in_overlay_hdr $
+;   , hdr_overlay = in_overlay_hdr $
 ;   , show = show $
 ;   , samp_ra = samp_ra $
 ;   , samp_dec = samp_dec
@@ -122,8 +122,8 @@ pro make_sampling_points $
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
   hex_grid $
-     , ctr_x = ctr_ra $
-     , ctr_y = ctr_dec $
+     , ctr_x = ra_ctr $
+     , ctr_y = dec_ctr $
      , spacing = spacing $
      , /radec $
      , xout = samp_ra $
@@ -156,8 +156,8 @@ pro make_sampling_points $
         return
      endif
 
-     samp_ra = ra_samp[keep]
-     samp_dec = dec_samp[keep]
+     samp_ra = samp_ra[keep]
+     samp_dec = samp_dec[keep]
      samp_x = samp_x[keep]
      samp_y = samp_y[keep]
 
@@ -170,8 +170,8 @@ pro make_sampling_points $
         return
      endif
 
-     samp_ra = ra_samp[keep]
-     samp_dec = dec_samp[keep]
+     samp_ra = samp_ra[keep]
+     samp_dec = samp_dec[keep]
      samp_x = samp_x[keep]
      samp_y = samp_y[keep]
 
@@ -207,6 +207,7 @@ pro make_sampling_points $
      if have_overlay eq 0 and have_mask eq 1B then begin
         overlay = mask
         overlay_hdr = mask_hdr
+        have_overlay = 1B
      endif
 
      if have_overlay then begin
