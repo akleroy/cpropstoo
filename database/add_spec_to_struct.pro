@@ -62,27 +62,52 @@ function add_spec_to_struct $
 ; DEFAULTS AND DEFINITIONS
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-  int_name = "SPEC_VAL_"+strupcase(line_name)
+; Check if the field already exists
+  tags = tag_names(prev_struct)
+
   empty_spec = fltarr(n_chan)*nan
-  new_struct = create_struct(prev_struct, int_name, empty_spec)
 
+  int_name = "SPEC_VAL_"+strupcase(line_name)
   vchan0_name = "SPEC_VCHAN0_"+strupcase(line_name)
-  new_struct = create_struct(new_struct, vchan0_name, nan)
-
   deltav_name = "SPEC_DELTAV_"+strupcase(line_name)
-  new_struct = create_struct(new_struct, deltav_name, nan)
-
   uc_name = "SPEC_UC_"+strupcase(line_name)
-  new_struct = create_struct(new_struct, uc_name, nan)
-
   cov_name = "SPEC_COV_"+strupcase(line_name)
-  new_struct = create_struct(new_struct, cov_name, nan)
-
+  res_name = "SPEC_RES_"+strupcase(line_name)
   unit_name = "SPEC_UNIT_"+strupcase(line_name)
-  new_struct = create_struct(new_struct, unit_name, unit_string)
-
   desc_name = "SPEC_DESC_"+strupcase(line_name)
-  new_struct = create_struct(new_struct, desc_name, desc_string)
+
+  if total(tags eq int_name) gt 0 then begin
+;    ... this is risky. Delete and replace instead?
+     message, "Band "+int_name+" already in structure.", /info
+     message, "Resetting values and returning.", /info
+     new_struct = prev_struct
+     new_struct.(where(tags eq int_name)) = empty_spec
+     new_struct.(where(tags eq vchan0_name)) = nan
+     new_struct.(where(tags eq deltav_name)) = nan
+     new_struct.(where(tags eq uc_name)) = nan
+     new_struct.(where(tags eq cov_name)) = nan
+     new_struct.(where(tags eq res_name)) = nan
+     new_struct.(where(tags eq unit_name)) = unit_string
+     new_struct.(where(tags eq desc_name)) = desc_sctring
+  endif else begin
+     if n_elements(prev_struct) gt 0 then begin
+        is_array = 1B
+     endif else begin
+        is_array = 0B
+     endelse
+     new_struct = create_struct(prev_struct[0], int_name, empty_spec)
+     new_struct = create_struct(new_struct, vchan0_name, nan)
+     new_struct = create_struct(new_struct, deltav_name, nan)
+     new_struct = create_struct(new_struct, uc_name, nan)
+     new_struct = create_struct(new_struct, cov_name, nan)
+     new_struct = create_struct(new_struct, res_name, nan)
+     new_struct = create_struct(new_struct, unit_name, unit_string)
+     new_struct = create_struct(new_struct, desc_name, desc_string)
+     if is_array then begin
+        new_struct = replicate(new_struct, n_elements(prev_struct))
+        struct_assign, prev_struct, new_struct
+     endif
+  endelse
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; RETURN
