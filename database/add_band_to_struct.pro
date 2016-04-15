@@ -71,7 +71,7 @@ function add_band_to_struct $
      new_struct.(where(tags eq cov_name)) = nan
      new_struct.(where(tags eq res_name)) = nan
      new_struct.(where(tags eq unit_name)) = unit_string
-     new_struct.(where(tags eq desc_name)) = desc_sctring
+     new_struct.(where(tags eq desc_name)) = desc_string
   endif else begin
      if n_elements(prev_struct) gt 0 then begin
         is_array = 1B
