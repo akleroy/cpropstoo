@@ -334,6 +334,7 @@ pro grid_otf $
   if keyword_set(nan) then begin
      nan_ind = where(finite(data) eq 0, nan_ct)
      if nan_ct gt 0 then $
+        data[nan_ind] = 0.0
         weight[nan_ind] = 0.0
   endif else begin
      if total(finite(data) eq 0) gt 0 then begin

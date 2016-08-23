@@ -66,8 +66,8 @@ pro violin_oplot $
         cumul_y = total(sorted_y, /cumul, /nan)
         cumul_y /= max(cumul_y)
 
-        low_quart = interpol(sorted_x, cumul_y, 0.25)
-        high_quart = interpol(sorted_x, cumul_y, 0.75)
+        low_quart = interpol(sorted_x, cumul_y, perc)
+        high_quart = interpol(sorted_x, cumul_y, 1.-perc)
         medval = interpol(sorted_x, cumul_x, 0.5)
 
         q_ind = where((x gt low_quart) and $
@@ -128,14 +128,12 @@ pro violin_oplot $
 
      if keyword_set(show_median) then begin
 
-        circle, /fill
-
         if keyword_set(horizontal) then begin
-           oplot, [medval], [midval], psym=8 $
-                  , symsize=2, color=cgcolor('black')
+           oplot, [medval], [midval], psym=cgsymcat('filledcircle') $
+                  , symsize=1, color=cgcolor('black')
         endif else begin
-           oplot, [midval], [medval], psym=8 $
-                  , symsize=2, color=cgcolor('black')
+           oplot, [midval], [medval], psym=cgsymcat('filledcircle') $
+                  , symsize=1, color=cgcolor('black')
         endelse
 
      endif
