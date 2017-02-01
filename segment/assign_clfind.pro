@@ -111,7 +111,7 @@ pro assign_clfind $
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   if n_elements(minlev) eq 0 then $
-     minlev = min(data[where(mask)])
+     minlev = min(data[where(mask)], /nan)
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; PARE CUBE TO MINIMUM SIZE

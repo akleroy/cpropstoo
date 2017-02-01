@@ -95,7 +95,7 @@ function cube_hextract, file_in = file_in $
       new_copy = hdr_copy
       plane = input[*,*,k]
       hextract, plane, new_copy, new_plane, new_copy $
-                , x0, x1, y0, y1
+                , x0, x1, y0, y1, /silent
       output[*,*,k] = new_plane
   endfor
 

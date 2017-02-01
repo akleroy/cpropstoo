@@ -262,7 +262,7 @@ pro cube_hastrom $
      endif
 
      if (op eq 'BOT') then begin
-        output = $
+        output_copy = $
            shuffle ( $
            spec = output $
            , vaxis = orig_vaxis $
@@ -271,6 +271,7 @@ pro cube_hastrom $
            , interp = vinterp $
            , missing = vmissing $
            , quiet = quiet)
+        output = output_copy
      endif else begin
         output = $
            shuffle ( $
@@ -282,6 +283,17 @@ pro cube_hastrom $
            , missing = vmissing $
            , quiet = quiet)
      endelse
+
+;    Update the header
+     if n_elements(target_hdr) gt 0 then begin
+        sxaddpar, hdr_out, 'CTYPE3', sxpar(target_hdr, 'CTYPE3')
+        sxaddpar, hdr_out, 'CUNIT3', sxpar(target_hdr, 'CUNIT3')
+        sxaddpar, hdr_out, 'SPECSYS', sxpar(target_hdr, 'SPECSYS')
+     endif
+     sxaddpar, hdr_out, 'CRVAL3', target_vaxis[0]
+     sxaddpar, hdr_out, 'CRPIX3', 1
+     sxaddpar, hdr_out, 'CDELT3', target_vaxis[1]-target_vaxis[0]
+     sxaddpar, hdr_out, 'NAXIS3', n_elements(target_vaxis)
 
   endif
 
