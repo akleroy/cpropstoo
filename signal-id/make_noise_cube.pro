@@ -13,6 +13,8 @@ pro make_noise_cube $
    , zero_only = zero_only $
    , oned_only = oned_only $
    , twod_only = twod_only $
+   , fast_twod = fast_twod $
+   , roll_fast_twod = roll_fast_twod $
    , collapse = collapse $
    , show = show
    
@@ -86,6 +88,12 @@ pro make_noise_cube $
 ; ZERO_ONLY              : perform only a cube-average calculation
 ; ONED_ONLY              : perform only a spectral calculation
 ; TWOD_ONLY              : perform only a map-wise calculation
+; FAST_TWOD              : perform only a map-wise calculation using
+; differences along the spectral axis as a measure of the noise.
+; ROLL_FAST_TWOD         : The fast 2D algorithm uses the differences
+; bewteen spectral channels.  This is the distance between channels to
+; consider.  It should be larger than the correlation of the
+; spectrometer but as small as possible.  Default = 2.
 ; COLLAPSE               : collapse the output (only the variables) if 0d, 1d, or 2d set
 ; SHOW                   : visualize the results
 ;
@@ -283,69 +291,77 @@ pro make_noise_cube $
      ysteps = ceil(sz[2]/step/1.0)
 
      outof = long(xsteps*ysteps)
+
+     if keyword_set(fast_twod) then begin
+        message,'This is an experimental, fast 2D approach.'+$
+                ' I too like to live dangerously.', /con
+        if n_elements(roll_fast_twod) ne 1 then roll_fast_twod = 2 
+        noise_map = mad(cube - shift(cube, 0, 0, roll_fast_twod), $
+                        dimension=3) / sqrt(2)
+     endif else begin
      
 ;    LOOP OVER PIXELS AND WORK OUT NOISE FOR EACH SPECTRUM
-     for i = 0, xsteps-1 do begin
-        for j = 0, ysteps-1 do begin
+        for i = 0, xsteps-1 do begin
+           for j = 0, ysteps-1 do begin
 
-           ct += 1
-           counter, ct, outof, "Line of sight "
+              ct += 1
+              counter, ct, outof, "Line of sight "
 
-           xctr = i*step
-           yctr = j*step
+              xctr = i*step
+              yctr = j*step
 
-           if box eq 0 then begin
-              noise_ind = where(mask[i,j,*], noise_ct)
-           endif else begin
-              lox = ((xctr - box) > 0) < (sz[1]-box-1)
-              hix = ((xctr + box) > box) < (sz[1]-1)
-              loy = ((yctr - box) > 0) < (sz[2]-box-1)
-              hiy = ((yctr + box) > box) < (sz[2]-1)
-              noise_ind = where(mask[lox:hix,loy:hiy,*], noise_ct)
-           endelse
+              if box eq 0 then begin
+                 noise_ind = where(mask[i,j,*], noise_ct)
+              endif else begin
+                 lox = ((xctr - box) > 0) < (sz[1]-box-1)
+                 hix = ((xctr + box) > box) < (sz[1]-1)
+                 loy = ((yctr - box) > 0) < (sz[2]-box-1)
+                 hiy = ((yctr + box) > box) < (sz[2]-1)
+                 noise_ind = where(mask[lox:hix,loy:hiy,*], noise_ct)
+              endelse
 
-           if noise_ct lt 30 then $
-              continue
+              if noise_ct lt 30 then $
+                 continue
 
-           if box eq 0 then begin
-              data = (cube[xctr,yctr,*])[noise_ind]
-           endif else begin
-              data = (cube[lox:hix,loy:hiy,*])[noise_ind]
-           endelse
+              if box eq 0 then begin
+                 data = (cube[xctr,yctr,*])[noise_ind]
+              endif else begin
+                 data = (cube[lox:hix,loy:hiy,*])[noise_ind]
+              endelse
 
 ;          DEFAULT ESTIMATE IS M.A.D. BASED RMS OF THE DATA
-           noise = mad(data)
-           
-           if keyword_set(iterate) then begin
+              noise = mad(data)
               
+              if keyword_set(iterate) then begin
+                 
 ;             FIRST ESTIMATE (FROM ONLY THE NEGATIVES)
-              neg_ind = where(data lt 0, neg_ct)
-              if (neg_ct lt 25) then continue
-              sigma = mad([data[neg_ind], -1.*data[neg_ind]])
+                 neg_ind = where(data lt 0, neg_ct)
+                 if (neg_ct lt 25) then continue
+                 sigma = mad([data[neg_ind], -1.*data[neg_ind]])
 
 ;             IDENTIFY A REASONABLE OUTLIER CRITERIA
 ;             (HONESTLY 3 SIGMA REJECTION WOULD PROBABLY BE FINE)
-              sig_false = $
-                 bisection(3., 'erf0', erftarg = (1d0-(5d-1)/sz[3]), /double)           
+                 sig_false = $
+                    bisection(3., 'erf0', erftarg = (1d0-(5d-1)/sz[3]), /double)           
 
 ;             FINAL ESTIMATE (ALL DATA WITH OUTLIER REJECTION)
-              use_ind = where(abs(data) lt sig_false*sigma)           
-              noise = mad(data[use_ind])
-           endif
+                 use_ind = where(abs(data) lt sig_false*sigma)           
+                 noise = mad(data[use_ind])
+              endif
 
-           if box eq 0 then begin
-              noise_map[i,j] = noise
-           endif else begin
-              lofill_x = (xctr-ceil(step/2)) > 0 
-              hifill_x = (xctr+ceil(step/2)) < (sz[1]-1)
-              lofill_y = (yctr-ceil(step/2)) > 0 
-              hifill_y = (yctr+ceil(step/2)) < (sz[2]-1)
-              noise_map[lofill_x:hifill_x,lofill_y:hifill_y] = noise
-           endelse
+              if box eq 0 then begin
+                 noise_map[i,j] = noise
+              endif else begin
+                 lofill_x = (xctr-ceil(step/2)) > 0 
+                 hifill_x = (xctr+ceil(step/2)) < (sz[1]-1)
+                 lofill_y = (yctr-ceil(step/2)) > 0 
+                 hifill_y = (yctr+ceil(step/2)) < (sz[2]-1)
+                 noise_map[lofill_x:hifill_x,lofill_y:hifill_y] = noise
+              endelse
 
+           endfor
         endfor
-     endfor
-
+     endelse
      if keyword_set(show) then begin
         disp, noise_map, /sq, title="Noise Map"
         contour, noise_map, lev=median(noise_map)*[0.5,1.0,2.0], /overplot

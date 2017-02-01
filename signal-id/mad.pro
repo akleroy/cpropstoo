@@ -40,7 +40,7 @@ function mad, x, window = window, finite = finite, dimension = dimension
 ;-
 
 
-  mad2gauss = 0.67449
+  mad2gauss = 0.6744897501960817
 
   if n_elements(dimension) ne 0 then begin
      if n_elements(finite) gt 0 or n_elements(window) gt 0 then $

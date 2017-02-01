@@ -176,7 +176,7 @@ pro assign_clfind $
      endif
 
 ;    LABEL REGIONS FOR THIS CONTOUR    
-     reg = label_region(minicube ge levels[i])
+     reg = label_region(minicube ge levels[i], /ulong)
      n_reg = max(reg)
      reg_done = bytarr(n_reg+1) ; ... 0 IS NOT USED, DO 1 INDEX FOR EASE OF REFERENCE
 
