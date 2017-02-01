@@ -107,7 +107,7 @@ pro prep_cube $
         deltav_kms = sxpar(hdr,'CDELT3')/sxpar(hdr,'RESTFRQ')*c_kms
         sxaddpar,hdr,'CRVAL3',center_velocity
         sxaddpar,hdr,'CDELT3',deltav_kms
-        sxaddpar,hdr,'CTYPE3','VRAD'
+        sxaddpar,hdr,'CTYPE3','VRAD-F2V'
         sxaddpar,hdr,'CUNIT3','km/s',after='CTYPE3'
      endif else begin
         if keyword_set(ms_to_kms) or abs(cdelt3) gt 1e2 then begin
