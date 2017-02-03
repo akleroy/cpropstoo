@@ -18,6 +18,7 @@ pro make_cprops_mask $
 ;  DILATION
    , grow_xy = grow_xy $
    , grow_z = grow_z $
+   , grow_thresh = grow_thresh $
 ;  CLIP REGIONS BASED ON RMS LEVEL
    , clip_rms = clip_rms $
 ;  INVERT NEGATIVE->POSITIVE (USEFUL TO CHECK FALSE POSITIVES)
@@ -225,17 +226,28 @@ pro make_cprops_mask $
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ;  GROW THE FINAL MASK IN THE XY OR Z DIRECTIONS
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
- 
+
+  if n_elements(grow_thresh) gt 0 then begin
+     grow_mask = sig_cube gt grow_thresh
+  endif
+  
   if n_elements(grow_xy) gt 0 then begin
      for i = 0, sz[3]-1 do $
         mask[*,*,i] =  grow_mask(mask[*,*,i], rad=grow_xy, /quiet)
+     if n_elements(grow_thresh) gt 0 then mask *= grow_mask 
   endif
 
   if n_elements(grow_z) gt 0 then begin
      for i = 0, grow_z do $
         mask = mask or shift(mask,0,0,i) or shift(mask,0,0,-i)
+     if n_elements(grow_thresh) gt 0 then mask *= grow_mask 
   endif
 
+  if n_elements(grow_xyz) gt 0 then begin
+     mask = grow_mask(mask, rad=grow_xyz, /quiet)
+     if n_elements(grow_thresh) gt 0 then mask *= grow_mask 
+  endif
+  
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; APPLY A PRIOR, IF ONE IS SUPPLIED
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
