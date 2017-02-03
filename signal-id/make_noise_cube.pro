@@ -17,7 +17,7 @@ pro make_noise_cube $
    , roll_fast_twod = roll_fast_twod $
    , collapse = collapse $
    , show = show
-   
+  
 
 ; --- CHECK ON NORMALIZATION OF SPECTRAL AXIS
 ; --- CHECK ON HANDLING OF EDGES IN CASE OF "BOX"
@@ -157,8 +157,8 @@ pro make_noise_cube $
      noise_hdr = cube_hdr
      sxdelpar, noise_hdr, "HISTORY"
      sxaddpar, noise_hdr $
-              , "HISTORY" $
-              , "Now holds estimates of local RMS noise."
+               , "HISTORY" $
+               , "Now holds estimates of local RMS noise."
   endelse
 
 ; INITIALIZE PLOTTING
@@ -299,7 +299,7 @@ pro make_noise_cube $
         noise_map = mad(cube - shift(cube, 0, 0, roll_fast_twod), $
                         dimension=3) / sqrt(2)
      endif else begin
-     
+        
 ;    LOOP OVER PIXELS AND WORK OUT NOISE FOR EACH SPECTRUM
         for i = 0, xsteps-1 do begin
            for j = 0, ysteps-1 do begin
