@@ -8,6 +8,8 @@ pro make_cprops_mask $
    , inrms = rms $
 ;  CONDITIONS FOR THE MASK
    , prior = prior $
+   , or_mask = or_mask $
+   , and_mask = and_mask $
    , hi_thresh = hi_thresh $
    , hi_nchan = hi_nchan $
    , min_pix = min_pix $
@@ -256,6 +258,15 @@ pro make_cprops_mask $
      mask *= prior
   endif
 
+; This is the same functionality as prior
+  if n_elements(and_mask) gt 0 then begin
+     mask *= and_mask
+  endif
+
+  if n_elements(or_mask) gt 0 then begin
+     mask = (mask + or_mask) gt 0
+  endif
+  
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; RETURN THE MASK
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%

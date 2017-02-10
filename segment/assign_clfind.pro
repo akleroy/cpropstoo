@@ -13,12 +13,14 @@ pro assign_clfind $
    , assign=assign $
    , verbose=verbose $
    , spacing=spacing $
-   , minlev=minlev
+   , minlev=minlev $
+   , vweight=vweight
 
 ; NB - assumes equal weighting for velocity and spatial pixel; we may
 ;      want to add the ability to weight distance in spatial pixels
 ;      relative to distance in velocity pixels. In the case of a
 ;      weirdly sampled cube this is a big deal...
+;      Use vweight to change this.
 
 ; Potentially allow levels set by hand.
 ;
@@ -30,6 +32,8 @@ pro assign_clfind $
 ; READ IN THE DATA
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
+  if n_elements(vweight) eq 0 then vweight = 1.0 
+  
   if n_elements(infile) gt 0 then begin
      file_data = file_search(infile, count=file_ct)
      if file_ct eq 0 then begin
@@ -245,7 +249,7 @@ pro assign_clfind $
 ;             FIGURE OUT THE DISTANCE BETWEEN EACH PIXEL AND THIS KERNEL
               dist = (shared_x -minikern_x[kern_ind[k]])^2 + $
                      (shared_y -minikern_y[kern_ind[k]])^2 + $
-                     (shared_v -minikern_v[kern_ind[k]])^2
+                     vweight^2*(shared_v -minikern_v[kern_ind[k]])^2
 
               if k eq 0 then begin
 ;                FOR THE FIRST KERNEL, INITIALIZE THE ASSIGNMENT AND DISTANCE
