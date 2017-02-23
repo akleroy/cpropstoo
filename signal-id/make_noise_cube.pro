@@ -257,7 +257,7 @@ pro make_noise_cube $
   endif
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
-; MEASURE POISITIONALLY DEPENDENT NOISE
+; MEASURE POSITIONALLY DEPENDENT NOISE
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
 ; SKIP THIS STEP IF DOING ONE-D ONLY
@@ -279,6 +279,7 @@ pro make_noise_cube $
      endif else begin
         step = floor(box / 2.5) > 1
      endelse
+
      xsteps = ceil(sz[1]/step/1.0)
      ysteps = ceil(sz[2]/step/1.0)
 
@@ -336,15 +337,42 @@ pro make_noise_cube $
            if box eq 0 then begin
               noise_map[i,j] = noise
            endif else begin
-              lofill_x = (xctr-ceil(step/2)) > 0 
-              hifill_x = (xctr+ceil(step/2)) < (sz[1]-1)
-              lofill_y = (yctr-ceil(step/2)) > 0 
-              hifill_y = (yctr+ceil(step/2)) < (sz[2]-1)
-              noise_map[lofill_x:hifill_x,lofill_y:hifill_y] = noise
+              if n_elements(xctr_vec) eq 0 then begin 
+                 xctr_vec = [xctr]
+                 yctr_vec = [yctr]
+                 noise_vec = [noise]
+              endif else begin
+                 xctr_vec = [xctr_vec, xctr]
+                 yctr_vec = [yctr_vec, yctr]
+                 noise_vec = [noise_vec, noise]
+              endelse                 
+;              lofill_x = (xctr-ceil(step/2)) > 0 
+;              hifill_x = (xctr+ceil(step/2)) < (sz[1]-1)
+;              lofill_y = (yctr-ceil(step/2)) > 0 
+;              hifill_y = (yctr+ceil(step/2)) < (sz[2]-1)
+;              noise_map[lofill_x:hifill_x,lofill_y:hifill_y] = noise
            endelse
 
         endfor
      endfor
+
+     if box ne 0 then begin
+        
+        noise_map = cube[*,*,0]*!values.f_nan
+        noise_map[xctr_vec, yctr_vec] = noise_vec
+
+        xkern = findgen(2*box) # (fltarr(2*box)+1.)
+        ykern = (fltarr(2*box)+1.) # findgen(2*box)
+        kern = sqrt((xkern-mean(xkern))^2+(ykern-mean(ykern))^2)
+        
+        val = convol(noise_map, kern, missing=!values.f_nan, /nan)
+        wt =  convol(finite(noise_map)*1.0, kern, missing=!values.f_nan, /nan)
+
+        noise_map = val/wt
+        nan_map = total(finite(cube),3) eq 0
+        noise_map[where(nan_map)]= !values.f_nan
+
+     endif
 
      if keyword_set(show) then begin
         disp, noise_map, /sq, title="Noise Map"
