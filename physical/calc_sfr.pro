@@ -45,7 +45,7 @@ function calc_sfr $
   nufuv = c/1528d-8
 
 ; INCLINATION CORRECTION
-  if n_elements(incl) eq 0 then begin
+  if n_elements(incl) gt 0 then begin
      incl_corr = cos(!dtor*incl)
   endif else begin
      message, 'Defaulting to no inclination correction.', /info
