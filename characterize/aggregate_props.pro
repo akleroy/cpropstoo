@@ -1,7 +1,8 @@
 pro aggregate_props $
    , infile=infile $
    , outfile=outfile $
-   , dendro=dendro
+   , dendro=dendro $
+   , classic=classic
 
 ;
 ; Hack to collapse the large properties structure to a smaller set of
@@ -32,10 +33,14 @@ pro aggregate_props $
      
      meas.ra = props.xpos
      meas.dec = props.ypos
-     meas.rad = $
-        median([[[props.RADRMS_GCORR_DECONV]] $
+     if keyword_set(classic) then begin
+        meas.rad = props.RADRMS_GCORR_DECONV
+     endif else begin
+        meas.rad = $
+           median([[[props.RADRMS_GCORR_DECONV]] $
                 ,  [[props.RADELL_DECONV]] $
-                ,  [[props.RADAREA_DECONV]]], dim=3, /even)
+                   ,  [[props.RADAREA_DECONV]]], dim=3, /even)
+     endelse
      meas.sig = props.VRMS_GCORR_DECONV
      meas.lum = props.LUM_GCORR
      meas.tpeak = props.maxval
@@ -57,10 +62,14 @@ pro aggregate_props $
      
      meas.ra = props.xpos
      meas.dec = props.ypos
-     meas.rad = $
-        median([[props.RADRMS_GCORR_DECONV] $
-                ,  [props.RADELL_DECONV] $
-                ,  [props.RADAREA_DECONV]], dim=2, /even)
+     if keyword_set(classic) then begin
+        meas.rad = props.RADRMS_GCORR_DECONV
+     endif else begin
+        meas.rad = $
+           median([[props.RADRMS_GCORR_DECONV] $
+                   ,  [props.RADELL_DECONV] $
+                   ,  [props.RADAREA_DECONV]], dim=2, /even)
+     endelse
      meas.sig = props.VRMS_GCORR_DECONV
      meas.lum = props.LUM_GCORR
      meas.tpeak = props.maxval       

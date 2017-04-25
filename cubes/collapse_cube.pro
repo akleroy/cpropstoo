@@ -10,6 +10,8 @@ pro collapse_cube $
    , e_mom1 = e_mom1 $
    , mom2 = mom2 $
    , e_mom2 = e_mom2 $
+   , ew = ew $
+   , e_ew = e_ew $
    , var = var $
    , e_var = e_var $
    , tpeak = tpeak
@@ -62,6 +64,8 @@ pro collapse_cube $
 ; mom1 : first moment (intensity weighted mean)
 ;
 ; mom2 : second moment (intensity weighted RMS velocity scatter)
+;
+; ew : equivalent width (expressed as rms)
 ;
 ; tpeak : peak intensity map
 ;
@@ -123,6 +127,7 @@ pro collapse_cube $
 ; ASSUME THAT ANY VELOCITY RESOLUTION > 100 IS IN M/S AND CONVERT TO KM/S
 ; (... COULD CHECK CTYPE3 INSTEAD)
   if dv gt 1d2 then begin
+     message, 'Converting to KM/S from M/S.', /info
      vaxis /= 1e3
      dv = abs(vaxis[1] - vaxis[0])
   endif
@@ -146,15 +151,19 @@ pro collapse_cube $
   term2 = total(mask*cube,3,/nan)
   mom1 = term1/term2
 
-; UNCERTAINTY
-  e_term1 = sqrt(total((vcube*mask*noise)^2,3,/nan))
+; MAKE A DELTAV CUBE  
+  dvcube = cube*!values.f_nan
+  for i = 0, sz[3]-1 do dvcube[*,*,i] = vcube[*,*,i] - mom1
+
+; UNCERTAINTY IN MOMENT 1
+  e_mom1 = 1./mom0 * sqrt(total((dvcube*noise*dv*mask)^2,3,/nan))
+
+;  e_term1 = sqrt(total((vcube*mask*noise)^2,3,/nan))
 ;  e_mom1 = mom1*sqrt((e_term1/term1)^2+(e_mom0/mom0)^2)
-  e_mom1 = 0.5*e_term1/term1*mom1 ; the O.5 is a total kluge
+;  e_mom1 = 0.5*e_term1/term1*mom1 ; the O.5 is a total kluge
 
 ; MAKE THE MOMENT 2 MAP
-  dvcube = cube*!values.f_nan
   evcube = cube*!values.f_nan
-  for i = 0, sz[3]-1 do dvcube[*,*,i] = vcube[*,*,i] - mom1
   for i = 0, sz[3]-1 do evcube[*,*,i] = e_mom1
   var = total(dvcube^2*mask*cube,3,/nan)
   mom2 = sqrt(var/total(mask*cube,3,/nan))
@@ -172,7 +181,14 @@ pro collapse_cube $
      cube_copy[outside_mask] = !values.f_nan
   tpeak = max(cube_copy, dim=3,/nan)
 
-; ... TBD: UNCERTAINTY / PEAK VEL
+; ... TBD: UNCERTAINTY IN PEAK VALUE
+
+; ... TBD: PEAK VEL
+
+; EQUIVALENT WIDTH MAP
+  ew = mom0 / tpeak / sqrt(2.*!pi)
+
+; ... TBD: UNCERTAINTY IN EQUIVALENT WIDTH
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; RETURN / CLEANUP

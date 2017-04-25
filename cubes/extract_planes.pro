@@ -131,6 +131,7 @@ function extract_planes $
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   
   new_hdr = hdr
+  sxaddpar, new_hdr, 'NAXIS3', n_elements(vaxis)
   sxaddpar, new_hdr, 'CRPIX3', 1, 'Overwritten by EXTRACT_PLANES (IDL)'
   sxaddpar, new_hdr, 'CRVAL3', vaxis[from_plane_chan] $
             , 'Overwritten by EXTRACT_PLANES (IDL)'

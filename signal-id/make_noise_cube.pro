@@ -305,8 +305,9 @@ pro make_noise_cube $
               noise_ind = where(mask[lox:hix,loy:hiy,*], noise_ct)
            endelse
 
-           if noise_ct lt 30 then $
+           if noise_ct lt 30 then begin
               continue
+           endif
 
            if box eq 0 then begin
               data = (cube[xctr,yctr,*])[noise_ind]
@@ -317,6 +318,12 @@ pro make_noise_cube $
 ;          DEFAULT ESTIMATE IS M.A.D. BASED RMS OF THE DATA
            noise = mad(data)
            
+
+           if noise eq 0 then begin
+              message, 'Noise is zero - this is usually a bug. Stopping.', /info
+              stop
+           endif
+
            if keyword_set(iterate) then begin
               
 ;             FIRST ESTIMATE (FROM ONLY THE NEGATIVES)
@@ -386,6 +393,7 @@ pro make_noise_cube $
 
 ;    EXIT IF ONLY TWO DIMENSIONS ARE REQUESTED
      if keyword_set(twod_only) then begin
+
         if keyword_set(show) then begin
            fasthist, cube/noise_cube, /ylog
            al_legend, /top, /left, box=0, clear=0 $

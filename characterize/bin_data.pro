@@ -298,9 +298,12 @@ function bin_data $
 
 ;     Note the uncertainty in the mean and median
 
-     if have_err then begin
+     if have_err then begin        
         this_bin.e_yvary = sqrt(total(this_e^2) / (1.0*ct))
-        this_bin.e_ymean = this_bin.e_yvary / sqrt(1.0*ct/oversamp)
+        if ct gt oversamp then $           
+           this_bin.e_ymean = this_bin.e_yvary / sqrt(1.0*ct/oversamp) $
+        else $
+           this_bin.e_ymean = this_bin.e_yvary
         this_bin.e_ymed = 1.25*this_bin.e_ymean
      endif
      
