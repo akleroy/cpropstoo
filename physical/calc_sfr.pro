@@ -188,12 +188,12 @@ function calc_sfr $
   cirrus_struct = replicate(empty_cirrus_struct, n_pts)
 
 ; SUBTRACT THE CIRRUS FROM THE 24 MICRON 
-  ir24_sub_hi_sn = (ir24 - cirrus.hi_sn) > 0
-  ir24_sub_hi_umin = (ir24 - cirrus.hi_umin) > 0
-  ir24_sub_hi_scaled = (ir24 - cirrus.hi_scaled) > 0
-  ir24_sub_gas_sn = (ir24 - cirrus.gas_sn) > 0
-  ir24_sub_gas_umin = (ir24 - cirrus.gas_umin) > 0
-  ir24_sub_gas_scaled = (ir24 - cirrus.gas_scaled) > 0
+  ir24_sub_hi_sn = (ir24 - cirrus_struct.hi_sn) > 0
+  ir24_sub_hi_umin = (ir24 - cirrus_struct.hi_umin) > 0
+  ir24_sub_hi_scaled = (ir24 - cirrus_struct.hi_scaled) > 0
+  ir24_sub_gas_sn = (ir24 - cirrus_struct.gas_sn) > 0
+  ir24_sub_gas_umin = (ir24 - cirrus_struct.gas_umin) > 0
+  ir24_sub_gas_scaled = (ir24 - cirrus_struct.gas_scaled) > 0
 
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; APPLY TONY WONG'S GAS->HYBRID METHOD
