@@ -70,7 +70,7 @@ pro cube_trim $
                   )
   
   if n_elements(out_file) gt 0 then begin
-     writefits, out_file, out_cube, hdr
+     writefits, out_file, out_cube, out_hdr
   endif
 
 end
