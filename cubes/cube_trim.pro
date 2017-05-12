@@ -3,7 +3,8 @@ pro cube_trim $
    , hdr_in = in_hdr $
    , out_cube = out_cube $
    , out_hdr = out_hdr $
-   , outfile = out_file
+   , outfile = out_file $
+   , quiet = quiet
   
   if size(in_data, /type) eq size("hello", /type) then begin
      fname = in_data
@@ -25,7 +26,11 @@ pro cube_trim $
   xmin = min(x, /nan)
   xmax = max(x, /nan)
   ymin = min(y, /nan)
-  ymax = min(y, /nan)
+  ymax = max(y, /nan)
+  if keyword_set(quiet) eq 0 then begin
+     print, "X: From size "+str(sz[1])+" x = "+str(xmin)+" - "+str(xmax)
+     print, "Y: From size "+str(sz[2])+" y = "+str(ymin)+" - "+str(ymax)
+  endif
 
   if sz[0] eq 2 then begin
      hextract, data, hdr, out_cube, out_hdr $
@@ -38,9 +43,13 @@ pro cube_trim $
   
   vmin = min(v, /nan)
   vmax = max(v, /nan)
+  if keyword_set(quiet) eq 0 then begin
+     print, "V: From size "+str(sz[3])+" v = "+str(vmin)+" - "+str(vmax)
+  endif
+
   out_cube = $
      extract_planes( $
-     , cube=data $
+     cube=data $
      , hdr=hdr $
      , from_plane=vmin $
      , to_plane=vmax $
@@ -50,7 +59,7 @@ pro cube_trim $
   
   out_cube = $
      cube_hextract( $
-     , cube_in = data $
+     cube_in = data $
      , hdr_in = hdr $
      , hdr_out = out_hdr $
      , x0 = xmin $
