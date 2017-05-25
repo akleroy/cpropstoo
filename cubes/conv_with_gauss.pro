@@ -14,7 +14,7 @@ pro conv_with_gauss $
    , uncertainty = unc $
    , perbeam = perbeam $
    , quiet=quiet $
-   , pad = pad
+   , no_pad = no_pad
 
 ;+
 ; NAME:
@@ -287,11 +287,11 @@ pro conv_with_gauss $
                     , kernel $
                     , no_ft=no_ft $
                     , FT_PSF=psf_ft $
-                    , no_pad=(keyword_set(pad) eq 0))
+                    , no_pad=no_pad)
         data = new_data
      endif else begin
         data = convolve(data, kernel, no_ft=no_ft $
-                        ,no_pad=(keyword_set(pad) eq 0))
+                        ,no_pad=no_pad)
      endelse
   
   endif else begin
