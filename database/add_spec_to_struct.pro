@@ -70,6 +70,7 @@ function add_spec_to_struct $
   int_name = "SPEC_VAL_"+strupcase(line_name)
   vchan0_name = "SPEC_VCHAN0_"+strupcase(line_name)
   deltav_name = "SPEC_DELTAV_"+strupcase(line_name)
+  nchan_name = "SPEC_NCHAN_"+strupcase(line_name)
   uc_name = "SPEC_UC_"+strupcase(line_name)
   cov_name = "SPEC_COV_"+strupcase(line_name)
   res_name = "SPEC_RES_"+strupcase(line_name)
@@ -84,6 +85,7 @@ function add_spec_to_struct $
      new_struct.(where(tags eq int_name)) = empty_spec
      new_struct.(where(tags eq vchan0_name)) = nan
      new_struct.(where(tags eq deltav_name)) = nan
+     new_struct.(where(tags eq nchan_name)) = 0L
      new_struct.(where(tags eq uc_name)) = nan
      new_struct.(where(tags eq cov_name)) = nan
      new_struct.(where(tags eq res_name)) = nan
@@ -98,6 +100,7 @@ function add_spec_to_struct $
      new_struct = create_struct(prev_struct[0], int_name, empty_spec)
      new_struct = create_struct(new_struct, vchan0_name, nan)
      new_struct = create_struct(new_struct, deltav_name, nan)
+     new_struct = create_struct(new_struct, nchan_name, 0L)
      new_struct = create_struct(new_struct, uc_name, nan)
      new_struct = create_struct(new_struct, cov_name, nan)
      new_struct = create_struct(new_struct, res_name, nan)
@@ -105,7 +108,7 @@ function add_spec_to_struct $
      new_struct = create_struct(new_struct, desc_name, desc_string)
      if is_array then begin
         new_struct = replicate(new_struct, n_elements(prev_struct))
-        struct_assign, prev_struct, new_struct
+        struct_assign, prev_struct, new_struct, /nozero
      endif
   endelse
 
