@@ -367,7 +367,6 @@ pro make_noise_cube $
         
         noise_map = finite(cube[*,*,0])*0.0
         wt_map = finite(cube[*,*,0])*0.0
-        sz = size(noise_map)
 
         noise_map[xctr_vec, yctr_vec] = noise_vec
         wt_map[xctr_vec, yctr_vec] = 1.0
@@ -395,7 +394,7 @@ pro make_noise_cube $
      if keyword_set(twod_only) then begin
 
         if keyword_set(show) then begin
-           fasthist, cube/noise_cube, /ylog
+           fasthist, cube/noise_cube, /ylog, yrange=[1., (n_elements(cube))], ystyle=16
            al_legend, /top, /left, box=0, clear=0 $
                       , lines=[-99] $
                       , str(mad(cube/noise_cube),format='(G10.3)')
