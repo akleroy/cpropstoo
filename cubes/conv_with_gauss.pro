@@ -14,7 +14,8 @@ pro conv_with_gauss $
    , uncertainty = unc $
    , perbeam = perbeam $
    , quiet=quiet $
-   , no_pad = no_pad
+   , no_pad = no_pad $
+   , worked = success
 
 ;+
 ; NAME:
@@ -115,6 +116,8 @@ pro conv_with_gauss $
 ; caught asymmetric kernel bug - dec 14
 ;
 ;-
+
+  success = 1
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; READ IN OR COPY DATA
@@ -503,5 +506,7 @@ pro conv_with_gauss $
      endif
      
   endif
+
+  success = 1
 
 end
