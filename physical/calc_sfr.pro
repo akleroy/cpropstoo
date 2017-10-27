@@ -187,6 +187,17 @@ function calc_sfr $
      }
   cirrus_struct = replicate(empty_cirrus_struct, n_pts)
 
+  cirrus_struct.hi_sn = emis24*dgr*(nhi*mh/ms*1.36*pc*pc)*(1.0/umin)
+  cirrus_struct.hi_umin = emis24*dgr*(nhi*mh/ms*1.36*pc*pc)
+  cirrus_struct.gas_sn = emis24*dgr*((nhi+2.0*nh2)*mh/ms*1.36*pc*pc)*(1.0/umin)
+  cirrus_struct.gas_umin = emis24*dgr*((nhi+2.0*nh2)*mh/ms*1.36*pc*pc)
+
+; SCALE THEM TO MATCH OUR BEST FIT TO THE OBSERVED DISTRIBUTION
+  cirrus_struct.hi_scaled = $
+     cirrus_struct.hi_umin*u_scale
+  cirrus_struct.gas_scaled = $
+     cirrus_struct.gas_umin*u_scale
+
 ; SUBTRACT THE CIRRUS FROM THE 24 MICRON 
   ir24_sub_hi_sn = (ir24 - cirrus_struct.hi_sn) > 0
   ir24_sub_hi_umin = (ir24 - cirrus_struct.hi_umin) > 0

@@ -365,16 +365,15 @@ pro make_noise_cube $
 
      if box ne 0 then begin
         
-        noise_map = cube[*,*,0]*!values.f_nan
+        noise_map = finite(cube[*,*,0])*0.0
+        wt_map = finite(cube[*,*,0])*0.0
+
         noise_map[xctr_vec, yctr_vec] = noise_vec
-
-        xkern = findgen(2*box) # (fltarr(2*box)+1.)
-        ykern = (fltarr(2*box)+1.) # findgen(2*box)
-        kern = sqrt((xkern-mean(xkern))^2+(ykern-mean(ykern))^2)
+        wt_map[xctr_vec, yctr_vec] = 1.0
         
-        val = convol(noise_map, kern, missing=!values.f_nan, /nan)
-        wt =  convol(finite(noise_map)*1.0, kern, missing=!values.f_nan, /nan)
-
+        psf = psf_gaussian(npix=3*box+1,fwhm=box, /norm)
+        val = convol(noise_map, psf, /nan, missing=0.0, /edge_trunc)
+        wt = convol(wt_map, psf, /nan, missing=0.0, /edge_trunc)
         noise_map = val/wt
         nan_map = total(finite(cube),3) eq 0
         noise_map[where(nan_map)]= !values.f_nan
@@ -395,7 +394,7 @@ pro make_noise_cube $
      if keyword_set(twod_only) then begin
 
         if keyword_set(show) then begin
-           fasthist, cube/noise_cube, /ylog
+           fasthist, cube/noise_cube, /ylog, yrange=[1., (n_elements(cube))], ystyle=16
            al_legend, /top, /left, box=0, clear=0 $
                       , lines=[-99] $
                       , str(mad(cube/noise_cube),format='(G10.3)')

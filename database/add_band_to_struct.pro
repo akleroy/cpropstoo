@@ -84,10 +84,12 @@ function add_band_to_struct $
      new_struct = create_struct(new_struct, res_name, nan)
      new_struct = create_struct(new_struct, unit_name, unit_string)
      new_struct = create_struct(new_struct, desc_name, desc_string)
+
      if is_array then begin
         new_struct = replicate(new_struct, n_elements(prev_struct))
-        struct_assign, prev_struct, new_struct
+        struct_assign, prev_struct, new_struct, /nozero
      endif
+
   endelse
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
