@@ -26,7 +26,10 @@ pro write_kernels $
   ind_to_xyv, kernel_ind, x=xpix, y=ypix, v=zpix, sz=sz
 
   if n_elements(cube) ne 0 then begin
-     intens = cube[xpix, ypix, zpix]
+     if sz[0] eq 3 then $
+        intens = cube[xpix, ypix, zpix] $
+     else $
+        intens = cube[xpix, ypix]
   endif else begin
      intens = xpix*!values.f_nan
   endelse
@@ -34,13 +37,19 @@ pro write_kernels $
   if n_elements(hdr) ne 0 then begin
      xyad, hdr, xpix, ypix, ra, dec
      make_axes, hdr, vaxis=vaxis, /vonly
-     vel = vaxis[zpix]
+     if sz[0] eq 3 then $
+        vel = vaxis[zpix]
   endif else begin
      ra = xpix*!values.f_nan
      dec = xpix*!values.f_nan     
      vel = xpix*!values.f_nan
   endelse
 
+  if sz[0] eq 2 then begin
+     vel = ra*!values.f_nan
+     zpix = xpix*!values.f_nan
+  endif
+     
   if n_elements(text_file) gt 0 then begin
      openw, 1, text_file
      printf, 1, "# file: "

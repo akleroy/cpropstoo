@@ -9,6 +9,7 @@ function bin_data $
    , oversamp=oversamp $
    , n_monte = n_monte $
    , nan=nan $
+   , perc=perc $
    , thresh_for_scatt=thresh_for_scatt
 
 ;+
@@ -279,9 +280,9 @@ function bin_data $
 
      if ct gt (1./perc*2) then begin
         this_bin.perc = perc
-        lo_ind = ceil(ct*(0.5-perc/2.))-1
+        lo_ind = (ceil(ct*perc)-1) > 0
         this_bin.ylo_perc = this_y[lo_ind]
-        hi_ind = ceil(ct*(0.5+perc/2.))-1
+        hi_ind = (ceil(ct*(1.0-perc))-1) < (ct -1)
         this_bin.yhi_perc = this_y[hi_ind]
      endif
      
