@@ -1,5 +1,9 @@
-pro deproject, ra, dec, galpos, RGRID = rgrid, TGRID = tgrid $
-               , XGRID = deproj_x, YGRID = deproj_y, VECTOR = vector, GAL=gal
+pro deproject $
+   , ra, dec, galpos $
+   , RGRID = rgrid, TGRID = tgrid $
+   , XGRID = deproj_x, YGRID = deproj_y, VECTOR = vector $
+   , GAL=gal
+
                   
 ;+ 
 ; NAME: deproject

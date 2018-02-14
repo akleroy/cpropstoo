@@ -371,7 +371,9 @@ pro make_noise_cube $
         noise_map[xctr_vec, yctr_vec] = noise_vec
         wt_map[xctr_vec, yctr_vec] = 1.0
         
-        psf = psf_gaussian(npix=3*box+1,fwhm=box, /norm)
+        sz_noise_map = size(noise_map)
+        box_size = (3*box+1) < (sz[1] < sz[2])
+        psf = psf_gaussian(npix=box_size, fwhm=box, /norm)
         val = convol(noise_map, psf, /nan, missing=0.0, /edge_trunc)
         wt = convol(wt_map, psf, /nan, missing=0.0, /edge_trunc)
         noise_map = val/wt
