@@ -14,7 +14,11 @@ pro collapse_cube $
    , e_ew = e_ew $
    , var = var $
    , e_var = e_var $
-   , tpeak = tpeak
+   , tpeak = tpeak $
+   , tmin = tmin $
+   , vpeak = vpeak $
+   , vquad = vquad $
+   , e_vquad = e_vquad
 
 ;+
 ; NAME:
@@ -101,7 +105,7 @@ pro collapse_cube $
 ; SET DEFAULTS / ERROR CHECK
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
-  on_error, 2
+;  on_error, 2
 
 ; MAKE A DEFAULT MASK
   if n_elements(mask) eq 0 then begin
@@ -179,11 +183,37 @@ pro collapse_cube $
   outside_mask = where(mask eq 0, outside_ct)
   if outside_ct gt 0 then $
      cube_copy[outside_mask] = !values.f_nan
-  tpeak = max(cube_copy, dim=3,/nan)
 
-; ... TBD: UNCERTAINTY IN PEAK VALUE
+  tpeak = max(cube_copy, max_ind, dim=3, /nan)
+  tmin = min(cube_copy, min_ind, dim=3, /nan)
 
-; ... TBD: PEAK VEL
+  ind_to_xyv, max_ind, x=xind, y=yind, v=zind, sz=sz
+  vpeak = interpol(vaxis, findgen(n_elements(vaxis)), zind*1.0)
+  vpeak[where(finite(mom1) eq 0)] = !values.f_nan
+  
+; TEAGUE TWEAKED PEAK VELOCITY.
+
+; Note that we force a floor to the intensity at 0 to avoid divergence.
+
+  i0 = cube[xind, yind, zind]
+  im = (cube[xind, yind, ((zind-1) > 0)])
+  ip = (cube[xind, yind, ((zind+1) < (sz[3]-1))])
+  
+  a1 = 1./2.*(ip-im)
+  a2 = 1./2.*(ip+im-2.*i0)
+
+; ... calculate the offset relative to the true peak. But cap this at
+; one channel to avoid rare cases of divergence.
+
+  offset = -1.0*a1/2./a2
+  offset = ((offset > (-1.0d)) < 1.0d)
+
+  quad_ind = zind*1.0 + offset
+  vquad = interpol(vaxis, findgen(n_elements(vaxis)), quad_ind*1.0)  
+  e_vquad = sqrt(noise[max_ind]^2/8.* $
+                 (3./a2^2+a1^2/a2^4))*abs(dv)
+  vquad[where(finite(mom1) eq 0)] = !values.f_nan
+  e_vquad[where(finite(mom1) eq 0)] = !values.f_nan
 
 ; EQUIVALENT WIDTH MAP
   ew = mom0 / tpeak / sqrt(2.*!pi)

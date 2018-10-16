@@ -235,6 +235,7 @@ pro make_noise_cube $
 
 ;    SHOW IF REQUESTED
      if keyword_set(show) then begin
+        ind = where(mask)
         fasthist, cube/noise_cube, /ylog
         al_legend, /top, /left, box=0, clear=0 $
                    , lines=[-99] $
@@ -424,10 +425,10 @@ pro make_noise_cube $
   noise_spec = fltarr(sz[3])*!values.f_nan
 
 ; WORK OUT STEP SIZES
-  if SPEC_box eq 0 then begin
+  if spec_box eq 0 then begin
      step = 1
   endif else begin
-     step = floor(box / 2.5) > 1
+     step = floor(spec_box / 2.5) > 1
   endelse
   zsteps = ceil(sz[3]/step)
 
@@ -486,7 +487,7 @@ pro make_noise_cube $
         noise_spec[i] = noise
      endif else begin
         lofill_z = (zctr-ceil(step/2)) > 0 
-        hifill_z = (zctr+ceil(step/2)) < (sz[1]-1)
+        hifill_z = (zctr+ceil(step/2)) < (sz[3]-1)
         noise_spec[lofill_z:hifill_z] = noise
      endelse
 
@@ -558,10 +559,11 @@ pro make_noise_cube $
   endfor
 
   if keyword_set(show) then begin
-     fasthist, cube/noise_cube
+     ind = where(mask)
+     fasthist, (cube/noise_cube)[ind]
      al_legend, /top, /left, box=0, clear=0 $
                 , lines=[-99] $
-                , str(mad(cube/noise_cube),format='(G10.3)')
+                , str(mad((cube/noise_cube)[ind]),format='(G10.3)')
   endif
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%

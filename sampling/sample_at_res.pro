@@ -7,7 +7,8 @@ function sample_at_res $
    , target_hdr = target_hdr $
    , coverage = coverage $
    , rms = rms $
-   , show=show
+   , show=show $
+   , nointerp=nointerp
   
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; DEFAULTS AND DEFINITIONS
@@ -138,8 +139,13 @@ function sample_at_res $
               total(finite(data[x_samp[in_map[kk]], y_samp[in_map[kk]], *])) ge 1
         endfor
      endif else begin
-        result[in_map] = data[x_samp[in_map], y_samp[in_map]]
-        coverage[in_map] = finite(data[x_samp[in_map], y_samp[in_map]])
+        if keyword_set(nointerp) then begin
+           result[in_map] = data[x_samp[in_map], y_samp[in_map]]
+           coverage[in_map] = finite(data[x_samp[in_map], y_samp[in_map]])
+        endif else begin
+           result[in_map] = data[x_samp[in_map], y_samp[in_map]]
+           coverage[in_map] = finite(data[x_samp[in_map], y_samp[in_map]])
+        endelse
      endelse
   endif
 

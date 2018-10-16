@@ -4,7 +4,9 @@ pro ellfit $
    , wt = wt $
    , major = major $
    , minor = minor $
-   , posang = posang
+   , posang = posang $
+   , ctr_x = x_ctr $
+   , ctr_y = y_ctr
 
 ;+
 ; NAME:
