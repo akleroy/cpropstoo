@@ -2,7 +2,8 @@ pro disp, im, xin, yin, min = mn, max = mx, position = pos, $
           _ref_extra = ex, noerase = noerase, noplot = noplot, $
           radec = radec, n_ticks = n_ticks, aspect = aspect, $
           reserve = reserve, squarepix = squarepix, tvtop=tvtop, $
-          missing = missval, true=true, directtv=directtv
+          missing = missval, true=true, directtv=directtv $
+          , nomatch_axes = nomatch_axes
          
 ;+
 ; NAME:
@@ -15,8 +16,8 @@ pro disp, im, xin, yin, min = mn, max = mx, position = pos, $
 ;
 ; INPUTS:
 ;   IMAGE - The array to be displayed.  
-;   XIN - Vector containing the x-values correponding to the array's
-;         first axis
+;   XIN - Vector containing the x-values corresponding to the array's
+;         first axis.
 ;   YIN - Vector containing the y-values correponding to the array's
 ;         second axis
 ;
@@ -116,8 +117,22 @@ pro disp, im, xin, yin, min = mn, max = mx, position = pos, $
 
   if (n_elements(xin) eq 0) then xin = findgen(imsize[1]+1)
   if (n_elements(yin) eq 0) then yin = findgen(imsize[2]+1)
-  x = xin
-  y = yin
+
+  if (n_elements(xin) eq imsize[1]) and $
+     (keyword_set(nomatch_axes) eq 0) then begin
+     deltax = xin[1]-xin[0]
+     x = [xin[0]-deltax*0.5,xin+deltax*0.5]
+  endif else begin
+     x = xin
+  endelse
+     
+  if (n_elements(yin) eq imsize[2]) and $
+     (keyword_set(nomatch_axes) eq 0) then begin
+     deltay = yin[1]-yin[0]
+     y = [yin[0]-deltay*0.5,yin+deltay*0.5]
+  endif else begin
+     y = yin
+  endelse
 
 ; Eliminate pathological pixels, set to background color.
   err_pix = where(finite(image) ne 1)
