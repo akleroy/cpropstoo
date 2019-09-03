@@ -13,6 +13,7 @@ pro conv_with_gauss $
    , out_weight_file=out_weight_file $
    , uncertainty = unc $
    , perbeam = perbeam $
+   , nonormalize=no_normalize $
    , quiet=quiet $
    , no_pad = no_pad $
    , worked = success
@@ -259,13 +260,21 @@ pro conv_with_gauss $
 ; be counterclockwise from up-down (hence the !pi/2). There's an
 ; implict assumption that east is to the left in the image.
 
+  if keyword_set(no_normalize) then $
+     normalize =0B $
+  else $
+     normalize =1B
   my_gauss2d $
      , npix=kern_size $
      , a = [0., 1., kernel_bmaj/as_per_pix, kernel_bmin/as_per_pix, 0., 0. $
             , !pi/2.+kernel_bpa*!dtor] $ ; note my_gauss2d wants radians - fix?
      , /center $
-     , /normalize $
+     , normalize=normalize $
      , output=kernel  
+
+  if keyword_set(no_normalize) then begin
+     kernel /= max(kernel, /nan)
+  endif
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; DO THE CONVOLUTION
@@ -462,6 +471,7 @@ pro conv_with_gauss $
      message, 'Flux Ratio = '+string(flux_ratio), /info
      message, 'Treated as uncertainty = '+(keyword_set(unc) ? 'yes':'no'), /info
      message, 'Corrected per beam units = '+(keyword_set(perbeam) ? 'yes':'no'), /info
+     message, 'Used an unnormalized kernel = '+(keyword_set(no_normalize) ? 'yes':'no'), /info
 
   endif
 
