@@ -2,6 +2,7 @@ function calc_jtok, hdr=hdr $
                     , bmaj=bmaj $
                     , bmin=bmin $
                     , freq=freq $
+                    , restfreq=restfreq $
                     , aips=aips $
                     , pixels_per_beam = pixels_per_beam
 
@@ -38,12 +39,16 @@ function calc_jtok, hdr=hdr $
 ;                     <spardy@astro.wisc.edu>
 ; 
 ;-
-
-
                                 ; PHYSICAL CONSTANTS
   c = 2.99792458d10             ; speed of light CGS
   h = 6.6260755d-27             ; Planck's constant CGS
   kb = 1.380658d-16             ; Boltzmann's const CGS
+
+  if n_elements(restfreq) gt 0 then begin
+     message, "WARNING! Use FREQ and not RESTFREQ.", /info
+     message, "Returning not-a-number. Fix and rerun.", /info
+     return, !values.f_nan
+  endif
 
   if n_elements(hdr) gt 0 then begin
 
