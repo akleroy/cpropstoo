@@ -443,9 +443,8 @@ pro conv_with_gauss $
   if keyword_set(perbeam) then begin
 
      scale_fac = ppbeam_final / ppbeam_start
-     
      data *= scale_fac
-
+     message, 'Scaling factor is ratio of final/starting beam area: '+str(scale_fac), /info
   endif
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
