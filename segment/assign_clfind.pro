@@ -14,7 +14,9 @@ pro assign_clfind $
    , verbose=verbose $
    , spacing=spacing $
    , minlev=minlev $
-   , vweight=vweight
+   , vweight=vweight $
+   , histeq=histeq $
+   , nlevels=nlevels
 
 ; NB - assumes equal weighting for velocity and spatial pixel; we may
 ;      want to add the ability to weight distance in spatial pixels
@@ -149,12 +151,22 @@ pro assign_clfind $
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 
 ; CALCULATE LEVELS TO WORK WITH
+
+  if keyword_set(histeq) then begin
+  levels = $
+     contour_values( $
+     minicube $
+     , /histeq $
+     , nlevels=nlevels $
+     , minval=minlev)
+  endif else begin
   levels = $
      contour_values( $
      minicube $
      , /linspace $
      , spacing=spacing $
      , minval=minlev)
+  endelse
   nlev = n_elements(levels)
 
 ; INITIALIZE AN OUTPUT ASSIGNMENT CUBE

@@ -105,7 +105,9 @@ if n_elements(rms) gt 0 then begin
       props.noise = rms
       endif else begin
          dummy = max(t, ind)
-            props.noise = rms[x[ind],y[ind],v[ind]]
+         if size(rms,/n_dim) eq 2 then $
+            props.noise = rms[x[ind], y[ind]] else $
+               props.noise = rms[x[ind],y[ind],v[ind]]
       endelse
 endif
   

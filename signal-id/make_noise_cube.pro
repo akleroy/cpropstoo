@@ -381,13 +381,13 @@ pro make_noise_cube $
                       , str(mad(cube/noise_cube),format='(G10.3)')
         endif
 
-        if n_elements(noise_file) gt 0 then begin           
-           writefits, noise_file, noise_cube, noise_hdr
-        endif
-
 ;       COLLAPSE TO TWO DIMENSIONS
         if keyword_set(collapse) then begin
            noise_cube = median(noise_cube, dimension=3, /even)
+        endif
+
+        if n_elements(noise_file) gt 0 then begin           
+           writefits, noise_file, noise_cube, noise_hdr
         endif
 
         return
