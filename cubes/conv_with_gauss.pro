@@ -5,13 +5,18 @@ pro conv_with_gauss $
    , pix_deg=pix_deg $
    , target_beam=target_beam $
    , out_file=out_file $
-   , out_data = data $
+   , out_data=data $
    , out_hdr = hdr $
    , no_ft=no_ft $
+   , weight=in_weight $
+   , out_weight_data=weight $
+   , out_weight_file=out_weight_file $
    , uncertainty = unc $
    , perbeam = perbeam $
+   , nonormalize=no_normalize $
    , quiet=quiet $
-   , pad = pad
+   , no_pad = no_pad $
+   , worked = success
 
 ;+
 ; NAME:
@@ -31,9 +36,20 @@ pro conv_with_gauss $
 ;
 ; CALLING SEQUENCE:
 ;
-; conv_with_gauss, data='input.fits', out_file='output.fits' $
-;                , target_beam=target_beam, start_beam=start_beam $
-;                , quiet=quiet, cube=cube
+;pro conv_with_gauss $
+;   , data=in_data $
+;   , hdr=in_hdr $
+;   , start_beam=start_beam $
+;   , pix_deg=pix_deg $
+;   , target_beam=target_beam $
+;   , out_file=out_file $
+;   , out_data = data $
+;   , out_hdr = hdr $
+;   , no_ft=no_ft $
+;   , uncertainty = unc $
+;   , perbeam = perbeam $
+;   , quiet=quiet $
+;  , pad = pad
 ;
 ; INPUTS:
 ;
@@ -61,6 +77,9 @@ pro conv_with_gauss $
 ; pix_deg: the pixel scale of the data in degrees. Useful in order to
 ; avoid having to pass a header (and so allows the program to be used
 ; as a general convolution routine).
+;
+; weight: perform a weighted convolution, multiplying the cube or map
+; by the weight map before hand.
 ;
 ; unc: tell the program to treat the data as an "uncertainty" map and
 ; so square the data before convolution then scale the result by the
@@ -99,6 +118,8 @@ pro conv_with_gauss $
 ;
 ;-
 
+  success = 1
+
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; READ IN OR COPY DATA
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -114,6 +135,24 @@ pro conv_with_gauss $
      if n_elements(in_hdr) gt 0 then $
         hdr = in_hdr
   endelse
+
+  if n_elements(in_weight) gt 0 then begin
+     if size(in_weight, /type) eq size("hello", /type) then begin
+        weight_fname = in_weight
+        fits_read, weight_fname, weight, weight_hdr
+     endif else begin
+        weight = in_weight
+     endelse
+
+     sz_wt = size(weight)
+     sz_data = size(data)
+
+     if (sz_wt[1] ne sz_data[1]) or $
+        (sz_wt[2] ne sz_data[2]) then begin
+        message, "Weight image must match data in X and Y size. Returning.", /info
+        return
+     endif
+  endif
 
   if n_elements(target_beam) eq 1 then begin
      target_beam = [target_beam, target_beam, 0.0]     
@@ -221,13 +260,21 @@ pro conv_with_gauss $
 ; be counterclockwise from up-down (hence the !pi/2). There's an
 ; implict assumption that east is to the left in the image.
 
+  if keyword_set(no_normalize) then $
+     normalize =0B $
+  else $
+     normalize =1B
   my_gauss2d $
      , npix=kern_size $
      , a = [0., 1., kernel_bmaj/as_per_pix, kernel_bmin/as_per_pix, 0., 0. $
             , !pi/2.+kernel_bpa*!dtor] $ ; note my_gauss2d wants radians - fix?
      , /center $
-     , /normalize $
+     , normalize=normalize $
      , output=kernel  
+
+  if keyword_set(no_normalize) then begin
+     kernel /= max(kernel, /nan)
+  endif
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; DO THE CONVOLUTION
@@ -237,23 +284,107 @@ pro conv_with_gauss $
 ; convolution for each plane. Otherwise convolve the image itself. In
 ; order to speed up plane-by-plane convolution, we save the Fourier
 ; transform of the PSF and turn off padding.
+
+  if n_elements(in_weight) eq 0 then begin
+
+;    This is the case where we do not weight the image. We just
+;    convolve with our normalized kernel.
   
-  sz = size(data)
-  if sz[0] eq 3 then begin
-     new_data = data
-     for ii = 0, sz[3]-1 do $
-        new_data[*,*,ii] = $
-        convolve(data[*,*,ii] $
-                 , kernel $
-                 , no_ft=no_ft $
-                 , FT_PSF=psf_ft $
-                 , no_pad=(keyword_set(pad) eq 0))
-     data = new_data
+     sz = size(data)
+     if sz[0] eq 3 then begin
+        new_data = data
+        for ii = 0, sz[3]-1 do $
+           new_data[*,*,ii] = $
+           convolve(data[*,*,ii] $
+                    , kernel $
+                    , no_ft=no_ft $
+                    , FT_PSF=psf_ft $
+                    , no_pad=no_pad)
+        data = new_data
+     endif else begin
+        data = convolve(data, kernel, no_ft=no_ft $
+                        ,no_pad=no_pad)
+     endelse
+  
   endif else begin
-     data = convolve(data, kernel, no_ft=no_ft $
-                     ,no_pad=(keyword_set(pad) eq 0))
+
+;    In this case we do weight the image. We convolve both the image
+;    and the weights, which can be 2d or 3d. Then we divide the final
+;    convolved image by the weights.
+     
+     sz = size(data)
+     sz_wt = size(weight)
+     if sz[0] eq 3 then begin
+
+;       The weights can be an image or a cube. Take the appropriate
+;       case and multiply them by the data.
+        
+        if sz_wt[0] eq 2 then begin
+           weighted_data = data
+           for ii = 0, sz[3]-1 do $
+              weighted_data[*,*,ii] = data[*,*,ii]*weight           
+        endif else if sz_wt[0] eq 3 then begin
+           weighted_data = data*weight
+        endif else begin
+           message, "Weights can only be image or cube. Returning.", /info
+           return
+        endelse
+
+;       Convolve the weighted data to the new resolution plane by plane
+
+        new_data = weighted_data
+        for ii = 0, sz[3]-1 do $
+           new_data[*,*,ii] = $
+           convolve(weighted_data[*,*,ii] $
+                    , kernel $
+                    , no_ft=no_ft $
+                    , FT_PSF=psf_ft $
+                    , no_pad=(keyword_set(pad) eq 0))
+        weighted_data = new_data
+        
+;       Convolve the weights, taking into account their shape, and
+;       then divide the convolved weighted cube by the convolved
+;       weight cube.
+
+        if sz_wt[0] eq 2 then begin
+           weight = $
+              convolve(weight, kernel, no_ft=no_ft $
+                       ,no_pad=(keyword_set(pad) eq 0))
+           data = weighted_data
+           for ii = 0, sz[3]-1 do $
+              data[*,*,ii] = weighted_data[*,*,ii]/weight
+        endif else begin
+           new_weight = weight
+           for ii = 0, sz[3]-1 do $
+              new_weight[*,*,ii] = $
+              convolve(weight[*,*,ii] $
+                       , kernel $
+                       , no_ft=no_ft $
+                       , FT_PSF=psf_ft $
+                       , no_pad=(keyword_set(pad) eq 0))
+           weight = new_weight
+           data = weighted_data / weight
+        endelse
+        
+     endif else begin
+
+;       The two-d only case
+
+        weighted_data = weight*data
+        weighted_data = $
+           convolve(weighted_data, kernel, no_ft=no_ft $
+                    ,no_pad=(keyword_set(pad) eq 0))
+        weight = $
+           convolve(weight, kernel, no_ft=no_ft $
+                    ,no_pad=(keyword_set(pad) eq 0))
+        data = weighted_data / weight        
+     endelse
+
+;    So at the end "weight" holds the convolved weights and "data"
+;    holds the result of the weighted convolution.
+
   endelse
-  
+
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ; CLEAN UP AFTER THE CONVOLUTION
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -262,6 +393,11 @@ pro conv_with_gauss $
 ; after convolution.
 
   if keyword_set(unc) or keyword_set(perbeam) then begin
+
+     if n_elements(in_weight) ne 0 then begin
+        message, "WARNING! Interaction of weighting with perbeam and unc is not clear.", /info
+        message, "WARNING! Proceed at your own risk here.", /info
+     endif
 
 ;    Work out the pixels per beam at the start of the convolution
      if n_elements(current_beam) eq 3 then begin
@@ -307,9 +443,8 @@ pro conv_with_gauss $
   if keyword_set(perbeam) then begin
 
      scale_fac = ppbeam_final / ppbeam_start
-     
      data *= scale_fac
-
+     message, 'Scaling factor is ratio of final/starting beam area: '+str(scale_fac), /info
   endif
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -335,6 +470,7 @@ pro conv_with_gauss $
      message, 'Flux Ratio = '+string(flux_ratio), /info
      message, 'Treated as uncertainty = '+(keyword_set(unc) ? 'yes':'no'), /info
      message, 'Corrected per beam units = '+(keyword_set(perbeam) ? 'yes':'no'), /info
+     message, 'Used an unnormalized kernel = '+(keyword_set(no_normalize) ? 'yes':'no'), /info
 
   endif
 
@@ -345,6 +481,7 @@ pro conv_with_gauss $
   sxaddpar,hdr,'BMAJ',target_beam[0]/3600.,'FWHM BEAM IN DEGREES'
   sxaddpar,hdr,'BMIN',target_beam[1]/3600.,'FWHM BEAM IN DEGREES'
   sxaddpar,hdr,'BPA',target_beam[2],'POSITION ANGLE IN DEGREES'
+
   sxaddpar,hdr,'HISTORY' $
            ,'IDL CONV_WITH_GAUSS: convolved with '+ $
            string([kernel_bmaj, kernel_bmin, kernel_bpa],format='(3f10.3)')+' pixel gaussian'
@@ -355,5 +492,30 @@ pro conv_with_gauss $
   if n_elements(out_file) gt 0 then begin
      writefits, out_file, data, hdr
   endif
+
+  if n_elements(in_weight) ne 0 then begin
+
+     if n_elements(out_weight_file) ne 0 then begin
+
+        sz_wt = size(weight)
+        sz_data = size(data)
+
+        if sz_data[0] eq 2 and sz_wt eq 2 then begin
+           writefits, out_weight_file, weight, hdr
+        endif
+
+        if sz_data[0] eq 3 and sz_wt eq 2 then begin
+           writefits, out_weight_file, weight, twod_head(hdr)
+        endif
+
+        if sz_data[0] eq 3 and sz_wt eq 3 then begin
+           writefits, out_weight_file, weight, hdr
+        endif
+        
+     endif
+     
+  endif
+
+  success = 1
 
 end

@@ -333,9 +333,10 @@ pro grid_otf $
 ; SET THE WEIGHTS OF NOT-A-NUMBER DATA TO ZERO
   if keyword_set(nan) then begin
      nan_ind = where(finite(data) eq 0, nan_ct)
-     if nan_ct gt 0 then $
+     if nan_ct gt 0 then begin
         data[nan_ind] = 0.0
         weight[nan_ind] = 0.0
+     endif
   endif else begin
      if total(finite(data) eq 0) gt 0 then begin
         message, "Not-a-number present but /nan not set.", /info
@@ -379,6 +380,13 @@ pro grid_otf $
         weight[ri[first],*] = total(this_wt,1)
 
      endfor
+
+;    clean up
+     nan_ind = where(finite(data) eq 0, nan_ct)
+     if nan_ct gt 0 then begin
+        data[nan_ind] = 0.0
+        weight[nan_ind] = 0.0
+     endif
      
   endif
     

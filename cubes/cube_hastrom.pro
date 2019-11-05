@@ -9,6 +9,9 @@ pro cube_hastrom $
 ;  Target astrometry and velocity axis
    , target_hdr = target_hdr $   
    , vaxis = target_vaxis $
+;  How to do the positional part of the interpolation
+   , pinterp=pinterp $
+   , pmissing=pmissing $
 ;  How to do the velocity part of the interpolation
    , vinterp=vinterp $
    , vmissing=vmissing $
@@ -131,6 +134,21 @@ pro cube_hastrom $
      endelse
   endelse
 
+; Defaults for the positional interpolation
+
+  if op eq 'BOT' or op eq 'POS' then begin
+
+     if n_elements(pmissing) eq 0 then $
+        pmissing = !values.f_nan
+
+     if n_elements(pinterp) eq 0 then $
+        pinterp = 2
+
+     print, pinterp, pmissing
+     print, pinterp, pmissing
+
+  endif
+
 ; Defaults for the velocity interpolation
 
   if op eq 'BOT' or op eq 'VEL' then begin
@@ -218,8 +236,8 @@ pro cube_hastrom $
 ;       Do the interpolation
 
         hastrom, this_plane, new_hdr_copy, target_hdr_copy $
-                 , missing=!values.f_nan $
-                 , interp=2, cubic=-0.5
+                 , missing=pmissing $
+                 , interp=pinterp, cubic=-0.5
 
 ;       Save the result in the data cube
 
@@ -291,7 +309,7 @@ pro cube_hastrom $
         sxaddpar, hdr_out, 'SPECSYS', sxpar(target_hdr, 'SPECSYS')
      endif
      sxaddpar, hdr_out, 'CRVAL3', target_vaxis[0]
-     sxaddpar, hdr_out, 'CRPIX3', 1
+     sxaddpar, hdr_out, 'CRPIX3', 1.0
      sxaddpar, hdr_out, 'CDELT3', target_vaxis[1]-target_vaxis[0]
      sxaddpar, hdr_out, 'NAXIS3', n_elements(target_vaxis)
 

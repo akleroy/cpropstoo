@@ -88,7 +88,7 @@ pro make_noise_cube $
 ; ZERO_ONLY              : perform only a cube-average calculation
 ; ONED_ONLY              : perform only a spectral calculation
 ; TWOD_ONLY              : perform only a map-wise calculation
-; FAST_TWOD              : perform only a map-wise calculation using
+; FAST_TWOD             : perform only a map-wise calculation using
 ; differences along the spectral axis as a measure of the noise.
 ; ROLL_FAST_TWOD         : The fast 2D algorithm uses the differences
 ; bewteen spectral channels.  This is the distance between channels to
@@ -243,6 +243,7 @@ pro make_noise_cube $
 
 ;    SHOW IF REQUESTED
      if keyword_set(show) then begin
+        ind = where(mask)
         fasthist, cube/noise_cube, /ylog
         al_legend, /top, /left, box=0, clear=0 $
                    , lines=[-99] $
@@ -265,7 +266,7 @@ pro make_noise_cube $
   endif
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
-; MEASURE POISITIONALLY DEPENDENT NOISE
+; MEASURE POSITIONALLY DEPENDENT NOISE
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
 ; SKIP THIS STEP IF DOING ONE-D ONLY
@@ -287,6 +288,7 @@ pro make_noise_cube $
      endif else begin
         step = floor(box / 2.5) > 1
      endelse
+
      xsteps = ceil(sz[1]/step/1.0)
      ysteps = ceil(sz[2]/step/1.0)
 
@@ -301,36 +303,45 @@ pro make_noise_cube $
      endif else begin
         
 ;    LOOP OVER PIXELS AND WORK OUT NOISE FOR EACH SPECTRUM
-        for i = 0, xsteps-1 do begin
-           for j = 0, ysteps-1 do begin
+     for i = 0, xsteps-1 do begin
+        for j = 0, ysteps-1 do begin
 
-              ct += 1
-              counter, ct, outof, "Line of sight "
+           ct += 1
+           counter, ct, outof, "Line of sight "
 
-              xctr = i*step
-              yctr = j*step
+           xctr = i*step
+           yctr = j*step
 
-              if box eq 0 then begin
-                 noise_ind = where(mask[i,j,*], noise_ct)
-              endif else begin
-                 lox = ((xctr - box) > 0) < (sz[1]-box-1)
-                 hix = ((xctr + box) > box) < (sz[1]-1)
-                 loy = ((yctr - box) > 0) < (sz[2]-box-1)
-                 hiy = ((yctr + box) > box) < (sz[2]-1)
-                 noise_ind = where(mask[lox:hix,loy:hiy,*], noise_ct)
-              endelse
+           if box eq 0 then begin
+              noise_ind = where(mask[i,j,*], noise_ct)
+           endif else begin
+              lox = ((xctr - box) > 0) < (sz[1]-box-1)
+              hix = ((xctr + box) > box) < (sz[1]-1)
+              loy = ((yctr - box) > 0) < (sz[2]-box-1)
+              hiy = ((yctr + box) > box) < (sz[2]-1)
+              noise_ind = where(mask[lox:hix,loy:hiy,*], noise_ct)
+           endelse
 
-              if noise_ct lt 30 then $
-                 continue
+           if noise_ct lt 30 then begin
+              continue
+           endif
 
-              if box eq 0 then begin
-                 data = (cube[xctr,yctr,*])[noise_ind]
-              endif else begin
-                 data = (cube[lox:hix,loy:hiy,*])[noise_ind]
-              endelse
+           if box eq 0 then begin
+              data = (cube[xctr,yctr,*])[noise_ind]
+           endif else begin
+              data = (cube[lox:hix,loy:hiy,*])[noise_ind]
+           endelse
 
 ;          DEFAULT ESTIMATE IS M.A.D. BASED RMS OF THE DATA
-              noise = mad(data)
+           noise = mad(data)
+           
+
+           if noise eq 0 then begin
+              message, 'Noise is zero - this is usually a bug. Stopping.', /info
+              stop
+           endif
+
+           if keyword_set(iterate) then begin
               
               if keyword_set(iterate) then begin
                  
@@ -345,23 +356,51 @@ pro make_noise_cube $
                     bisection(3., 'erf0', erftarg = (1d0-(5d-1)/sz[3]), /double)           
 
 ;             FINAL ESTIMATE (ALL DATA WITH OUTLIER REJECTION)
-                 use_ind = where(abs(data) lt sig_false*sigma)           
-                 noise = mad(data[use_ind])
-              endif
+              use_ind = where(abs(data) lt sig_false*sigma)           
+              noise = mad(data[use_ind])
+           endif
 
-              if box eq 0 then begin
-                 noise_map[i,j] = noise
+           if box eq 0 then begin
+              noise_map[i,j] = noise
+           endif else begin
+              if n_elements(xctr_vec) eq 0 then begin 
+                 xctr_vec = [xctr]
+                 yctr_vec = [yctr]
+                 noise_vec = [noise]
               endif else begin
-                 lofill_x = (xctr-ceil(step/2)) > 0 
-                 hifill_x = (xctr+ceil(step/2)) < (sz[1]-1)
-                 lofill_y = (yctr-ceil(step/2)) > 0 
-                 hifill_y = (yctr+ceil(step/2)) < (sz[2]-1)
-                 noise_map[lofill_x:hifill_x,lofill_y:hifill_y] = noise
-              endelse
+                 xctr_vec = [xctr_vec, xctr]
+                 yctr_vec = [yctr_vec, yctr]
+                 noise_vec = [noise_vec, noise]
+              endelse                 
+;              lofill_x = (xctr-ceil(step/2)) > 0 
+;              hifill_x = (xctr+ceil(step/2)) < (sz[1]-1)
+;              lofill_y = (yctr-ceil(step/2)) > 0 
+;              hifill_y = (yctr+ceil(step/2)) < (sz[2]-1)
+;              noise_map[lofill_x:hifill_x,lofill_y:hifill_y] = noise
+           endelse
 
-           endfor
         endfor
-     endelse
+     endfor
+
+     if box ne 0 then begin
+        
+        noise_map = finite(cube[*,*,0])*0.0
+        wt_map = finite(cube[*,*,0])*0.0
+
+        noise_map[xctr_vec, yctr_vec] = noise_vec
+        wt_map[xctr_vec, yctr_vec] = 1.0
+        
+        sz_noise_map = size(noise_map)
+        box_size = (3*box+1) < (sz[1] < sz[2])
+        psf = psf_gaussian(npix=box_size, fwhm=box, /norm)
+        val = convol(noise_map, psf, /nan, missing=0.0, /edge_trunc)
+        wt = convol(wt_map, psf, /nan, missing=0.0, /edge_trunc)
+        noise_map = val/wt
+        nan_map = total(finite(cube),3) eq 0
+        noise_map[where(nan_map)]= !values.f_nan
+
+     endif
+
      if keyword_set(show) then begin
         disp, noise_map, /sq, title="Noise Map"
         contour, noise_map, lev=median(noise_map)*[0.5,1.0,2.0], /overplot
@@ -374,8 +413,9 @@ pro make_noise_cube $
 
 ;    EXIT IF ONLY TWO DIMENSIONS ARE REQUESTED
      if keyword_set(twod_only) then begin
+
         if keyword_set(show) then begin
-           fasthist, cube/noise_cube, /ylog
+           fasthist, cube/noise_cube, /ylog, yrange=[1., (n_elements(cube))], ystyle=16
            al_legend, /top, /left, box=0, clear=0 $
                       , lines=[-99] $
                       , str(mad(cube/noise_cube),format='(G10.3)')
@@ -403,10 +443,10 @@ pro make_noise_cube $
   noise_spec = fltarr(sz[3])*!values.f_nan
 
 ; WORK OUT STEP SIZES
-  if SPEC_box eq 0 then begin
+  if spec_box eq 0 then begin
      step = 1
   endif else begin
-     step = floor(box / 2.5) > 1
+     step = floor(spec_box / 2.5) > 1
   endelse
   zsteps = ceil(sz[3]/step)
 
@@ -465,7 +505,7 @@ pro make_noise_cube $
         noise_spec[i] = noise
      endif else begin
         lofill_z = (zctr-ceil(step/2)) > 0 
-        hifill_z = (zctr+ceil(step/2)) < (sz[1]-1)
+        hifill_z = (zctr+ceil(step/2)) < (sz[3]-1)
         noise_spec[lofill_z:hifill_z] = noise
      endelse
 
@@ -537,10 +577,11 @@ pro make_noise_cube $
   endfor
 
   if keyword_set(show) then begin
-     fasthist, cube/noise_cube
+     ind = where(mask)
+     fasthist, (cube/noise_cube)[ind]
      al_legend, /top, /left, box=0, clear=0 $
                 , lines=[-99] $
-                , str(mad(cube/noise_cube),format='(G10.3)')
+                , str(mad((cube/noise_cube)[ind]),format='(G10.3)')
   endif
 
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%

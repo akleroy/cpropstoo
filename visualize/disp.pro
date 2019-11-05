@@ -2,7 +2,9 @@ pro disp, im, xin, yin, min = mn, max = mx, position = pos, $
           _ref_extra = ex, noerase = noerase, noplot = noplot, $
           radec = radec, n_ticks = n_ticks, aspect = aspect, $
           reserve = reserve, squarepix = squarepix, tvtop=tvtop, $
-          missing = missval, true=true
+          missing = missval, true=true, directtv=directtv $
+          , nomatch_axes = nomatch_axes
+         
 ;+
 ; NAME:
 ;   disp
@@ -14,8 +16,8 @@ pro disp, im, xin, yin, min = mn, max = mx, position = pos, $
 ;
 ; INPUTS:
 ;   IMAGE - The array to be displayed.  
-;   XIN - Vector containing the x-values correponding to the array's
-;         first axis
+;   XIN - Vector containing the x-values corresponding to the array's
+;         first axis.
 ;   YIN - Vector containing the y-values correponding to the array's
 ;         second axis
 ;
@@ -85,8 +87,10 @@ pro disp, im, xin, yin, min = mn, max = mx, position = pos, $
   endif
 
   if n_elements(size(im, /dim)) ne 2 then begin
-    message, 'Image not two dimensions.  Returning...', /continue
-    return
+     if keyword_set(directtv) eq 0 then begin
+        message, 'Image not two dimensions.  Returning...', /continue
+        return
+     endif
   endif
 
   if size(im, /tname) eq 'COMPLEX' then begin
@@ -101,14 +105,34 @@ pro disp, im, xin, yin, min = mn, max = mx, position = pos, $
   reserve = reserve+2 < !d.table_size-2
 
   image = im
-  imsize = size(image)
+  if keyword_set(directtv) then begin
+     imsize = size(reform(image[0,*,*]))
+  endif else begin
+     imsize = size(image)
+  endelse
 
-  if keyword_set(squarepix) then aspect = float(imsize[2])/imsize[1]
+  if keyword_set(squarepix) then begin
+     aspect = float(imsize[2])/imsize[1]
+  endif
 
   if (n_elements(xin) eq 0) then xin = findgen(imsize[1]+1)
   if (n_elements(yin) eq 0) then yin = findgen(imsize[2]+1)
-  x = xin
-  y = yin
+
+  if (n_elements(xin) eq imsize[1]) and $
+     (keyword_set(nomatch_axes) eq 0) then begin
+     deltax = xin[1]-xin[0]
+     x = [xin[0]-deltax*0.5,xin+deltax*0.5]
+  endif else begin
+     x = xin
+  endelse
+     
+  if (n_elements(yin) eq imsize[2]) and $
+     (keyword_set(nomatch_axes) eq 0) then begin
+     deltay = yin[1]-yin[0]
+     y = [yin[0]-deltay*0.5,yin+deltay*0.5]
+  endif else begin
+     y = yin
+  endelse
 
 ; Eliminate pathological pixels, set to background color.
   err_pix = where(finite(image) ne 1)
@@ -183,13 +207,35 @@ pro disp, im, xin, yin, min = mn, max = mx, position = pos, $
   if not keyword_set(tvtop) then begin
      if (!d.name eq 'PS') then begin
         if not keyword_set(noplot) then begin
-           tv, bytim, x0/!d.x_px_cm, y0/!d.y_px_cm $
-               , xsize = (x1-x0)/!d.x_px_cm, $ 
-               ysize = (y1-y0)/!d.y_px_cm, /centimeters
+           if keyword_set(directtv) then begin
+              tv, im, x0/!d.x_px_cm, y0/!d.y_px_cm $
+                  , xsize = (x1-x0)/!d.x_px_cm, $ 
+                  ysize = (y1-y0)/!d.y_px_cm, /centimeters $
+                  , true=1
+           endif else begin
+              tv, bytim, x0/!d.x_px_cm, y0/!d.y_px_cm $
+                  , xsize = (x1-x0)/!d.x_px_cm, $ 
+                  ysize = (y1-y0)/!d.y_px_cm, /centimeters
+           endelse
         endif
      endif else begin
-        bytim = congrid(bytim, ((x1-x0)/sfac), ((y1-y0)/sfac))
-        if not keyword_set(noplot) then tv, bytim, x0, y0
+        if keyword_set(directtv) then begin     
+           plane1 = congrid(reform(im[0,*,*]), ((x1-x0)/sfac), ((y1-y0)/sfac))
+           plane2 = congrid(reform(im[1,*,*]), ((x1-x0)/sfac), ((y1-y0)/sfac))
+           plane3 = congrid(reform(im[2,*,*]), ((x1-x0)/sfac), ((y1-y0)/sfac))
+           scratch_sz = size(plane1)
+           showim = intarr(3, scratch_sz[1], scratch_sz[2])
+           showim[0,*,*] = plane1
+           showim[1,*,*] = plane2
+           showim[2,*,*] = plane3
+           tv, showim, x0/!d.x_px_cm, y0/!d.y_px_cm $
+               , xsize = (x1-x0)/!d.x_px_cm, $ 
+               ysize = (y1-y0)/!d.y_px_cm, /centimeters $
+               , true=1
+        endif else begin
+           bytim = congrid(bytim, ((x1-x0)/sfac), ((y1-y0)/sfac))
+           if not keyword_set(noplot) then tv, bytim, x0, y0
+        endelse
      endelse
   endif
 

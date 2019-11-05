@@ -210,7 +210,7 @@ function shuffle $
 
   no_overlap_ct = 0L
 
-  for ii = 0, n_spec-1 do begin
+  for ii = 0L, n_spec-1 do begin
 
      if keyword_set(quiet) eq 0 then $
         if ii mod 100 eq 0 then $

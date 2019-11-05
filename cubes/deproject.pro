@@ -1,5 +1,9 @@
-pro deproject, ra, dec, galpos, RGRID = rgrid, TGRID = tgrid $
-               , XGRID = deproj_x, YGRID = deproj_y, VECTOR = vector, GAL=gal
+pro deproject $
+   , ra, dec, galpos $
+   , RGRID = rgrid, TGRID = tgrid $
+   , XGRID = deproj_x, YGRID = deproj_y, VECTOR = vector $
+   , GAL=gal
+
                   
 ;+ 
 ; NAME: deproject
@@ -54,6 +58,8 @@ pro deproject, ra, dec, galpos, RGRID = rgrid, TGRID = tgrid $
 ;    Adam Leroy < leroy@mpia-hd.mpg.de Mon, Oct 1, 2007
 ;   Eats galaxy structures and takes 4 element galpo
 ;    Adam Leroy < leroy@mpia-hd.mpg.de Mon, Apr 7, 2008
+;   Fixed case that straddles ra=0. Surprisingly, never came up.
+;    Adam Leroy
 ;-
 
 ; EXPAND THE GALAXY ORIENTATION VECTOR
@@ -90,6 +96,14 @@ pro deproject, ra, dec, galpos, RGRID = rgrid, TGRID = tgrid $
       rimg = ra
       dimg = dec
   endelse
+
+; DEAL WITH UNWRAPPING THE CASE WHERE WE SIT NEAR THE 0 RA BOUNDARY
+  if (max(rimg,/nan) - min(rimg,/nan)) gt 300. then begin
+     rimg = rimg*(rimg lt 180.) - (360. - rimg)*(rimg ge 180.)
+  endif
+
+; IN THEORY WE ALSO HAVE ISSUES NEAR THE POLES. THESE ARE HARDER TO
+; DEAL WITH GIVEN THE HACK BELOW. P.A. ALSO BECOMES POORLY DEFINED...
 
 ; RECAST THE RA AND DEC ARRAYS IN TERMS OF THE CENTERS
 ; ARRAYS ARE NOW IN DEGREES FROM CENTER

@@ -5,7 +5,10 @@ function sample_at_res $
    , dec_samp = dec_samp $
    , target_res_as = target_res_as $
    , target_hdr = target_hdr $
-   , show=show
+   , coverage = coverage $
+   , rms = rms $
+   , show=show $
+   , nointerp=nointerp
   
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 ; DEFAULTS AND DEFINITIONS
@@ -72,6 +75,12 @@ function sample_at_res $
      message, "Already at target resolution.", /info
   endelse
 
+; Measure the rms in the map after convolution but before
+; alignment. This isn't really ideal but can be a useful
+; shorthand for the noise.
+
+  rms = mad(data)
+
 ; Align (if needed)
 
   if n_elements(target_hdr) ne 0 then begin
@@ -112,20 +121,31 @@ function sample_at_res $
   endif
 
   if is_cube then begin     
-     result = fltarr(n_pts, sz[3])*!values.f_nan
+     result = fltarr(n_pts, sz[3])*!values.f_nan     
   endif else begin
      result = fltarr(n_pts)*!values.f_nan
   endelse
-  
+
+  coverage = fltarr(n_pts)*0.0
+
   in_map = $
      where((x_samp gt 0) and (x_samp lt sz[1]) and $
            (y_samp gt 0) and (y_samp lt sz[2]), in_map_ct)
   if in_map_ct gt 0 then begin 
      if is_cube then begin     
-        for kk = 0, in_map_ct-1 do $
+        for kk = 0, in_map_ct-1 do begin
            result[in_map[kk],*] = data[x_samp[in_map[kk]], y_samp[in_map[kk]], *]
+           coverage[in_map[kk]] = $
+              total(finite(data[x_samp[in_map[kk]], y_samp[in_map[kk]], *])) ge 1
+        endfor
      endif else begin
-        result[in_map] = data[x_samp[in_map], y_samp[in_map]]
+        if keyword_set(nointerp) then begin
+           result[in_map] = data[x_samp[in_map], y_samp[in_map]]
+           coverage[in_map] = finite(data[x_samp[in_map], y_samp[in_map]])
+        endif else begin
+           result[in_map] = data[x_samp[in_map], y_samp[in_map]]
+           coverage[in_map] = finite(data[x_samp[in_map], y_samp[in_map]])
+        endelse
      endelse
   endif
 
