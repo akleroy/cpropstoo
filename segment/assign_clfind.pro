@@ -13,12 +13,16 @@ pro assign_clfind $
    , assign=assign $
    , verbose=verbose $
    , spacing=spacing $
-   , minlev=minlev
+   , minlev=minlev $
+   , vweight=vweight $
+   , histeq=histeq $
+   , nlevels=nlevels
 
 ; NB - assumes equal weighting for velocity and spatial pixel; we may
 ;      want to add the ability to weight distance in spatial pixels
 ;      relative to distance in velocity pixels. In the case of a
 ;      weirdly sampled cube this is a big deal...
+;      Use vweight to change this.
 
 ; Potentially allow levels set by hand.
 ;
@@ -30,6 +34,8 @@ pro assign_clfind $
 ; READ IN THE DATA
 ; &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 
+  if n_elements(vweight) eq 0 then vweight = 1.0 
+  
   if n_elements(infile) gt 0 then begin
      file_data = file_search(infile, count=file_ct)
      if file_ct eq 0 then begin
@@ -145,12 +151,22 @@ pro assign_clfind $
 ; %&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&
 
 ; CALCULATE LEVELS TO WORK WITH
+
+  if keyword_set(histeq) then begin
+  levels = $
+     contour_values( $
+     minicube $
+     , /histeq $
+     , nlevels=nlevels $
+     , minval=minlev)
+  endif else begin
   levels = $
      contour_values( $
      minicube $
      , /linspace $
      , spacing=spacing $
      , minval=minlev)
+  endelse
   nlev = n_elements(levels)
 
 ; INITIALIZE AN OUTPUT ASSIGNMENT CUBE
@@ -176,7 +192,7 @@ pro assign_clfind $
      endif
 
 ;    LABEL REGIONS FOR THIS CONTOUR    
-     reg = label_region(minicube ge levels[i])
+     reg = label_region(minicube ge levels[i], /ulong)
      n_reg = max(reg)
      reg_done = bytarr(n_reg+1) ; ... 0 IS NOT USED, DO 1 INDEX FOR EASE OF REFERENCE
 
@@ -245,7 +261,7 @@ pro assign_clfind $
 ;             FIGURE OUT THE DISTANCE BETWEEN EACH PIXEL AND THIS KERNEL
               dist = (shared_x -minikern_x[kern_ind[k]])^2 + $
                      (shared_y -minikern_y[kern_ind[k]])^2 + $
-                     (shared_v -minikern_v[kern_ind[k]])^2
+                     vweight^2*(shared_v -minikern_v[kern_ind[k]])^2
 
               if k eq 0 then begin
 ;                FOR THE FIRST KERNEL, INITIALIZE THE ASSIGNMENT AND DISTANCE

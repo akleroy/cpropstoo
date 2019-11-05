@@ -270,7 +270,6 @@ function grow_mask $
                            , rad=radius_in $
                            , xy_only = xy_only $
                            , z_only = z_only)
-
 ;    Dilate the mask
      mask = dilate(mask, struct)
      mask *= constraint

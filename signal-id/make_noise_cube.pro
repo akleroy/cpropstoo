@@ -13,9 +13,11 @@ pro make_noise_cube $
    , zero_only = zero_only $
    , oned_only = oned_only $
    , twod_only = twod_only $
+   , fast_twod = fast_twod $
+   , roll_fast_twod = roll_fast_twod $
    , collapse = collapse $
    , show = show
-   
+  
 
 ; --- CHECK ON NORMALIZATION OF SPECTRAL AXIS
 ; --- CHECK ON HANDLING OF EDGES IN CASE OF "BOX"
@@ -86,6 +88,12 @@ pro make_noise_cube $
 ; ZERO_ONLY              : perform only a cube-average calculation
 ; ONED_ONLY              : perform only a spectral calculation
 ; TWOD_ONLY              : perform only a map-wise calculation
+; FAST_TWOD             : perform only a map-wise calculation using
+; differences along the spectral axis as a measure of the noise.
+; ROLL_FAST_TWOD         : The fast 2D algorithm uses the differences
+; bewteen spectral channels.  This is the distance between channels to
+; consider.  It should be larger than the correlation of the
+; spectrometer but as small as possible.  Default = 2.
 ; COLLAPSE               : collapse the output (only the variables) if 0d, 1d, or 2d set
 ; SHOW                   : visualize the results
 ;
@@ -149,8 +157,8 @@ pro make_noise_cube $
      noise_hdr = cube_hdr
      sxdelpar, noise_hdr, "HISTORY"
      sxaddpar, noise_hdr $
-              , "HISTORY" $
-              , "Now holds estimates of local RMS noise."
+               , "HISTORY" $
+               , "Now holds estimates of local RMS noise."
   endelse
 
 ; INITIALIZE PLOTTING
@@ -285,7 +293,15 @@ pro make_noise_cube $
      ysteps = ceil(sz[2]/step/1.0)
 
      outof = long(xsteps*ysteps)
-     
+
+     if keyword_set(fast_twod) then begin
+        message,'This is an experimental, fast 2D approach.'+$
+                ' I too like to live dangerously.', /con
+        if n_elements(roll_fast_twod) ne 1 then roll_fast_twod = 2 
+        noise_map = mad(cube - shift(cube, 0, 0, roll_fast_twod), $
+                        dimension=3) / sqrt(2)
+     endif else begin
+        
 ;    LOOP OVER PIXELS AND WORK OUT NOISE FOR EACH SPECTRUM
      for i = 0, xsteps-1 do begin
         for j = 0, ysteps-1 do begin
@@ -327,15 +343,17 @@ pro make_noise_cube $
 
            if keyword_set(iterate) then begin
               
+              if keyword_set(iterate) then begin
+                 
 ;             FIRST ESTIMATE (FROM ONLY THE NEGATIVES)
-              neg_ind = where(data lt 0, neg_ct)
-              if (neg_ct lt 25) then continue
-              sigma = mad([data[neg_ind], -1.*data[neg_ind]])
+                 neg_ind = where(data lt 0, neg_ct)
+                 if (neg_ct lt 25) then continue
+                 sigma = mad([data[neg_ind], -1.*data[neg_ind]])
 
 ;             IDENTIFY A REASONABLE OUTLIER CRITERIA
 ;             (HONESTLY 3 SIGMA REJECTION WOULD PROBABLY BE FINE)
-              sig_false = $
-                 bisection(3., 'erf0', erftarg = (1d0-(5d-1)/sz[3]), /double)           
+                 sig_false = $
+                    bisection(3., 'erf0', erftarg = (1d0-(5d-1)/sz[3]), /double)           
 
 ;             FINAL ESTIMATE (ALL DATA WITH OUTLIER REJECTION)
               use_ind = where(abs(data) lt sig_false*sigma)           
@@ -403,13 +421,13 @@ pro make_noise_cube $
                       , str(mad(cube/noise_cube),format='(G10.3)')
         endif
 
-        if n_elements(noise_file) gt 0 then begin           
-           writefits, noise_file, noise_cube, noise_hdr
-        endif
-
 ;       COLLAPSE TO TWO DIMENSIONS
         if keyword_set(collapse) then begin
            noise_cube = median(noise_cube, dimension=3, /even)
+        endif
+
+        if n_elements(noise_file) gt 0 then begin           
+           writefits, noise_file, noise_cube, noise_hdr
         endif
 
         return
